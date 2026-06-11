@@ -128,12 +128,13 @@ import { fetchCart } from "@/store/slices/cartSlice"
 import { getToken } from "@/utils/token"
 
 
+
 const MainLayout = () => {
   const [open, setOpen] = useState(false);
   console.log("MainLayout render");
 
   const dispatch = useDispatch();
-
+  
   // useEffect(() => { if (!user) return; dispatch(fetchCart()); }, [user]);
 
   useEffect(() => {
@@ -146,7 +147,7 @@ const MainLayout = () => {
 
   }, []);
 
-
+ 
 
   return (
     <div className="h-screen flex flex-col bg-gray-100 overflow-hidden">

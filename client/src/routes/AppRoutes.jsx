@@ -13,7 +13,7 @@ import RoleRoutes from '../guards/RoleRoute';
 //user 
 import Profile from '../pages/user/Profile';
 import Cart from '../pages/cart/Cart';
-import Wishlist from '../pages/wishlist/Wishlist';
+import Wishlist from '@/pages/wishlist/Wishlist';
 import Checkout from '@/pages/order/CheckOut';
 import OrderSuccess from '@/pages/order/OrderSuccess';
 import Orders from '@/pages/order/Orders';
@@ -31,6 +31,7 @@ import SellerOrders from "../pages/seller/Orders"
 import ProductsCreate from '@/pages/products/ProductsCreate';
 import ProductUpdate from '@/pages/products/ProductsUpdate';
 import OrderDetails from '@/pages/order/OrderDetails';
+
 
 
 

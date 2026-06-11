@@ -364,10 +364,12 @@ import {
   MapPinIcon,
   Bars3Icon
 } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import useProducts from "@/hooks/useProducts";
 import useCart from "@/hooks/useCart";
+import { Heart } from "lucide-react";
+import useWishlist from "@/hooks/useWishlist";
 
 const Navbar = ({ setOpen }) => {
   console.log("Navbar render");
@@ -375,6 +377,8 @@ const Navbar = ({ setOpen }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { filters, setFilter, clearFilter } = useProducts();
+  const { wishlistItems, getWishlist } = useWishlist();
+
 
   const [search, setSearch] = useState(filters.search || "");
   // const [showSuggestions, setShowSuggestions] = useState(false);
@@ -384,6 +388,9 @@ const Navbar = ({ setOpen }) => {
   // const categories = ["All", "Electronics", "Fashion", "Home", "Books"];
   // const suggestions = ["iPhone", "Laptop", "Shoes", "Headphones", "Watch"];
   const { items } = useCart();
+  
+  
+
   const cartCount = items.reduce(
     (sum, item) => sum + item.quantity,
     0
@@ -417,6 +424,12 @@ const Navbar = ({ setOpen }) => {
   // }, [search, setFilter]);
 
   useEffect(() => {
+    getWishlist();
+  }, [user]);
+
+
+
+  useEffect(() => {
     if (!search.trim()) return;
 
     const timer = setTimeout(() => {
@@ -425,6 +438,7 @@ const Navbar = ({ setOpen }) => {
 
     return () => clearTimeout(timer);
   }, [search]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -570,6 +584,20 @@ const Navbar = ({ setOpen }) => {
           </span>
         )}
       </div>
+
+      <Link
+        to="/wishlist"
+        className="relative flex items-center"
+      >
+        <Heart className="h-6 w-6" />
+
+        {wishlistItems.length > 0 && (
+          <span className="absolute -top-2 -right-2 flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-xs bg-red-500 text-white px-1">
+            {wishlistItems.length}
+          </span>
+        )}
+      </Link>
+
 
       {/* 👤 AUTH */}
       {!user ? (

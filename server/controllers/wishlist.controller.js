@@ -7,6 +7,10 @@ const getVariant = (product, sku) => {
     return product.variants.find(v => v.sku === sku);
 };
 
+const getUserWishlist = async (userId) => {
+    return await Wishlist.findOne({ user: userId })
+        .populate("items.product", "title images price");
+};
 
 const toggleWishlist = async (req, res) => {
     try {
@@ -45,10 +49,12 @@ const toggleWishlist = async (req, res) => {
                     }
                 }
             );
+            const wishlist = await getUserWishlist(userId);
 
             return res.status(200).json({
                 success: true,
-                message: "Removed from wishlist"
+                message: "Removed from wishlist",
+                wishlist
             });
         }
 
@@ -62,10 +68,13 @@ const toggleWishlist = async (req, res) => {
             { upsert: true } //create wishlist if not exist
         )
 
+        const wishlist = await getUserWishlist(userId);
 
         return res.status(200).json({
             success: true,
-            message: "Added to wishlist"
+            message: "Added to wishlist",
+            wishlist
+
         })
 
     } catch (error) {
@@ -83,6 +92,8 @@ const getWishlist = async (req, res) => {
         const wishlist = await Wishlist.findOne({ user: userId })
             .populate("items.product", "title images price");
 
+        console.log("getWishlist=>", wishlist); 
+
         res.json({
             success: true,
             wishlist: wishlist || { items: [] }
@@ -90,7 +101,8 @@ const getWishlist = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
+            wishlist
         })
     }
 }
@@ -98,11 +110,11 @@ const getWishlist = async (req, res) => {
 const removeFromWishlist = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { productId } = req.params;
+        const { productId, variantSku } = req.params;
 
         const result = await Wishlist.updateOne(
             { user: userId },
-            { $pull: { items: { product: productId } } }
+            { $pull: { items: { product: productId, variantSku } } }
         );
 
         if (result.modifiedCount === 0) {
@@ -112,9 +124,11 @@ const removeFromWishlist = async (req, res) => {
             })
         }
 
+        const wishlist = await getUserWishlist(userId);
         res.json({
             success: true,
-            message: "remove successfully from wishlist"
+            message: "remove successfully from wishlist",
+            wishlist
         })
 
     } catch (error) {
@@ -134,14 +148,18 @@ const clearWishlist = async (req, res) => {
             { $set: { items: [] } }
         );
 
+        const wishlist = await getUserWishlist(userId);
+
         res.json({
             success: true,
-            message: "Wishlist cleared"
+            message: "Wishlist cleared",
+            wishlist
         })
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message
+            message: error.message,
+
         })
     }
 }
@@ -186,7 +204,7 @@ const moveWishlistToCart = async (req, res) => {
             { session }
         );
 
-        const cart = await Cart.findOne({ user: userId }).session(session);
+        let cart = await Cart.findOne({ user: userId }).session(session);
 
         if (!cart) {
             cart = new Cart({
@@ -231,10 +249,12 @@ const moveWishlistToCart = async (req, res) => {
         await cart.save({ session });
         await session.commitTransaction();
 
+        const wishlist = await getUserWishlist(userId);
 
         res.status(200).json({
             success: true,
             message: "Moved from wishlist to cart",
+            wishlist,
             cart
         });
 

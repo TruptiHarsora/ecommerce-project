@@ -4,11 +4,25 @@ import { useNavigate } from 'react-router-dom'
 import useAuth from '@/hooks/useAuth';
 import useProducts from '@/hooks/useProducts';
 import useCart from '@/hooks/useCart';
+import useWishlist from '@/hooks/useWishlist';
+import { HeartIcon } from '@heroicons/react/24/outline';
+import { Heart } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
     const nav = useNavigate();
     const { user } = useAuth();
     const { addToCart, loading } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
+
+    const selectedVariant = product.variants?.[0];
+    const variantSku = selectedVariant?.sku;
+
+    const inWishlist = isInWishlist(
+        product._id,
+        variantSku
+    );
+
+
     const formatPrice = (price) => {
 
         const amount = Number(price || 0);
@@ -59,7 +73,7 @@ const ProductCard = ({ product }) => {
         <>
 
             {/* <div className="grid grid-cols-1 gap-x-6 gap-y-10  " onClick={() => nav(`/product/${product._id}`)}> */}
-            <div className="bg-white
+            {/* <div className="bg-white
     rounded-xl
     shadow-sm
     hover:shadow-lg
@@ -67,7 +81,12 @@ const ProductCard = ({ product }) => {
     duration-300
     cursor-pointer
     overflow-hidden
-    borderp-1 py-2" onClick={() => nav(`/product/${product._id}`)}>
+    borderp-1 py-2" onClick={() => nav(`/product/${product._id}`)}> */}
+
+            <div
+                className="relative bg-white rounded-xl shadow-sm hover:shadow-lg transition duration-300 cursor-pointer overflow-hidden p-2"
+                onClick={() => nav(`/product/${product._id}`)}
+            >
 
                 {/* 
                 < img
@@ -82,16 +101,35 @@ const ProductCard = ({ product }) => {
                     className="h-auto w-full object-cover" />
                 <h3 className="mt-4 text-sm text-gray-700">{product.title}</h3>
                 <p className="mt-1 text-lg font-medium text-gray-900">{formatPrice(product.sellers?.[0]?.price)}</p>
-                <Button className="bg-yellow-500 hover:bg-yellow-400 text-black"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart();
-                        // console.log("Add to cart clicked", product);
+                <div>
+                    <Button className="bg-yellow-500 hover:bg-yellow-400 text-black"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart();
+                            // console.log("Add to cart clicked", product);
 
-                        // nav("/cart");
-                    }} disabled={loading.add} >
-                    {loading.add ? "Adding..." : "Add To Cart"}
-                </Button>
+                            // nav("/cart");
+                        }} disabled={loading.add} >
+                        {loading.add ? "Adding..." : "Add To Cart"}
+                    </Button>
+
+                    <Button variant="outline"
+                        // className="border-red-500 text-red-500 hover:bg-red-50"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist({ product: product._id, variantSku, });
+                        }}
+                        className="absolute top-3 right-3 z-10"
+                    >
+                        <HeartIcon
+                            className={`h-6 w-6 transition ${inWishlist
+                                ? "fill-red-500 text-red-500"
+                                : "text-gray-500"
+                                }`}
+                        />
+                    </Button>
+                </div>
+
 
                 {/* <Button
                     onClick={handleAddToCart}

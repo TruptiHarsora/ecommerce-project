@@ -27,7 +27,7 @@ router.post("/", validate(toggleWishlistValidator, "body"), toggleWishlist);
 router.get("/", getWishlist);
 router.delete("/:productId/:variantSku", removeFromWishlist);
 router.post("/move", validate(moveToCartValidator, "body"), moveWishlistToCart);
-
+router.delete("/clear", clearWishlist);
 
 // router.post(
 //   "/move-all",
