@@ -32,9 +32,9 @@ const { JWT_ACCESS_SECRET } = require("../config/config");
 //     }
 // }
 
-const AuthMiddle_User = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
     try {
-        // console.log("🔥 AUTH MIDDLEWARE HIT");
+        console.log("🔥 AUTH MIDDLEWARE HIT");
         const AuthHeader = req.headers.authorization;
         // console.log("AuthHeader: ", AuthHeader);
 
@@ -80,4 +80,4 @@ const AuthMiddle_User = async (req, res, next) => {
 
 }
 
-module.exports = AuthMiddle_User;
+module.exports = authMiddleware;

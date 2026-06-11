@@ -32,11 +32,6 @@ const userSchema = new mongoose.Schema({
         validate: [validator.isEmail, "Invalid Email"]
     },
     password: { type: String, required: true, minlength: 6 },
-    role: {
-        type: String,
-        enum: ['user', 'seller', 'admin'],
-        default: 'user'
-    },
     phone: {
         type: String,
         validate: {
@@ -46,21 +41,33 @@ const userSchema = new mongoose.Schema({
     },
     avatar: String,
     addresses: [addressSchema],
+    role: {
+        type: String,
+        enum: ['user', 'seller', 'admin'],
+        default: 'user'
+    },
+    // newly add this into seller schema
     sellerProfile: {
-        type: sellerProfileSchema,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Seller",
         default: null
     },
+    // sellerProfile: {
+    //     type: sellerProfileSchema,
+    //     default: null
+    // },
     refreshToken: { type: String },
     isVerified: { type: Boolean, default: false },
-    lastLogin: Date
+    lastLogin: Date,
+    passwordChangeAt: Date
 }, { timestamps: true });
 
 //hash password
-userSchema.pre("save", async function(next){
+userSchema.pre("save", async function (next) {
     // if(!this.isModified("password")) return next();
-    if(!this.isModified("password")) return ;
+    if (!this.isModified("password")) return;
 
-    this.password = await bcrypt.hash(this.password,12);
+    this.password = await bcrypt.hash(this.password, 12);
     // next();
 });
 
@@ -77,7 +84,7 @@ userSchema.pre("save", async function(next){
 // });
 
 //Hide password
-userSchema.methods.toJSON = function(){
+userSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.password;
     return obj;
@@ -85,7 +92,7 @@ userSchema.methods.toJSON = function(){
 
 //compare password
 
-userSchema.methods.comparePassword = async function(password){
+userSchema.methods.comparePassword = async function (password) {
     return bcrypt.compare(password, this.password);
 }
 

@@ -14,6 +14,9 @@ module.exports = {
     API_SECRET: process.env.API_SECRET,
     CLOUD_NAME: process.env.CLOUD_NAME,
     EMAIL_USER: process.env.EMAIL_USER,
-    EMAIL_PASS: process.env.EMAIL_PASS
+    EMAIL_PASS: process.env.EMAIL_PASS,
+    CGST:process.env.CGST,
+    SGST:process.env.SGST,
+    IGST:process.env.IGST
 
 }

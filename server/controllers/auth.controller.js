@@ -30,19 +30,23 @@ const register = async (req, res) => {
         const user = await User.create(req.body);
         // console.log("register user: ", user);
 
-        res.status(200).json({
+        res.status(201).json({
             message: "user Register Successfully",
             user
+            // user:user.toJSON()
         })
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 }
 
 const login = async (req, res) => {
     try {
+        console.log("LOGIN HIT");
+
         const { email, password } = req.body;
+        // console.log("controller email, password", email, password);
 
         if (!email || !password) {
             return res.status(400).json({
@@ -61,26 +65,30 @@ const login = async (req, res) => {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
-        // console.log("ACCESS token", accessToken);
+        console.log("ACCESS token", accessToken);
         // console.log("REFRESH token", refreshToken);
-        
+
         user.refreshToken = refreshToken;
+        user.lastLogin = new Date();
         await user.save();
 
-        res.cookie("refreshToken", refreshToken, { httpOnly: true });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true, sameSite: "strict", path: "/"
+        });
         // console.log("User", user);
         res.json({
             message: "Login sucessfully",
-            token: accessToken,
+            accessToken,
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 }
 
@@ -97,7 +105,11 @@ const logout = async (req, res) => {
             }
         }
 
-        res.clearCookie("refreshToken");
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            sameSite: "strict",
+            path: "/"
+        });
 
         return res.status(200).json({
             success: true,
@@ -113,6 +125,7 @@ const logout = async (req, res) => {
 }
 
 
+
 const refreshTokenHandler = async (req, res) => {
     try {
         const token = req.cookies.refreshToken;
@@ -121,8 +134,17 @@ const refreshTokenHandler = async (req, res) => {
             return res.status(401).json({ message: "No token" });
         }
 
-        const decoded = JWT.verify(token, JWT_REFRESH_SECRET);
-        console.log("decoded : ", decoded);
+        // const decoded = JWT.verify(token, JWT_REFRESH_SECRET);
+        // console.log("decoded : ", decoded);
+
+        try {
+            const decoded = JWT.verify(token, JWT_REFRESH_SECRET);
+        } catch (err) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid or expired refresh token"
+            });
+        }
 
         const user = await User.findById(decoded.id);
 
@@ -133,6 +155,7 @@ const refreshTokenHandler = async (req, res) => {
         const newAccessToken = generateAccessToken(user);
 
         res.json({
+            success: true,
             token: newAccessToken
         })
     } catch (error) {
