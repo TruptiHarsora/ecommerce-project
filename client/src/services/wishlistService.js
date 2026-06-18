@@ -16,6 +16,7 @@ const removeFromWishlist = async (productId, variantSku) => {
 }
 
 const moveWishlistToCart = async (payload) => {
+    console.log("payload W=>", payload);
     const res = await api.post(`/wishlist/move/`, payload);
     return res.data;
 }

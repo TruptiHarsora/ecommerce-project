@@ -243,7 +243,7 @@ const createOrder = async (req, res) => {
             if (!cart || !cart?.items?.length) {
                 throw new Error("Cart is empty");
             }
-
+            console.log("createOrder CART", cart);
             let itemTotal = 0;
             let totalDiscount = 0;
             const orderItems = [];
@@ -280,6 +280,7 @@ const createOrder = async (req, res) => {
                     title: item.title,
                     seller: item.seller,
                     variantSku: item.variantSku,
+                    variantImg: item.variantImg,
                     quantity: item.quantity,
                     price: item.priceAtTime,
                 });
@@ -624,7 +625,7 @@ const getOrderById = async (req, res) => {
             .populate("items.product", "title images")
             .populate("items.seller", "shopName");
 
-        // console.log("orderrr:", order);
+        console.log("orderrr:", order);
 
         if (!order) {
             return res.status(404).json({
@@ -660,6 +661,7 @@ const getUserOrders = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
+            
         const totalOrders = await Order.countDocuments({ user: userId });
 
         res.status(200).json({

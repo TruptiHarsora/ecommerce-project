@@ -6,6 +6,7 @@ const orderItemSchema = new mongoose.Schema({
     seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller" }, //add new
     title: String,
     variantSku: String,
+    variantImg: String,
     price: Number,
     quantity: Number,
 }, { _id: false });

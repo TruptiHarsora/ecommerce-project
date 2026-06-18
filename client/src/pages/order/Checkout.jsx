@@ -14,7 +14,7 @@ const Checkout = () => {
   const { createOrder, loading } = useOrder();
   const navigate = useNavigate();
 
-  console.log(items);
+  console.log("Chekout itms",items);
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -29,13 +29,14 @@ const Checkout = () => {
     validationSchema: checkoutValidationSchema,
 
     onSubmit: async (values) => {
-      console.log("values:", values);
+      // console.log("values:", values);
       try {
         const payload = {
           items: items.map((item) => ({
             product: item.product._id,
             seller: item.seller?._id,
             variantSku: item.variantSku,
+            variantImg: item.variantImg,
             quantity: item.quantity
           })),
           shippingAddress: {
@@ -44,10 +45,10 @@ const Checkout = () => {
           paymentInfo: { method: "cod" }
         };
 
-        console.log("Order Paylod:", payload);
+        // console.log("Order Paylod:", payload);
 
         const res = await createOrder(payload);
-        console.log("res order", res);
+        // console.log("res order", res);
 
         await fetchCart();
 

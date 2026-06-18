@@ -31,6 +31,8 @@ import SellerOrders from "../pages/seller/Orders"
 import ProductsCreate from '@/pages/products/ProductsCreate';
 import ProductUpdate from '@/pages/products/ProductsUpdate';
 import OrderDetails from '@/pages/order/OrderDetails';
+import Category from '@/pages/category/Category';
+// import Category from '@/pages/category/Categories';
 
 
 
@@ -70,6 +72,7 @@ const AppRoutes = () => {
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
+          <Route path="/admin/category" element={<Category />} />
         </Route>
       </Route>
 
@@ -78,7 +81,7 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           <Route path="/seller" element={<SellerDashboard />} />
           <Route path="/seller/product/create" element={<ProductsCreate />} />
-          {/* <Route path="/seller/product/update/:id" element={<ProductUpdate />}/> */}
+          <Route path="/seller/product/update/:id" element={<ProductUpdate />}/>
           <Route path="/seller/products" element={<SellerProducts />} />
           <Route path="/seller/orders" element={<SellerOrders />} />
         </Route>

@@ -461,8 +461,11 @@ const ProductRow = ({
                             className="flex-1"
                             size="sm"
                             variant="destructive"
-                            onClick={() =>
+                            onClick={() => {
+                                if (!window.confirm("Delete Product ?")) return;
                                 deleteProduct(product._id)
+
+                            }
                             }
                         >
                             Delete

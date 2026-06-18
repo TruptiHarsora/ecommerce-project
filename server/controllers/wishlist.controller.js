@@ -92,7 +92,7 @@ const getWishlist = async (req, res) => {
         const wishlist = await Wishlist.findOne({ user: userId })
             .populate("items.product", "title images price");
 
-        console.log("getWishlist=>", wishlist); 
+        console.log("getWishlist=>", wishlist);
 
         res.json({
             success: true,
@@ -173,12 +173,14 @@ const moveWishlistToCart = async (req, res) => {
         const { productId, variantSku } = req.body;
 
         const product = await Product.findById(productId).session(session);
+        // console.log("Product", product);
 
         if (!product || !product.isActive) {
             throw new Error("Product not available");
         }
 
         const variant = getVariant(product, variantSku);
+        // console.log("variant:", variant);
 
         if (!variant || !variant.isActive) {
             throw new Error("Invalid Variant");
@@ -188,9 +190,11 @@ const moveWishlistToCart = async (req, res) => {
         //     throw new Error("Out of Stock");
         // }
 
-        const sellerData = product.sellers.find(
-            s => s.variantSku === variantSku
+        // console.log("variantSKU:", variantSku);
+        const sellerData = product.variants.find(
+            s => s.sku === variantSku
         );
+        // console.log("SellerData", sellerData);
 
         if (!sellerData || sellerData.stock < 1) {
             throw new Error("Out of Stock");
@@ -218,6 +222,8 @@ const moveWishlistToCart = async (req, res) => {
             && item.variantSku === variantSku
         );
 
+        // console.log("Existing", existItems);
+
         if (existItems) {
             existItems.quantity += 1;
         } else {
@@ -225,6 +231,7 @@ const moveWishlistToCart = async (req, res) => {
                 product: productId,
                 variantSku,
                 quantity: 1,
+                variantImg: variant.images?.[0],
                 priceAtTime: price
             })
         }

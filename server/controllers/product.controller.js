@@ -1,4 +1,5 @@
 const Product = require("../models/Product.js");
+const Category = require("../models/Category.js");
 const slugify = require("slugify");
 const mongoose = require("mongoose");
 const scanFile = require("../utils/scanFile.js");
@@ -349,6 +350,35 @@ const createProduct = async (req, res) => {
     }
 }
 
+const getCategoryAndChildrenIds = async (categoryId) => {
+
+    const categories =
+        await Category.find()
+            .select("_id parent");
+
+    const ids = [];
+
+    const collect = (id) => {
+
+        ids.push(id);
+
+        categories.forEach((cat) => {
+
+            if (
+                cat.parent &&
+                cat.parent.toString() === id.toString()
+            ) {
+                collect(cat._id);
+            }
+
+        });
+    };
+
+    collect(categoryId);
+
+    return ids;
+};
+
 const getAllProduct = async (req, res) => {
     try {
         let { page = 1,
@@ -381,8 +411,20 @@ const getAllProduct = async (req, res) => {
 
         //search by category
         // if (category) { query.category = category; }
+        // if (category && isValidId(category)) {
+        //     query.category = category;
+        // }
+
+        // search by category + children
+
         if (category && isValidId(category)) {
-            query.category = category;
+
+            const categoryIds = await getCategoryAndChildrenIds(category);
+
+            // console.log("Selected:", category);
+            // console.log("All Categories:", categoryIds);
+
+            query.category = { $in: categoryIds };
         }
 
         //search by category 
@@ -401,7 +443,7 @@ const getAllProduct = async (req, res) => {
         //     // if (maxPrice) query.price.$lte = Number(maxPrice);
         // }
 
-        
+
         if (minPrice || maxPrice) {
             query.sellers = {
                 $elemMatch: {
@@ -463,7 +505,7 @@ const getAllProduct = async (req, res) => {
         })
 
     } catch (error) {
-         console.log(error);
+        console.log(error);
 
         res.status(500)
             .json({ success: false, message: error.message });

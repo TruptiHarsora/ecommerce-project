@@ -175,56 +175,32 @@ import {
 
 const CategoryItem = ({
    category,
-
-   // ✅ FILTER MODE
    selectable = false,
-
-   // ✅ ACTIVE CATEGORY
    selectedCategory,
-
-   // ✅ CATEGORY FILTER FUNCTION
    onSelectCategory,
-
-   // OPTIONAL
    setShowCategory,
 }) => {
 
-   // ==========================================
+
    // LOCAL STATE
-   // ==========================================
+   const [open, setOpen] = useState(false);
 
-   const [open, setOpen] =
-      useState(false);
-
-   // ==========================================
    // HAS CHILDREN
-   // ==========================================
+   const hasChildren = category.children?.length > 0;
 
-   const hasChildren =
-      category.children?.length > 0;
-
-   // ==========================================
    // CATEGORY CLICK
-   // ==========================================
-
-   // ✅ CHANGE:
    // reusable click handler
 
    const handleClick = () => {
 
       if (onSelectCategory) {
-
          onSelectCategory(category);
-
       }
 
-      // OPTIONAL
       // close dropdown
 
       if (setShowCategory) {
-
          setShowCategory(false);
-
       }
 
    };
@@ -233,9 +209,7 @@ const CategoryItem = ({
 
       <div>
 
-         {/* ========================================== */}
          {/* CATEGORY ROW */}
-         {/* ========================================== */}
 
          <div
             className="
@@ -251,18 +225,9 @@ const CategoryItem = ({
 
             {/* LEFT */}
 
-            <div
-               className="
-                  flex
-                  items-center
-                  gap-2
-                  flex-1
-               "
-            >
+            <div className=" flex items-center gap-2 flex-1" >
 
-               {/* ========================================== */}
                {/* TOGGLE ICON */}
-               {/* ========================================== */}
 
                {
                   hasChildren ? (
@@ -275,25 +240,8 @@ const CategoryItem = ({
                      >
 
                         {
-                           open ? (
-
-                              <ChevronDownIcon
-                                 className="
-                                    w-4
-                                    h-4
-                                 "
-                              />
-
-                           ) : (
-
-                              <ChevronRightIcon
-                                 className="
-                                    w-4
-                                    h-4
-                                 "
-                              />
-
-                           )
+                           open ? (<ChevronDownIcon className="w-4 h-4" />)
+                              : (<ChevronRightIcon className="w-4 h-4" />)
                         }
 
                      </button>
@@ -305,35 +253,18 @@ const CategoryItem = ({
                   )
                }
 
-               {/* ========================================== */}
                {/* CATEGORY BUTTON */}
-               {/* ========================================== */}
 
                {
                   selectable ? (
 
                      <button
                         type="button"
-
-                        // ✅ CHANGE:
-                        // filter products
                         onClick={handleClick}
-
-                        className={`
-                           text-sm
-                           transition
-                           text-left
-
-                           ${
-                              selectedCategory?._id ===
-                              category._id
-                                 ? `
-                                    text-blue-600
-                                    font-semibold
-                                  `
-                                 : `
-                                    text-gray-700
-                                  `
+                        className={`text-sm transition text-left
+                                   ${selectedCategory?._id === category._id
+                              ? `text-blue-600 font-semibold`
+                              : `text-gray-700`
                            }
                         `}
                      >
@@ -347,14 +278,9 @@ const CategoryItem = ({
                      <button
                         type="button"
                         onClick={handleClick}
-                        className="
-                           text-sm
-                           text-gray-700
-                        "
+                        className="text-sm text-gray-700 "
                      >
-
                         {category.name}
-
                      </button>
 
                   )
@@ -373,39 +299,26 @@ const CategoryItem = ({
             open && (
 
                <div
-                  className="
-                     ml-4
-                     border-l
-                     pl-2
-                  "
+                  className="ml-4 border-l pl-2"
                >
 
                   {
                      category.children.map(
                         (child) => (
-
                            <CategoryItem
                               key={child._id}
 
                               category={child}
 
-                              selectable={
-                                 selectable
-                              }
+                              selectable={selectable}
 
-                              // ✅ PASS ACTIVE CATEGORY
-                              selectedCategory={
-                                 selectedCategory
-                              }
+                             
+                              selectedCategory={selectedCategory}
 
-                              // ✅ PASS FILTER FUNCTION
-                              onSelectCategory={
-                                 onSelectCategory
-                              }
+                             
+                              onSelectCategory={onSelectCategory}
 
-                              setShowCategory={
-                                 setShowCategory
-                              }
+                              setShowCategory={setShowCategory}
                            />
 
                         )

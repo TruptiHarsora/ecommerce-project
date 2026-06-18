@@ -4,7 +4,7 @@ import {
    useState,
 } from "react";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import useProducts from "@/hooks/useProducts";
 import useCart from "@/hooks/useCart";
@@ -25,6 +25,9 @@ import { Button } from "@/components/ui/Button";
 import useAuth from "@/hooks/useAuth";
 
 const ProductDetails = () => {
+   const [searchParams] = useSearchParams();
+   const variantSku = searchParams.get("variantSku");
+   // console.log(variantSku);
 
    const { id } = useParams();
    const { user } = useAuth();
@@ -35,8 +38,9 @@ const ProductDetails = () => {
       fetchProductById,
       loading,
    } = useProducts();
-   console.log("product:", product);
-   const { addToCart, loading: cartLoading } = useCart();
+   // console.log("product:", product);
+
+   const { addToCart, loading: cartLoading, fetchCart } = useCart();
 
    const [selectedVariant, setSelectedVariant] = useState(null);
 
@@ -70,20 +74,40 @@ const ProductDetails = () => {
 
    // }, [product]);
 
+
+
+
+   // useEffect(() => {
+   //    if (!product) return;
+
+   //    const firstVariant = product?.variants?.[0];
+
+   //    setSelectedVariant(firstVariant || null);
+
+   //    setSelectedImage(
+   //       firstVariant?.images?.[0]
+   //       || product?.images?.[0]
+   //       || ""
+   //    );
+
+   // }, [product]);
+
+
+
    useEffect(() => {
       if (!product) return;
 
-      const firstVariant = product?.variants?.[0];
+      const variant = product.variants?.find(
+         (v) => v.sku === variantSku)
+         || product.variants?.[0];
 
-      setSelectedVariant(firstVariant || null);
+      setSelectedVariant(variant);
 
       setSelectedImage(
-         firstVariant?.images?.[0]
-         || product?.images?.[0]
-         || ""
+         variant?.images?.[0] || product?.images?.[0] || ""
       );
+   }, [product, variantSku]);
 
-   }, [product]);
 
    // =====================================
    // ALL IMAGES
@@ -115,6 +139,7 @@ const ProductDetails = () => {
 
    }, [product, selectedVariant]);
 
+   console.log("AllIMGES", allImages);
 
    const formatPrice = (price) => {
       const amount = Number(price || 0);
@@ -154,11 +179,12 @@ const ProductDetails = () => {
       if (product.sellers?.[0]?.stock <= 0) return;
 
       try {
-         console.log(product);
+         console.log("AddToCArt", product);
          console.log({
             product: product._id,
             seller: product.sellers?.[0]?.seller,
             variantSku: selectedVariant?.sku,
+            variantImg: allImages?.[0],
             quantity: 1
          });
 
@@ -166,8 +192,10 @@ const ProductDetails = () => {
             product: product._id,
             seller: product.sellers?.[0]?.seller,
             variantSku: selectedVariant.sku,
+            variantImg: allImages?.[0],
             quantity: 1
          });
+         fetchCart();
       } catch (error) {
          console.log(error);
 
@@ -215,7 +243,7 @@ const ProductDetails = () => {
                   ===================================== */}
 
                   {/* <div className="space-y-4"> */}
-                  <div className="flex gap-4">
+                  <div className="flex flex-col lg:flex-row gap-4">
 
                      {/* MAIN IMAGE */}
 
@@ -233,7 +261,7 @@ const ProductDetails = () => {
                               <img
                                  src={selectedImage}
                                  alt={product.title}
-                                 className="w-full h-[500px] object-contain"
+                                 className="w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] object-contain"
                               />
                            )
                         }
@@ -243,22 +271,15 @@ const ProductDetails = () => {
                      {/* THUMBNAILS */}
 
                      {/* <div className="flex flex-wrap gap-3"> */}
-                     <div className="flex lg:flex-col gap-3 order-1">
+                     <div className="flex flex-row lg:flex-col gap-3 overflow-x-auto lg:overflow-visible order-1">
 
                         {
                            allImages.map((image, index) => (
 
-                              <button
-                                 key={index}
-                                 type="button"
-                                 onClick={() =>
-                                    setSelectedImage(image)
-                                 }
-                                 className={`
-                                    w-20 h-20
-                                    border rounded-xl
-                                    overflow-hidden
-                                    transition
+                              <button key={index} type="button"
+                                 onClick={() => setSelectedImage(image)}
+                                 className={`w-16 h-16 sm:w-20 sm:h-20 border 
+                                    rounded-xl overflow-hidden transition
 
                                     ${selectedImage === image
                                        ? "border-black"
@@ -266,9 +287,7 @@ const ProductDetails = () => {
                                  `}
                               >
 
-                                 <img
-                                    src={image}
-                                    alt="thumb"
+                                 <img src={image} alt="thumb"
                                     className="w-full h-full object-cover "
                                  />
 
@@ -379,17 +398,12 @@ const ProductDetails = () => {
                                                    || product.images?.[0] || ""
                                                 );
                                              }}
-                                             className={`
-                                                border
-                                                rounded-xl
-                                                px-4 py-3
-                                                min-w-[180px]
-                                                text-left
-                                                transition
+                                             className={`border rounded-xl px-4 py-3
+                                                min-w-[180px] text-left transition
 
                                                 ${selectedVariant?._id === variant._id
-                                                   ? "bg-black text-white border-black"
-                                                   : "bg-white"}
+                                                   ? "bg-white text-black border-black border-4"
+                                                   : "bg-white border-2"}
                                              `}
                                           >
 
@@ -397,19 +411,20 @@ const ProductDetails = () => {
 
                                                 {
                                                    Object.entries(variant.attributes || {})
-                                                      .slice(0, 2)
+                                                      .slice(0, 1)
                                                       .map(([key, value]) => (
 
-                                                         <p
-                                                            key={key}
-                                                            className="text-sm"
-                                                         >
-                                                            <span className="font-medium">
-                                                               {key}:
-                                                            </span>
-                                                            {" "}
-                                                            {value}
-                                                         </p>
+                                                         <div className=" justify-items-center  ">
+                                                            <p key={key} className="text-sm ">
+                                                               <span className="font-medium">
+                                                                  {key}:
+                                                               </span>
+                                                               {" "}
+                                                               {value}
+                                                            </p>
+                                                            <img src={variant.images?.[0]} className=" w-20 h-20" />
+
+                                                         </div>
                                                       ))
                                                 }
 
@@ -451,13 +466,7 @@ const ProductDetails = () => {
 
                                                 <tr key={index} className="border-b" >
 
-                                                   <td className="
-                                                   w-[220px]
-                                                   bg-muted
-                                                   p-4
-                                                   font-medium
-                                                   text-left
-                                                ">
+                                                   <td className=" w-[220px] bg-muted p-4 font-medium text-left">
                                                       {key}
                                                    </td>
 
@@ -483,15 +492,14 @@ const ProductDetails = () => {
 
                      <div className=" flex flex-col sm:flex-row gap-4 pt-4 ">
 
-                        <Button className="  flex-1  h-12 text-base "
+                        <Button className="py-1 shadow-md shadow-gray-500/50 hover:shadow-lg hover:shadow-gray-700/50 transition-shadow duration-200 bg-yellow-500 text-black flex-1 h-12 text-base "
                            onClick={handleAddToCart}
                            disabled={cartLoading.add}
                         >
                            {cartLoading.add ? "Adding..." : "Add To Cart"}
                         </Button>
 
-                        <Button variant="outline"
-                           className=" flex-1 h-12 text-base" >
+                        <Button className="py-1 shadow-md shadow-gray-500/50 hover:shadow-lg hover:shadow-gray-700/50 transition-shadow duration-200 bg-orange-400 text-black flex-1 h-12 text-base" >
                            Buy Now
                         </Button>
 

@@ -11,7 +11,7 @@ import { Heart } from 'lucide-react';
 const ProductCard = ({ product }) => {
     const nav = useNavigate();
     const { user } = useAuth();
-    const { addToCart, loading } = useCart();
+    const { addToCart, loading, fetchCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
 
     const selectedVariant = product.variants?.[0];
@@ -41,6 +41,8 @@ const ProductCard = ({ product }) => {
             nav("/login");
             return;
         }
+
+
         const selectedVariant = product.variants?.[0];
         // if (!selectedVariant) return;
 
@@ -62,11 +64,20 @@ const ProductCard = ({ product }) => {
                 quantity: 1
             });
             console.log("Added successfully");
+            fetchCart();
             nav("/cart");
         } catch (error) {
             console.log(error);
 
         }
+    }
+    const handleWishlist = async (e) => {
+        e.stopPropagation();
+        if (!user) {
+            nav("/login");
+            return;
+        }
+        await toggleWishlist({ product: product._id, variantSku, });
     }
 
     return (
@@ -115,10 +126,7 @@ const ProductCard = ({ product }) => {
 
                     <Button variant="outline"
                         // className="border-red-500 text-red-500 hover:bg-red-50"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            toggleWishlist({ product: product._id, variantSku, });
-                        }}
+                        onClick={handleWishlist}
                         className="absolute top-3 right-3 z-10"
                     >
                         <HeartIcon

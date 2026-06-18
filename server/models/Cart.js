@@ -10,6 +10,7 @@ const cartItemSchema = new mongoose.Schema({
         ref: "Seller"
     }, // new added
     variantSku: { type: String, required: true },
+    variantImg: { type: String },
     quantity: { type: Number, default: 1 },
     priceAtTime: Number
     // }, { _id: false });

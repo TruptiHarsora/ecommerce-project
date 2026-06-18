@@ -9,15 +9,16 @@ const createProduct = createAsyncThunk("products/create", async (data) => {
 })
 
 const fetchProducts = createAsyncThunk("products/getAll", async (params) => {
-      console.log("API CALLED");
+    console.log("API CALLED");
     const res = await productServices.getAllProducts(params);
     // console.log("fetchProducta", res);
     return res;
 })
 
 const fetchProductById = createAsyncThunk("products/getById", async (id) => {
+    console.log("product by id", id);
     const res = await productServices.getProductsById(id);
-    // console.log("product by id", res);
+    console.log("product by id", res);
     return res;
     // return res.product;
 })
@@ -142,8 +143,8 @@ const productSlice = createSlice({
             })
             .addCase(fetchProductById.fulfilled, (state, action) => {
                 state.loading.single = false;
-                state.product = action.payload?.product || [];
                 console.log("fetchProductById action.payload:", action.payload.product);
+                state.product = action.payload?.product || [];
 
                 // successToast(action.payload.message || "product loaded sucessfully");
             })

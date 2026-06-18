@@ -378,6 +378,7 @@ const Navbar = ({ setOpen }) => {
   const navigate = useNavigate();
   const { filters, setFilter, clearFilter } = useProducts();
   const { wishlistItems, getWishlist } = useWishlist();
+  const { fetchCart } = useCart();
 
 
   const [search, setSearch] = useState(filters.search || "");
@@ -388,8 +389,8 @@ const Navbar = ({ setOpen }) => {
   // const categories = ["All", "Electronics", "Fashion", "Home", "Books"];
   // const suggestions = ["iPhone", "Laptop", "Shoes", "Headphones", "Watch"];
   const { items } = useCart();
-  
-  
+
+
 
   const cartCount = items.reduce(
     (sum, item) => sum + item.quantity,
@@ -425,9 +426,12 @@ const Navbar = ({ setOpen }) => {
 
   useEffect(() => {
     getWishlist();
+    // fetchCart();
   }, [user]);
 
-
+  // useEffect(() => {
+  //   fetchCart();
+  // }, [user]);
 
   useEffect(() => {
     if (!search.trim()) return;
@@ -572,8 +576,7 @@ const Navbar = ({ setOpen }) => {
 
 
       {/* 🛒 CART */}
-      <div
-        onClick={() => navigate("/cart")}
+      <Link to={!user ? "/login" : "/cart"}
         className="relative cursor-pointer"
       >
         <ShoppingCartIcon className="w-7 h-7" />
@@ -583,10 +586,9 @@ const Navbar = ({ setOpen }) => {
             {cartCount}
           </span>
         )}
-      </div>
+      </Link>
 
-      <Link
-        to="/wishlist"
+      <Link to={!user ? "/login" : "/wishlist"}
         className="relative flex items-center"
       >
         <Heart className="h-6 w-6" />

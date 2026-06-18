@@ -1,6 +1,8 @@
 import { errorToast, successToast } from "@/lib/toast";
 import cartService from "@/services/cartService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
+
 
 const fetchCart = createAsyncThunk("/cart/fetch", async () => {
     // console.log("FETCH CART API");

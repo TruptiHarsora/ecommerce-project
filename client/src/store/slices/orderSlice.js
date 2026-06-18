@@ -5,6 +5,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 const createOrder = createAsyncThunk(
     "orders/create",
     async (data) => {
+        console.log("paylod order", data);
         const res = await orderService.createOrder(data);
         return res;
     }
@@ -14,6 +15,7 @@ const fetchOrders = createAsyncThunk(
     "orders/fetch",
     async () => {
         const res = await orderService.getOrders();
+        console.log("order:", res)
         return res;
     }
 );
@@ -22,6 +24,7 @@ const fetchOrderById = createAsyncThunk(
     "orders/details",
     async (id) => {
         const res = await orderService.getOrderById(id);
+
         return res;
     }
 );

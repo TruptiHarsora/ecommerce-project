@@ -101,7 +101,7 @@ const Orders = () => {
                   <div key={item._id || index}
                     className='flex items-center gap-4 p-5 border-b last:border-b-0'
                   >
-                    <img src={item.product?.images?.[0]}
+                    <img src={item.variantImg}
                       alt={item.product?.title}
                       className='w-20 h-20 object-cover border rounded'
                     />

@@ -104,10 +104,10 @@ const CategoryDropdownItem = ({
 
                <button
                   type="button"
-                  onClick={() =>
-                     setSelectedCategory(
-                        category
-                     )
+                  onClick={() => {
+                     console.log("SELECTED:", category);
+                     setSelectedCategory(category)
+                  }
                   }
                   className={`
                      text-sm
@@ -160,7 +160,7 @@ const CategoryDropdownItem = ({
             )
          }
 
-      </div>
+      </div >
    );
 };
 
@@ -188,9 +188,7 @@ const CategoryDropdown = ({
          <button
             type="button"
             onClick={() =>
-               setShowDropdown(
-                  !showDropdown
-               )
+               setShowDropdown(!showDropdown)
             }
             className="
                w-full

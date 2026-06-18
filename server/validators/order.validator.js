@@ -6,6 +6,7 @@ const orderItemSchema = Joi.object({
   product: objectId.required(),
   seller: objectId.required(),
   variantSku: Joi.string().required(),
+  variantImg: Joi.string(),
   quantity: Joi.number().integer().min(1).max(10).required()
 });
 

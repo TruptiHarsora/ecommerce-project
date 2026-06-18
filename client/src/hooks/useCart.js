@@ -44,7 +44,7 @@ const useCart = () => {
 
     // useEffect(() => {
     //     dispatch(fetchCart());
-    // }, [dispatch]);
+    // }, [items]);
 
     const updateCart = (itemId, data) => {
         return dispatch(

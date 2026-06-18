@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import useOrder from "@/hooks/useOrder";
 
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 
 const OrderDetails = () => {
     const { id } = useParams();
-
+    const navigate = useNavigate();
     const {
         order,
         fetchOrderByID,
@@ -182,13 +182,25 @@ const OrderDetails = () => {
                 <div className="grid lg:grid-cols-12 gap-6">
 
                     {/* product */}
-                    <div className="lg:col-span-8 space-y-4">
+                    <div className="lg:col-span-8 space-y-4" >
+                        {
+                            // console.log("ORDER=>", order.items.product._id)
+                            // console.log("ORDER=>", order);
 
+                        }
                         {order.items?.map((item, index) => (
-                            <div className="bg-white border rounded-lg p-5" key={item?._id || index}>
+                            <div className="bg-white border rounded-lg p-5" key={item?._id || index}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    console.log("ID=>", item._id);
+                                    const variantSku = item.variantSku;
+                                    navigate(`/product/${item.product._id}?variantSku=${variantSku}`);
+                                    // console.log("ORDER=>", item.product._id)
+                                }}
+                            >
                                 <div className="flex gap-5 text-left ">
                                     <img
-                                        src={item.product?.images?.[0]}
+                                        src={item.variantImg}
                                         alt={item.product.title}
                                         className="w-32 h-32 object-cover border rounded"
                                     />

@@ -99,6 +99,7 @@ const wishlistSlice = createSlice({
             .addCase(moveWishlistToCart.fulfilled, (state, action) => {
                 state.loading.move = false;
                 state.items = action.payload?.wishlist?.items || [];
+                console.log("thunk wishlist Item", state.items);
             })
             .addCase(moveWishlistToCart.rejected, (state, action) => {
                 state.loading.move = false;
