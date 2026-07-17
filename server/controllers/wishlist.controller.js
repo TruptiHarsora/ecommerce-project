@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Wishlist = require("../models/Wishlist.js");
 const Cart = require("../models/Cart.js");
 const Product = require("../models/Product.js");
+const { CGST, SGST } = require("../config/config.js");
 
 const getVariant = (product, sku) => {
     return product.variants.find(v => v.sku === sku);
@@ -11,6 +12,20 @@ const getUserWishlist = async (userId) => {
     return await Wishlist.findOne({ user: userId })
         .populate("items.product", "title images price");
 };
+
+const populatedCart = async (userId) => {
+    const data = await Cart.findOne({ user: userId })
+        .populate({
+            path: "items.product",
+            select: "title slug images"
+        })
+        .populate({
+            path: "items.seller",
+            select: "shopName"
+        });
+
+    return data;
+}
 
 const toggleWishlist = async (req, res) => {
     try {
@@ -191,16 +206,26 @@ const moveWishlistToCart = async (req, res) => {
         // }
 
         // console.log("variantSKU:", variantSku);
-        const sellerData = product.variants.find(
-            s => s.sku === variantSku
-        );
+        // const sellerData = product.variants.find(
+        //     s => s.sku === variantSku
+        // );
         // console.log("SellerData", sellerData);
+
+        const sellerData = product.sellers?.find(
+            s => s.isActive && s.stock > 0
+        );
+
+        if (!sellerData) {
+            throw new Error("Seller not available");
+        }
+
+        const price = Number(sellerData.price);
 
         if (!sellerData || sellerData.stock < 1) {
             throw new Error("Out of Stock");
         }
 
-        const price = variant.discountPrice || variant.price;
+        // const price = variant.discountPrice || variant.price;
 
         await Wishlist.updateOne(
             { user: userId },
@@ -226,13 +251,18 @@ const moveWishlistToCart = async (req, res) => {
 
         if (existItems) {
             existItems.quantity += 1;
+            existItems.priceAtTime = price;
+            existItems.seller = sellerData.seller;
+
         } else {
             cart.items.push({
                 product: productId,
+                seller: sellerData.seller,
                 variantSku,
                 quantity: 1,
                 variantImg: variant.images?.[0],
                 priceAtTime: price
+
             })
         }
 
@@ -257,12 +287,44 @@ const moveWishlistToCart = async (req, res) => {
         await session.commitTransaction();
 
         const wishlist = await getUserWishlist(userId);
+        const popuCart = await populatedCart(userId);
+
+        if (!popuCart) {
+            throw new Error("Cart not found");
+        }
+
+        const itemTotal = popuCart.items.reduce((sum, item) => {
+            return sum + Number(item.priceAtTime || 0) * item.quantity;
+        }, 0);
+
+        const cgst = itemTotal * CGST;
+        const sgst = itemTotal * SGST;
+        const igst = 0;
+        const shipping = itemTotal >= 1000 ? 0 : 50;
+        const discount = 0;
+
+        const grandTotal =
+            itemTotal +
+            cgst +
+            sgst +
+            igst +
+            shipping -
+            discount;
 
         res.status(200).json({
             success: true,
             message: "Moved from wishlist to cart",
             wishlist,
-            cart
+            items: popuCart.items,
+            pricing: {
+                itemTotal,
+                cgst,
+                sgst,
+                igst,
+                shipping,
+                discount,
+                grandTotal
+            }
         });
 
     } catch (error) {

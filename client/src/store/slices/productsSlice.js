@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import productServices from "../../services/productServices";
 import { errorToast, successToast } from "../../lib/toast";
+import adminService from "@/services/adminService";
+import sellerServices from "@/services/sellerServices";
 
 const createProduct = createAsyncThunk("products/create", async (data) => {
     const res = await productServices.createProduct(data);
@@ -30,6 +32,16 @@ const fetchSellerProducts = createAsyncThunk("products/getSellerProducts", async
 }
 );
 
+const toggleProductStatusAdmin = createAsyncThunk("product/admintoggleStatus", async (id) => {
+    const res = await adminService.toggleProductStatusAdmin(id);
+    return res;
+});
+
+const toggleProductStatusSeller = createAsyncThunk("product/sellertoggleStatus", async (id) => {
+    const res = await sellerServices.toggleProductStatusSeller(id);
+    return res;
+});
+
 const updateProduct = createAsyncThunk("products/update", async ({ id, data }) => {
     // console.log("THUNK UPDATE", id, data);
     const res = await productServices.updateProduct(id, data);
@@ -43,6 +55,26 @@ const deleteProduct = createAsyncThunk("products/delete", async (id) => {
     // return res.id;
 })
 
+const handleToggleSuccess = (state, action) => {
+    state.loading.toggle = false;
+
+    const updated = action.payload.product;
+
+    state.products = state.products.map((p) =>
+        p._id === updated._id ? updated : p
+    );
+
+    state.sellerProducts = state.sellerProducts.map((p) =>
+        p._id === updated._id ? updated : p
+    );
+
+    if (state.product?._id === updated._id) {
+        state.product = updated;
+    }
+
+    successToast(action.payload.message);
+};
+
 const productSlice = createSlice({
     name: "products", //check name
     initialState: {
@@ -55,7 +87,8 @@ const productSlice = createSlice({
             create: false,
             update: false,
             delete: false,
-            single: false
+            single: false,
+            toggle: false
         },
         error: null,
         page: 1,
@@ -175,6 +208,55 @@ const productSlice = createSlice({
                 errorToast(state.error);
             })
 
+            //toggle Product Status
+            // .addCase(toggleProductStatus.pending, (state) => {
+            //     state.loading.toggle = true;
+            //     state.error = null;
+            // })
+            // .addCase(toggleProductStatus.fulfilled, (state, action) => {
+            //     state.loading.update = false;
+
+            //     const updated = action.payload.product;
+
+            //     state.products = state.products.map((p) =>
+            //         p._id === updated._id ? updated : p
+            //     );
+
+            //     if (state.product?._id === updated._id) {
+            //         state.product = updated;
+            //     }
+
+            //     successToast(action.payload.message);
+            // })
+            // .addCase(toggleProductStatus.rejected, (state, action) => {
+            //     state.loading.update = false;
+            //     state.error = action.error?.message;
+            //     errorToast(state.error);
+            // })
+
+            .addCase(toggleProductStatusAdmin.pending, (state) => {
+                state.loading.toggle = true;
+            })
+
+            .addCase(toggleProductStatusAdmin.fulfilled, handleToggleSuccess)
+
+            .addCase(toggleProductStatusAdmin.rejected, (state, action) => {
+                state.loading.toggle = false;
+                state.error = action.error.message;
+                errorToast(state.error);
+            })
+
+            .addCase(toggleProductStatusSeller.pending, (state) => {
+                state.loading.toggle = true;
+            })
+
+            .addCase(toggleProductStatusSeller.fulfilled, handleToggleSuccess)
+
+            .addCase(toggleProductStatusSeller.rejected, (state, action) => {
+                state.loading.toggle = false;
+                state.error = action.error.message;
+                errorToast(state.error);
+            })
             //update product
             .addCase(updateProduct.pending, (state) => {
                 state.loading.update = true;
@@ -237,5 +319,5 @@ const productSlice = createSlice({
 })
 
 export const { setPage, setFilter, clearFilter, clearError, clearProducts } = productSlice.actions;
-export { fetchProducts, fetchProductById, fetchSellerProducts, createProduct, updateProduct, deleteProduct };
+export { fetchProducts, fetchProductById, fetchSellerProducts, toggleProductStatusAdmin, toggleProductStatusSeller, createProduct, updateProduct, deleteProduct };
 export default productSlice.reducer;

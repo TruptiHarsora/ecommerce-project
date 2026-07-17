@@ -19,7 +19,17 @@ const RoleRoutes = ({ children, allowedRoles = [] }) => {
     // }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-        return <Navigate to="/" replace />
+        // return <Navigate to="/" replace />
+        switch (user.role) {
+            case ROLES.ADMIN:
+                return <Navigate to="/admin/dashboard" replace />;
+
+            case ROLES.SELLER:
+                return <Navigate to="/seller" replace />;
+
+            default:
+                return <Navigate to="/" replace />;
+        }
     }
     // return children
     return <Outlet />

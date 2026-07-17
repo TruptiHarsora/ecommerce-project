@@ -43,6 +43,12 @@ const loginSchema = joi.object({
     password: joi.string().required()
 });
 
+const updateRoleSchema = joi.object({
+    role: joi
+        .string()
+        .valid("user", "seller", "admin")
+        .required(),
+});
 
 const updateProfileSchema = joi.object({
     name: joi.string().trim().min(3).max(50),
@@ -65,6 +71,7 @@ const changePasswordSchema = joi.object({
             "any.only": "Confirm password does not match new password"
         })
 });
+
 
 module.exports = {
     registerSchema,

@@ -57,4 +57,10 @@ reviewSchema.post("findOneAndUpdate", async function (doc) {
     }
 })
 
+reviewSchema.post("findOneAndDelete", async function (doc) {
+    if (doc) {
+        await doc.constructor.updateRatingStats(doc.product);
+    }
+})
+
 module.exports = mongoose.model("Review", reviewSchema);

@@ -133,7 +133,9 @@ import {
     fetchSellerProducts,
     setFilter,
     setPage,
-    updateProduct
+    updateProduct,
+    toggleProductStatusAdmin as toggleProductStatusAdminThunk,
+    toggleProductStatusSeller as toggleProductStatusSellerThunk
 } from "../store/slices/productsSlice";
 
 const useProducts = () => {
@@ -215,7 +217,10 @@ const useProducts = () => {
         fetchProducts: handleFetchProducts,
         fetchSellerProducts: () => dispatch(fetchSellerProducts()),
         updateProduct: (id, data) => dispatch(updateProduct({ id, data })),
-        deleteProduct: (id) => dispatch(deleteProduct(id))
+        deleteProduct: (id) => dispatch(deleteProduct(id)),
+        toggleProductStatusAdmin: (id) => dispatch(toggleProductStatusAdminThunk(id)),
+        toggleProductStatusSeller: (id) => dispatch(toggleProductStatusSellerThunk(id)),
+        // toggleProductStatus: (id) => dispatch(toggleProductStatus(id)),
         // setPage: handleSetPage,
         // setFilter: handleSetFilter,
         // clearFilter: handleClearFilter,

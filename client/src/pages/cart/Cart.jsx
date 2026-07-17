@@ -2,11 +2,16 @@
 import { Button } from '@/components/ui/Button';
 import useAuth from '@/hooks/useAuth';
 import useCart from '@/hooks/useCart';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 
 
 const Cart = () => {
+  const { fetchCart } = useCart();
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   const { items, pricing, loading, updateCartItem, removeCartItem } = useCart();
   const navigate = useNavigate();

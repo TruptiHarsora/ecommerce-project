@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card"
 import { useFormik } from "formik"
 import { loginSchema } from "@/validators/authValidator"
+import useAuth from "@/hooks/useAuth"
 
 const Login = () => {
 
@@ -25,6 +26,7 @@ const Login = () => {
   // const [error, setError] = useState("");
   const nav = useNavigate();
 
+  // console.log("user", user);
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -37,8 +39,20 @@ const Login = () => {
       console.log("values", values);
       try {
         setStatus(null);
-        await login(values);
-        nav("/");
+        const data = await login(values);
+
+        switch (data.user.role) {
+          case "admin":
+            nav("/admin");
+            break;
+
+          case "seller":
+            nav("/seller");
+            break;
+
+          default:
+            nav("/");
+        }
 
       } catch (error) {
         setStatus(error?.response?.data?.message || "Something went wrong")

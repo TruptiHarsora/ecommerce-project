@@ -56,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 // app.use("/api/auth", authLimiter, authRoutes);
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 // app.use("/api/admin", AuthMiddle_User, authorizeRoles("admin"), adminRoutes);
 app.use("/api/admin", adminRoutes);

@@ -1,14 +1,29 @@
 import { Button } from '@/components/ui/Button';
+import useCart from '@/hooks/useCart';
 import useWishlist from '@/hooks/useWishlist'
 import React, { useEffect } from 'react'
 
 const Wishlist = () => {
   const { wishlistItems, loading, removeFromWishlist, moveWishlistToCart, getWishlist } = useWishlist();
-
+  const { fetchCart } = useCart();
   useEffect(() => {
     getWishlist();
   }, []);
   console.log("wishlist Items", wishlistItems);
+
+  const handleMoveToCart = async (productId, variantSku) => {
+    try {
+      await moveWishlistToCart({
+        productId,
+        variantSku
+      });
+
+      await fetchCart(); // important
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (loading.fetch) {
     return <div className='text-gray-500'> Loading...</div>
@@ -42,10 +57,18 @@ const Wishlist = () => {
 
                 <div className='flex gap-2'>
                   <Button className='bg-yellow-500 text-black-700'
-                    onClick={() => moveWishlistToCart({
-                      productId: item.product._id,
-                      variantSku: item.variantSku
-                    })}
+                    onClick={async () => {
+                      try {
+                        await moveWishlistToCart({
+                          productId: item.product._id,
+                          variantSku: item.variantSku
+                        });
+
+                        await fetchCart();
+                      } catch (error) {
+                        console.log(error);
+                      }
+                    }}
                   >
                     Move to Cart
                   </Button>

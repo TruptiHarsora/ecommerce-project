@@ -23,6 +23,12 @@ import {
 
 import { Button } from "@/components/ui/Button";
 import useAuth from "@/hooks/useAuth";
+import useReview from "@/hooks/useReview";
+import ReviewList from "../review/ReviewList";
+import ReviewForm from "../review/ReviewForm";
+import { errorToast, successToast } from "@/lib/toast";
+
+
 
 const ProductDetails = () => {
    const [searchParams] = useSearchParams();
@@ -33,6 +39,7 @@ const ProductDetails = () => {
    const { user } = useAuth();
    const navigate = useNavigate();
 
+   // console.log("id", id);
    const {
       product,
       fetchProductById,
@@ -42,10 +49,24 @@ const ProductDetails = () => {
 
    const { addToCart, loading: cartLoading, fetchCart } = useCart();
 
+   const {
+      reviews,
+      myReview,
+      loading: reviewLoading,
+
+      getProductReviews,
+      getMyReview,
+
+      createReview,
+      updateReview,
+      deleteReview,
+      markHelpful
+   } = useReview();
+
    const [selectedVariant, setSelectedVariant] = useState(null);
-
    const [selectedImage, setSelectedImage] = useState("");
-
+   const [editingReview, setEditingReview] = useState(null);
+   const [showReviewForm, setShowReviewForm] = useState(false);
    // =====================================
    // FETCH PRODUCT
    // =====================================
@@ -92,8 +113,6 @@ const ProductDetails = () => {
 
    // }, [product]);
 
-
-
    useEffect(() => {
       if (!product) return;
 
@@ -107,6 +126,15 @@ const ProductDetails = () => {
          variant?.images?.[0] || product?.images?.[0] || ""
       );
    }, [product, variantSku]);
+
+
+   useEffect(() => {
+      if (!id) return;
+
+      getProductReviews(id);
+      getMyReview(id);
+
+   }, [id]);
 
 
    // =====================================
@@ -139,7 +167,7 @@ const ProductDetails = () => {
 
    }, [product, selectedVariant]);
 
-   console.log("AllIMGES", allImages);
+   // console.log("AllIMGES", allImages);
 
    const formatPrice = (price) => {
       const amount = Number(price || 0);
@@ -167,6 +195,33 @@ const ProductDetails = () => {
 
    }, [product]);
 
+   const handleBuyNow = () => {
+      if (!user) {
+         navigate("/login");
+         return;
+      }
+
+      if (!selectedVariant) return;
+
+      navigate("/checkout", {
+         state: {
+            buyNow: true,
+            items: [
+               {
+                  product: {
+                     ...product,
+                     selectedVariant,
+                     variantSku: selectedVariant.sku,
+                     variantImg: selectedVariant.images?.[0]
+                  },
+                  quantity: 1,
+                  seller: product.sellers?.[0]?.seller,
+                  price: product.sellers?.[0]?.price
+               }
+            ]
+         }
+      });
+   };
 
    const handleAddToCart = async () => {
       if (!user) {
@@ -224,6 +279,118 @@ const ProductDetails = () => {
          </div>
       );
    }
+
+
+   const reviewInitialValues = editingReview || {
+      rating: 0,
+      title: "",
+      comment: "",
+      images: []
+   };
+
+   // const handleReviewSubmit = async (values, { resetForm }) => {
+
+   //    const formData = new FormData();
+
+   //    formData.append("rating", values.rating);
+   //    formData.append("title", values.title);
+   //    formData.append("comment", values.comment);
+
+   //    values.images?.forEach((file) => {
+   //       formData.append("images", file);
+   //    });
+
+   //    for (const [key, value] of formData.entries()) {
+   //       console.log(key, value);
+   //    }
+
+   //    if (editingReview) {
+
+   //       await updateReview({
+   //          id: editingReview._id,
+   //          data: formData
+   //       });
+
+   //       setEditingReview(null);
+
+   //    } else {
+
+   //       await createReview({
+   //          productId: id,
+   //          data: formData
+   //       });
+   //    }
+   //    await getProductReviews(id);
+   //    await getMyReview(id);
+   //    resetForm();
+   // };
+
+   const handleReviewSubmit = async (values, { resetForm }) => {
+      try {
+         const formData = new FormData();
+
+         console.log("VALUES", values);
+
+         formData.append("rating", values.rating);
+         formData.append("title", values.title);
+         formData.append("comment", values.comment);
+
+         values.images?.forEach((file) => {
+            formData.append("images", file);
+         });
+
+         for (const [key, value] of formData.entries()) {
+            console.log(key, value);
+         }
+
+         if (editingReview) {
+            console.log(editingReview._id,);
+            await updateReview({
+               id: editingReview._id,
+               data: formData,
+            }).unwrap();
+         } else {
+            console.log(id);
+            await createReview({
+               productId: id,
+               data: formData,
+            }).unwrap();
+         }
+
+         successToast(
+            editingReview
+               ? "Review updated successfully"
+               : "Review submitted successfully"
+         );
+         await getProductReviews(id);
+         await getMyReview(id);
+
+         resetForm();
+         setEditingReview(null);
+         setShowReviewForm(false);
+
+      } catch (error) {
+         console.error("Review Submit Error:", error);
+         errorToast(
+            typeof error === "string"
+               ? error
+               : error?.message || "Something went wrong"
+         );
+      }
+   };
+
+   const handleDeleteReview = async (reviewId) => {
+      await deleteReview(reviewId);
+   };
+
+   const handleEditReview = (review) => {
+      setEditingReview(review);
+      setShowReviewForm(true);
+   };
+
+   const handleHelpfulReview = async (reviewId) => {
+      await markHelpful(reviewId);
+   };
 
    return (
 
@@ -499,9 +666,11 @@ const ProductDetails = () => {
                            {cartLoading.add ? "Adding..." : "Add To Cart"}
                         </Button>
 
-                        <Button className="py-1 shadow-md shadow-gray-500/50 hover:shadow-lg hover:shadow-gray-700/50 transition-shadow duration-200 bg-orange-400 text-black flex-1 h-12 text-base" >
+                        {/* <Button className="py-1 shadow-md shadow-gray-500/50 hover:shadow-lg hover:shadow-gray-700/50 transition-shadow duration-200 bg-orange-400 text-black flex-1 h-12 text-base"
+                           onClick={handleBuyNow}
+                        >
                            Buy Now
-                        </Button>
+                        </Button> */}
 
                      </div>
 
@@ -695,7 +864,131 @@ const ProductDetails = () => {
                )
             } */}
 
+            <Card>
+
+               <CardContent className="p-6">
+
+                  <div className="mb-8">
+
+                     <h2 className="text-2xl font-bold mb-2">
+                        Customer Reviews
+                     </h2>
+
+                     <p className="text-muted-foreground">
+                        Share your experience with this product
+                     </p>
+
+                  </div>
+
+                  {/* Review Form */}
+
+                  <div className="grid lg:grid-cols-3 gap-8">
+
+                     {/* Left */}
+                     <div className="lg:col-span-1">
+
+                        {/* {myReview ? (
+                           <div className="p-4 bg-green-50 border rounded">
+                              You have already reviewed this product.
+                           </div>
+                        ) : (
+                           <ReviewForm ... />
+)} */}
+
+                        {/* {user && (
+                           <ReviewForm
+                              initialValues={reviewInitialValues}
+                              onSubmit={handleReviewSubmit}
+                              loading={
+                                 reviewLoading.create ||
+                                 reviewLoading.update
+                              }
+                           />
+                        )} */}
+
+                        {/* NEW AMAZON STYLE REVIEW SECTION */}
+
+                        {user && !showReviewForm && (
+                           <div className="mb-6 ">
+                              {myReview ? (
+                                 <Button
+                                    className="bg-blue-100 text-blue-500"
+                                    // variant="outline"
+                                    onClick={() => {
+                                       setEditingReview(myReview);
+                                       setShowReviewForm(true);
+                                    }}
+                                 >
+                                    Edit Your Review
+                                 </Button>
+                              ) : (
+                                 <Button
+                                    className="bg-yellow-500 text-black"
+                                    onClick={() => {
+                                       setEditingReview(null);
+                                       setShowReviewForm(true);
+                                    }}
+                                 >
+                                    Write a Review
+                                 </Button>
+                              )}
+                           </div>
+                        )}
+
+                        {/* REVIEW FORM */}
+                        {showReviewForm && (
+                           <ReviewForm
+                              initialValues={
+                                 editingReview
+                                    ? {
+                                       ...editingReview,
+
+                                       // CHANGED
+                                       images: editingReview.images || []
+                                    }
+                                    : {
+                                       rating: 0,
+                                       title: "",
+                                       comment: "",
+                                       images: []
+                                    }
+                              }
+                              onSubmit={handleReviewSubmit}
+                              loading={
+                                 reviewLoading.create ||
+                                 reviewLoading.update
+                              }
+                           />
+                        )}
+
+                     </div>
+
+                     {/* Right */}
+                     <div className="lg:col-span-2">
+
+                        <h3 className="text-xl font-semibold mb-4">
+                           Reviews ({reviews.length})
+                        </h3>
+
+                        <ReviewList
+                           reviews={reviews}
+                           myReview={myReview}
+                           onEdit={handleEditReview}
+                           onDelete={handleDeleteReview}
+                           onHelpful={handleHelpfulReview}
+                        />
+
+                     </div>
+
+                  </div>
+
+
+
+               </CardContent>
+
+            </Card>
          </div>
+
 
       </div>
    );

@@ -32,6 +32,16 @@ import ProductsCreate from '@/pages/products/ProductsCreate';
 import ProductUpdate from '@/pages/products/ProductsUpdate';
 import OrderDetails from '@/pages/order/OrderDetails';
 import Category from '@/pages/category/Category';
+import ReviewForm from '@/pages/review/ReviewForm';
+import AdminOrders from '@/pages/admin/AdminOrders';
+import Seller from '@/pages/admin/Seller';
+import AdminLayout from '@/components/layout/AdminLayout';
+import SellerDetails from '@/pages/admin/SellerDetails';
+import AdminProductDetails from '@/pages/admin/AdminProductDetails';
+import LandingPage from '@/pages/LandingPage';
+import Dashboard from '../pages/seller/Dashboard';
+import SellerLayout from '@/components/layout/SellerLayout';
+
 // import Category from '@/pages/category/Categories';
 
 
@@ -45,11 +55,20 @@ const AppRoutes = () => {
 
       {/* PUBLIC ROUTES */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/products" element={<ProductList />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+        {/* <Route path="/review" element={<ReviewForm initialValues={{
+          rating: 0,
+          title: "",
+          comment: "",
+          images: []
+        }}
+          // onSubmit={handleSubmit} 
+          />} /> */}
       </Route>
 
       {/* USER ROUTES */}
@@ -62,37 +81,50 @@ const AppRoutes = () => {
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/orders" element={<Orders />} />
           <Route path='/orders/:id' element={<OrderDetails />} />
+
         </Route>
       </Route>
 
       {/* ADMIN ROUTES */}
       <Route element={<RoleRoutes allowedRoles={["admin"]} />}>
-        <Route element={<MainLayout />}>
+        <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/product/:id" element={<AdminProductDetails viewUrl="/admin" actiontType="admin" />} />
+          <Route path="/admin/product/update/:id" element={<ProductUpdate />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/category" element={<Category />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/orders/:id" element={<OrderDetails />} />
+          <Route path="/admin/sellers" element={<Seller />} />
+          <Route path="/admin/sellers/:id" element={<SellerDetails />} />
+
+
         </Route>
       </Route>
 
       {/* SELLER ROUTES */}
       <Route element={<RoleRoutes allowedRoles={["seller"]} />}>
-        <Route element={<MainLayout />}>
-          <Route path="/seller" element={<SellerDashboard />} />
+        <Route element={<SellerLayout />}>
+          <Route path="/seller" element={<Dashboard />} />
+          <Route path="/seller/dashboard" element={<Dashboard />} />
           <Route path="/seller/product/create" element={<ProductsCreate />} />
-          <Route path="/seller/product/update/:id" element={<ProductUpdate />}/>
+          <Route path="/seller/product/update/:id" element={<ProductUpdate />} />
           <Route path="/seller/products" element={<SellerProducts />} />
           <Route path="/seller/orders" element={<SellerOrders />} />
+          <Route path="/seller/orders/:id" element={<OrderDetails />} />
+          <Route path="/seller/product/:id" element={<AdminProductDetails viewUrl="/seller" actiontType="seller" />} />
         </Route>
       </Route>
 
-      <Route element={<RoleRoutes allowedRoles={["seller", "admin"]} />}>
+      {/* <Route element={<RoleRoutes allowedRoles={["seller", "admin"]} />}>
         <Route element={<MainLayout />}>
           <Route path="/dashboard/product/update/:id" element={<ProductUpdate />} />
 
         </Route>
-      </Route>
+      </Route> */}
 
     </Routes>
   );

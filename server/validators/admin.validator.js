@@ -28,4 +28,17 @@ const mongoIdSchema = Joi.object({
     id: Joi.string().hex().length(24).required()
 });
 
-module.exports = { updateUserRoleSchema, blockUserSchema, orderQuerySchema, mongoIdSchema };
+const updateSellerStatusSchema = Joi.object({
+    status: Joi.string()
+        .valid("pending", "active", "blocked")
+        .required()
+});
+
+
+module.exports = {
+    updateUserRoleSchema,
+    blockUserSchema,
+    orderQuerySchema,
+    mongoIdSchema,
+    updateSellerStatusSchema
+};

@@ -62,6 +62,12 @@ const login = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid email or password' });
         }
 
+        if (user.isBlocked) {
+            return res.status(403).json({
+                success: false,
+                message: "Your account has been blocked. Please contact support."
+            });
+        }
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
@@ -135,10 +141,10 @@ const refreshTokenHandler = async (req, res) => {
         }
 
         // const decoded = JWT.verify(token, JWT_REFRESH_SECRET);
-        // console.log("decoded : ", decoded);
-
+        console.log("decoded : ", decoded);
+        let decoded
         try {
-            const decoded = JWT.verify(token, JWT_REFRESH_SECRET);
+            decoded = JWT.verify(token, JWT_REFRESH_SECRET);
         } catch (err) {
             return res.status(401).json({
                 success: false,

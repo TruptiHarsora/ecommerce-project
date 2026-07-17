@@ -33,10 +33,11 @@ router.get("/",
     validate(queryProductSchema, "query"),
     getAllProduct
 );
+router.get("/:id", getProductById);
+
 router.get("/seller/my-products",
     authMiddleware, authorizeRoles("seller"), isSeller,
     getSellerProducts);
-router.get("/:id", getProductById);
 
 // router.post("/",
 //     authMiddleware, isSeller, authorizeRoles("seller", "admin"),
@@ -58,13 +59,6 @@ router.put("/:id",
         { name: "images", maxCount: 10, },
         { name: "variantImages", maxCount: 50, },
     ]),
-
-    // (req, res, next) => {
-    //     console.log("BODY =>", req.body);
-    //     console.log("FILES =>", req.files);
-    //     next();
-    // },
-    // validate(updateProductSchema, "body"),
     updateProduct
 );
 

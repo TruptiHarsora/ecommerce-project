@@ -9,11 +9,13 @@ const validate = require("../middlewares/validate.middleware.js");
 
 const { getDashboard } = require("../controllers/admin/dashboard.controller.js");
 const { getAllUserAdmin, updateUserRoleAdmin, blockUserAdmin } = require("../controllers/admin/user.controller.js");
-const { getAllOrdersAdmin } = require("../controllers/admin/order.controller.js");
-const { getAllProductsAdmin } = require("../controllers/admin/product.controller.js");
+const { getAllOrdersAdmin, updateOrderStatusAdmin } = require("../controllers/admin/order.controller.js");
+// const { getAllProductsAdmin } = require("../controllers/admin/product.controller.js");
 const { getAllCategoriesAdmin } = require("../controllers/admin/category.controller.js");
 const { getAllReviewsAdmin, deleteReviewAdmin } = require("../controllers/admin/review.controller.js");
-const { mongoIdSchema, updateUserRoleSchema, blockUserSchema, orderQuerySchema } = require("../validators/admin.validator.js");
+const { mongoIdSchema, updateUserRoleSchema, blockUserSchema, orderQuerySchema, updateSellerStatusSchema } = require("../validators/admin.validator.js");
+const { getAllSellersAdmin, verifySellerAdmin, updateSellerStatusAdmin, getSellerDetailsAdmin } = require("../controllers/admin/seller.controller.js");
+const { getAllProductsAdmin, toggleProductStatus } = require("../controllers/product.controller.js");
 
 
 // router.post(
@@ -52,16 +54,18 @@ router.patch(
 
 
 //orders
-router.get(
-    "/orders",
+router.get("/orders",
     validate(orderQuerySchema, "query"),
     getAllOrdersAdmin
 );
 
+router.patch("/orders/:id/status",
+    updateOrderStatusAdmin
+);
 
 //products
 router.get("/products", getAllProductsAdmin);
-
+router.patch("/product/:id/status", toggleProductStatus);
 
 //category
 router.get("/categories", getAllCategoriesAdmin);
@@ -70,6 +74,18 @@ router.get("/categories", getAllCategoriesAdmin);
 
 router.get("/reviews", getAllReviewsAdmin);
 router.delete("/reviews/:id", validate(mongoIdSchema, "params"), deleteReviewAdmin);
+
+
+//sellers
+router.get("/sellers", getAllSellersAdmin);
+router.get("/sellers/:id", validate(mongoIdSchema), getSellerDetailsAdmin);
+router.patch("/sellers/:id/verify", validate(mongoIdSchema, "params"), verifySellerAdmin);
+router.patch("/sellers/:id/status",
+    validate(mongoIdSchema, "params"),
+    validate(updateSellerStatusSchema, "body"),
+    updateSellerStatusAdmin);
+
+
 
 module.exports = router;
 

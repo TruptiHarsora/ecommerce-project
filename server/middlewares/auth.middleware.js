@@ -1,5 +1,6 @@
 const JWT = require("jsonwebtoken");
 const { JWT_ACCESS_SECRET } = require("../config/config");
+const User = require("../models/User");
 
 // const Auth_User = async (req, res, next) => {
 //     try {
@@ -64,7 +65,23 @@ const authMiddleware = async (req, res, next) => {
                 })
         }
 
-        // console.log("Encoded: ", decoded);
+        console.log("Encoded: ", decoded);
+
+        const user = await User.findById(decoded.id).select("-password");
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        if (user.isBlocked) {
+            return res.status(403).json({
+                success: false,
+                message: "Your account has been blocked by the administrator.",
+            });
+        }
         req.user = decoded;
         next();
 

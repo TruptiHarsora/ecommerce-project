@@ -5,7 +5,9 @@ const {
     createReview,
     updateReview,
     deleteReview,
-    markHelpful
+    markHelpful,
+    getProductReviews,
+    getMyReview
 } = require("../controllers/review.controller.js");
 
 const authMiddleware = require("../middlewares/auth.middleware.js");
@@ -19,31 +21,35 @@ const {
 const { reviewLimiter } = require("../middlewares/rateLimiter.js");
 const checkReviewOwnerOrAdmin = require("../middlewares/checkReviewOwnerOrAdmin.middleware.js");
 const validate = require("../middlewares/validate.middleware.js");
+const upload = require("../middlewares/upload.middleware.js");
 
-router.use(authMiddleware);
+// router.use(authMiddleware);
 
-router.post("/:productId",
+router.post("/:productId",authMiddleware,
     reviewLimiter,
-    validate(reviewCreateSchema,"body"),
+    upload.array("images", 5),
+    validate(reviewCreateSchema, "body"),
     createReview
 );
 
-
-router.put("/:id",
+router.put("/:id",authMiddleware,
     checkReviewOwnerOrAdmin,
-    validate(reviewUpdateSchema,"body"),
+    upload.array("images", 5),
+    validate(reviewUpdateSchema, "body"),
     updateReview
 );
 
 
-router.delete("/:id",
+router.delete("/:id",authMiddleware,
     checkReviewOwnerOrAdmin,
     deleteReview
 );
 
+router.get("/product/:productId", getProductReviews);
+router.get("/product/:productId/me",authMiddleware,getMyReview);
 
-router.patch("/:id/helpful",
-    validate(helpfulSchema,"body"),
+router.patch("/:id/helpful",authMiddleware,
+    validate(helpfulSchema, "body"),
     markHelpful
 );
 

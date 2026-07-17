@@ -4,18 +4,93 @@ const Product = require("../../models/Product.js");
 
 const getDashboard = async (req, res) => {
     try {
-        const totalUsers = await User.countDocuments();
-        const totalOrders = await Order.countDocuments();
-        const totalProducts = await Product.countDocuments();
+        // const totalUsers = await User.countDocuments();
+        // const totalOrders = await Order.countDocuments();
+        // const totalProducts = await Product.countDocuments();
+        // const pendingOrders = await Order.countDocuments({ orderStatus: "Pending" });
+
+
+        const [
+            totalUsers,
+            totalOrders,
+            totalProducts,
+            pendingOrders,
+        ] = await Promise.all([
+            User.countDocuments(),
+            Order.countDocuments(),
+            Product.countDocuments(),
+            Order.countDocuments({
+                orderStatus: {
+                    $in: [
+                        "placed",
+                        "confirmed",
+                        "shipped",
+                        "out_for_delivery",
+                    ],
+                },
+            }),
+        ]);
+
+        // const revenueData = await Order.aggregate([
+        //     // { $match: { "paymentInfo.status": "paid" } },
+        //     { $match: { orderStatus: "Delivered" } },
+        //     {
+        //         $group: {
+        //             _id: null,
+        //             totalRevenue: { $sum: "$pricing.grandTotal" }
+        //         }
+        //     }
+        // ]);
 
         const revenueData = await Order.aggregate([
-            { $match: { "paymentInfo.statys": "paid" } },
+            {
+                $match: {
+                    orderStatus: "delivered",
+                },
+            },
             {
                 $group: {
                     _id: null,
-                    totalRevenu: { $sum: "$pricing.grandTotal" }
-                }
-            }
+                    totalRevenue: {
+                        $sum: "$pricing.grandTotal",
+                    },
+                },
+            },
+        ]);
+
+        // const monthlyRevenue = await Order.aggregate([
+        //     { $match: { "paymentInfo.status": "paid" } },
+        //     {
+        //         $group: {
+        //             _id: {
+        //                 month: { $month: "$createdAt" }
+        //             },
+        //             revenue: { $sum: "$pricing.grandTotal" }
+        //         }
+        //     },
+        //     { $sort: { "_id.month": 1 } }
+        // ]);
+        const monthlyRevenue = await Order.aggregate([
+            {
+                $match: {
+                    orderStatus: "delivered",
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        month: { $month: "$createdAt" },
+                    },
+                    revenue: {
+                        $sum: "$pricing.grandTotal",
+                    },
+                },
+            },
+            {
+                $sort: {
+                    "_id.month": 1,
+                },
+            },
         ]);
 
         const recentOrder = await Order.find()
@@ -26,11 +101,13 @@ const getDashboard = async (req, res) => {
 
         res.json({
             success: true,
-            totalUser,
+            totalUsers,
             totalOrders,
             totalProducts,
-            revenue: revenueData[0]?.totalRevenu || 0,
-            recentOrder
+            pendingOrders,
+            revenue: revenueData[0]?.totalRevenue || 0,
+            recentOrder,
+            monthlyRevenue
         })
 
     } catch (error) {

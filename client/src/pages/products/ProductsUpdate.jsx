@@ -86,6 +86,7 @@ const ProductUpdate = () => {
          brand: "",
          price: "",
          stock: "",
+         isActive: true,
          tags: "",
          images: [],
          existingImages: [],
@@ -99,9 +100,9 @@ const ProductUpdate = () => {
       enableReinitialize: true,
 
       onSubmit: async (values) => {
-         console.log("FORM SUBMITTED");
+         // console.log("FORM SUBMITTED");
          try {
-            console.log("VARIANTS", values.variants);
+            // console.log("VARIANTS", values.variants);
 
             const formData = new FormData();
 
@@ -119,6 +120,7 @@ const ProductUpdate = () => {
 
             formData.append("price", values.price);
             formData.append("stock", values.stock);
+            formData.append("isActive", values.isActive);
 
             formData.append("specification",
                JSON.stringify(values.specification)
@@ -271,7 +273,7 @@ const ProductUpdate = () => {
             // API CALL
             // =========================================
 
-          
+
             await updateProduct(id, formData);
 
             user.role === "admin"
@@ -313,6 +315,7 @@ const ProductUpdate = () => {
             brand: product.brand || "",
             price: product.sellers?.[0]?.price || "",
             stock: product.sellers?.[0]?.stock || "",
+            isActive: product.sellers?.[0]?.isActive ?? true,
             tags: product.tags?.join(", ") || "",
             images: [],
             existingImages: product.images || [],
@@ -783,6 +786,24 @@ const ProductUpdate = () => {
                               )
                            }
                         </div>
+                        <div className="flex items-center gap-3">
+                           <input
+                              type="checkbox"
+                              id="isActive"
+                              checked={formik.values.isActive}
+                              onChange={(e) =>
+                                 formik.setFieldValue(
+                                    "isActive",
+                                    e.target.checked
+                                 )
+                              }
+                           />
+
+                           <Label htmlFor="isActive">
+                              Product Active
+                           </Label>
+                        </div>
+
                      </div>
                   </CardContent>
 

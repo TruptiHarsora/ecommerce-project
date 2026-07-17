@@ -44,7 +44,7 @@ const useCart = () => {
 
     // useEffect(() => {
     //     dispatch(fetchCart());
-    // }, [items]);
+    // }, []);
 
     const updateCart = (itemId, data) => {
         return dispatch(
@@ -57,10 +57,10 @@ const useCart = () => {
             removeCartThunk(itemId)
         );
     };
-    const handleFetchCart = useCallback(
-        () => dispatch(fetchCart()),
-        [dispatch]
-    );
+    // const handleFetchCart = useCallback(
+    //     () => dispatch(fetchCart()),
+    //     [dispatch]
+    // );
 
     return {
         items,
@@ -68,8 +68,8 @@ const useCart = () => {
         loading,
         error,
 
-        fetchCart: handleFetchCart,
-        // fetchCart: () => dispatch(fetchCart()),
+        // fetchCart: handleFetchCart,
+        fetchCart: () => dispatch(fetchCart()),
         addToCart: (data) => dispatch(addToCartThunk(data)),
         updateCartItem: updateCart,
         removeCartItem: removeCart,

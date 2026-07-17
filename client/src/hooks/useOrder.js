@@ -3,6 +3,7 @@ import {
     clearCurrentOrder as clearCurrentOrderThunk,
     clearOrderError as clearOrderErrorThunk,
     createOrder as createOrderThunk,
+    fetchAdminOrders as fetchAdminOrdersThunk,
     fetchOrderById as fetchOrderByIdThunk,
     fetchOrders as fetchOrdersThunk
 } from "@/store/slices/orderSlice";
@@ -14,15 +15,19 @@ const useOrder = () => {
     const {
         order,
         orders,
+        adminOrders,
         loading,
         error
     } = useSelector((state) => state.order);
-    console.log(order);
+    console.log(adminOrders);
     return {
         order,
         orders,
+        adminOrders,
+
         loading,
         error,
+
 
         createOrder: (data) => dispatch(createOrderThunk(data)).unwrap(),
         fetchOrders: () => dispatch(fetchOrdersThunk()).unwrap(),
@@ -30,6 +35,8 @@ const useOrder = () => {
         cancelOrder: (id) => dispatch(cancelOrderThunk(id)).unwrap(),
         clearOrderError: () => dispatch(clearOrderErrorThunk()),
         clearCurrentOrder: () => dispatch(clearCurrentOrderThunk()),
+
+        fetchAdminOrders: (params) => dispatch(fetchAdminOrdersThunk()).unwrap(),
     }
 }
 

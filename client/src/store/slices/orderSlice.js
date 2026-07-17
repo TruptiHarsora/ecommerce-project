@@ -1,51 +1,49 @@
 import { errorToast, successToast } from "@/lib/toast";
 import orderService from "@/services/orderService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import adminService from "@/services/adminService";
 
-const createOrder = createAsyncThunk(
-    "orders/create",
-    async (data) => {
-        console.log("paylod order", data);
-        const res = await orderService.createOrder(data);
-        return res;
-    }
-);
+const createOrder = createAsyncThunk("orders/create", async (data) => {
+    console.log("paylod order", data);
+    const res = await orderService.createOrder(data);
+    return res;
+});
 
-const fetchOrders = createAsyncThunk(
-    "orders/fetch",
-    async () => {
-        const res = await orderService.getOrders();
-        console.log("order:", res)
-        return res;
-    }
-);
+const fetchOrders = createAsyncThunk("orders/fetch", async () => {
+    const res = await orderService.getOrders();
+    console.log("order:", res)
+    return res;
+});
 
-const fetchOrderById = createAsyncThunk(
-    "orders/details",
-    async (id) => {
-        const res = await orderService.getOrderById(id);
+const fetchOrderById = createAsyncThunk("orders/details", async (id) => {
+    const res = await orderService.getOrderById(id);
 
-        return res;
-    }
-);
+    return res;
+});
 
-const cancelOrder = createAsyncThunk(
-    "orders/cancel",
-    async (id) => {
-        const res = await orderService.cancelOrder(id);
-        return res;
-    }
-);
+const cancelOrder = createAsyncThunk("orders/cancel", async (id) => {
+    const res = await orderService.cancelOrder(id);
+    return res;
+});
+
+//Admin
+const fetchAdminOrders = createAsyncThunk("orders/adminFetch", async (params) => {
+    const res = await adminService.getAllUserOrderAdmin(params);
+    console.log("thunk", res);
+    return res;
+})
 
 const initialState = {
     orders: [],
     order: null,
+    adminOrders: [],
 
     loading: {
         create: false,
         fetch: false,
         details: false,
         cancel: false,
+        adminfetch: false,
     },
 
     error: null,
@@ -141,7 +139,22 @@ const orderSlice = createSlice({
                 state.error = action.error?.message;
 
                 errorToast(state.error);
-            });
+            })
+
+            //Admin fetchOrder 
+
+            .addCase(fetchAdminOrders.pending, (state) => {
+                state.loading.adminfetch = true;
+                state.error = false;
+            })
+            .addCase(fetchAdminOrders.fulfilled, (state, action) => {
+                state.adminOrders = action.payload.orders || [];
+                // console.log("state.adminOrders", state.adminOrders);
+            })
+            .addCase(fetchAdminOrders.rejected, (state, action) => {
+                state.loading.adminfetch = false;
+                state.error = action.error?.message;
+            })
     },
 });
 
@@ -155,6 +168,7 @@ export {
     fetchOrders,
     fetchOrderById,
     cancelOrder,
+    fetchAdminOrders,
 };
 
 export default orderSlice.reducer;

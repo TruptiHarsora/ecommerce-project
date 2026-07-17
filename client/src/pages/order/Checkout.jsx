@@ -8,13 +8,23 @@ import checkoutValidationSchema from '@/validators/checkoutValidator';
 import { useFormik } from 'formik';
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
 const Checkout = () => {
-  const { items = [], pricing = {}, fetchCart } = useCart();
+  const { items: cartItems = [], pricing = {}, fetchCart } = useCart();
   const { createOrder, loading } = useOrder();
   const navigate = useNavigate();
 
-  console.log("Chekout itms",items);
+  const location = useLocation();
+
+  const buyNowItems =
+    location.state?.buyNow
+      ? location.state.items
+      : null;
+
+  const items = buyNowItems || cartItems;
+
+  console.log("Chekout itms", items);
   const formik = useFormik({
     initialValues: {
       fullName: "",

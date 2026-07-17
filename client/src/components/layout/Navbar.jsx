@@ -370,6 +370,7 @@ import useProducts from "@/hooks/useProducts";
 import useCart from "@/hooks/useCart";
 import { Heart } from "lucide-react";
 import useWishlist from "@/hooks/useWishlist";
+import UserAvatar from "../common/UserAvatar";
 
 const Navbar = ({ setOpen }) => {
   console.log("Navbar render");
@@ -388,8 +389,13 @@ const Navbar = ({ setOpen }) => {
 
   // const categories = ["All", "Electronics", "Fashion", "Home", "Books"];
   // const suggestions = ["iPhone", "Laptop", "Shoes", "Headphones", "Watch"];
-  const { items } = useCart();
+  useEffect(() => {
+    getWishlist();
+    // fetchCart();
+  }, [user]);
 
+  const { items } = useCart();
+  console.log("Navbar cart items:", items);
 
 
   const cartCount = items.reduce(
@@ -424,14 +430,11 @@ const Navbar = ({ setOpen }) => {
   //   return () => clearTimeout(timer);
   // }, [search, setFilter]);
 
-  useEffect(() => {
-    getWishlist();
-    // fetchCart();
-  }, [user]);
+
 
   // useEffect(() => {
   //   fetchCart();
-  // }, [user]);
+  // }, []);
 
   useEffect(() => {
     if (!search.trim()) return;
@@ -605,7 +608,9 @@ const Navbar = ({ setOpen }) => {
       {!user ? (
         <Menu as="div" className="relative">
           <Menu.Button>
-            <FaUserCircle className="text-2xl" />
+            <div className="flex items-center justify-center">
+              <FaUserCircle className="text-2xl h-10 w-10  " />
+            </div>
           </Menu.Button>
 
           <Menu.Items className="absolute right-0 mt-2 w-44 bg-white text-black rounded shadow-lg z-50">
@@ -635,10 +640,12 @@ const Navbar = ({ setOpen }) => {
       ) : (
         <Menu as="div" className="relative">
           <Menu.Button>
-            <img
+            {/* <img
               src="https://ui-avatars.com/api/?name=User"
               className="w-8 h-8 rounded-full"
-            />
+            /> */}
+
+            <UserAvatar user={user} className="w-8 h-8" />
           </Menu.Button>
 
           <Menu.Items className="absolute right-0 mt-2 w-44 bg-white text-black rounded shadow-lg z-50">

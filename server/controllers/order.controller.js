@@ -661,7 +661,7 @@ const getUserOrders = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
-            
+
         const totalOrders = await Order.countDocuments({ user: userId });
 
         res.status(200).json({
@@ -679,5 +679,8 @@ const getUserOrders = async (req, res) => {
             message: error.message
         });
     }
+
 };
+
+
 module.exports = { createOrder, confirmOrder, updateOrderStatus, removeOrder, getOrderById, getUserOrders }

@@ -37,6 +37,7 @@ const registerSchema = Yup.object({
 
 });
 
+
 const updateProfileSchema = Yup.object().shape({
 
     name: Yup.string()

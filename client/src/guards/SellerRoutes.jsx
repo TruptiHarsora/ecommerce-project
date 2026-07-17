@@ -1,6 +1,6 @@
 import React from 'react'
 import useAuth from '../hooks/useAuth'
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { ROLES } from '../utils/roles';
 
 const AdminRoutes = ({ children }) => {
@@ -17,7 +17,8 @@ const AdminRoutes = ({ children }) => {
     if (user.role !== ROLES.SELLER) {
         return <Navigate to="/" replace />
     }
-    return children
+    // return children
+    return <Outlet />
 }
 
 export default AdminRoutes
