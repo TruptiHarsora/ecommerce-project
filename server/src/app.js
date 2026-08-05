@@ -32,10 +32,12 @@ require("../models/Order.js");
 require("../models/Wishlist.js");
 require("../models/Review.js");
 
-app.use(cors({
+app.use(
+  cors({
     origin: FRONTEND_ORIGIN,
-    credentials: true
-}));
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -74,7 +76,7 @@ app.use("/api/seller", sellerRoutes);
 // app.use((err, req, res, next) => res.status(err.status || 500).json({ message: err.message || "Server Error" }));
 
 app.get("/", (req, res) => {
-    res.json("Default page");
-})
+  res.json("Default page");
+});
 
 module.exports = app;

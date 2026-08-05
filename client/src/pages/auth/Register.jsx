@@ -1,22 +1,16 @@
-import React, { useContext } from "react"
+import React, { useContext } from "react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { AuthContext } from "@/context/AuthContext"
-import { useFormik } from "formik"
-import { registerSchema } from "@/validators/authValidator"
-import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthContext } from "@/context/AuthContext";
+import { useFormik } from "formik";
+import { registerSchema } from "@/validators/authValidator";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-
   const { register } = useContext(AuthContext);
   const nav = useNavigate();
   const formik = useFormik({
@@ -25,7 +19,8 @@ const Register = () => {
       email: "",
       password: "",
       phone: "",
-    }, validationSchema: registerSchema,
+    },
+    validationSchema: registerSchema,
     onSubmit: async (values, { setSubmitting, setStatus }) => {
       try {
         setStatus(null);
@@ -36,13 +31,13 @@ const Register = () => {
       } finally {
         setSubmitting(false);
       }
-    }
-  })
+    },
+  });
 
   const handleChange = (e) => {
     formik.handleChange(e);
     formik.setStatus(null);
-  }
+  };
 
   const handlePhoneChange = (e) => {
     const value = e.target.value;
@@ -55,7 +50,6 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <Card className="w-full max-w-md">
-
         <CardHeader>
           <CardTitle className="text-2xl text-center">
             Create your account
@@ -64,11 +58,11 @@ const Register = () => {
 
         <CardContent>
           <form className="space-y-5" onSubmit={formik.handleSubmit}>
-
             {/* Name */}
             <div className="space-y-2">
               <Label>Name</Label>
-              <Input type="text"
+              <Input
+                type="text"
                 placeholder="Enter your name"
                 name="name"
                 value={formik.values.name}
@@ -85,7 +79,8 @@ const Register = () => {
             {/* Email */}
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input type="email"
+              <Input
+                type="email"
                 placeholder="Enter your email"
                 name="email"
                 value={formik.values.email}
@@ -102,7 +97,8 @@ const Register = () => {
             {/* Password */}
             <div className="space-y-2">
               <Label>Password</Label>
-              <Input type="password"
+              <Input
+                type="password"
                 placeholder="Create password"
                 name="password"
                 value={formik.values.password}
@@ -158,7 +154,6 @@ const Register = () => {
               </Label>
             </div> */}
 
-
             {formik.status && (
               <p className="text-red-500 text-sm text-center">
                 {formik.status}
@@ -166,7 +161,11 @@ const Register = () => {
             )}
 
             {/* Button */}
-            <Button type="submit" className="w-full" disabled={formik.isSubmitting}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={formik.isSubmitting}
+            >
               {formik.isSubmitting ? "Signing is ...." : "sing up"}
               {/* Sign Up */}
             </Button>
@@ -174,20 +173,15 @@ const Register = () => {
             {/* Login link */}
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <a
-                href="/login"
-                className="text-blue-600 hover:underline"
-              >
+              <a href="/login" className="text-blue-600 hover:underline">
                 Login
               </a>
             </p>
-
           </form>
         </CardContent>
-
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

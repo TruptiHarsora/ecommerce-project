@@ -1,58 +1,55 @@
-import React from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
-import MainLayout from '../components/layout/MainLayout';
+import React from "react";
+import { Link, Route, Routes } from "react-router-dom";
+import MainLayout from "../components/layout/MainLayout";
 
-import Home from '../pages/Home'
-import Login from '../pages/auth/Login';
-import Register from '../pages/auth/Register';
-import ProductList from '../pages/products/ProductList';
-import ProductDetails from '../pages/products/ProductDetails';
+import Home from "../pages/Home";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
+import ProductList from "../pages/products/ProductList";
+import ProductDetails from "../pages/products/ProductDetails";
 
-import RoleRoutes from '../guards/RoleRoute';
+import RoleRoutes from "../guards/RoleRoute";
 
-//user 
-import Profile from '../pages/user/Profile';
-import Cart from '../pages/cart/Cart';
-import Wishlist from '@/pages/wishlist/Wishlist';
-import Checkout from '@/pages/order/CheckOut';
-import OrderSuccess from '@/pages/order/OrderSuccess';
-import Orders from '@/pages/order/Orders';
+//user
+import UserProfile from "../pages/user/UserProfile";
+import Cart from "../pages/cart/Cart";
+import Wishlist from "@/pages/wishlist/Wishlist";
+import Checkout from "@/pages/order/CheckOut";
+import OrderSuccess from "@/pages/order/OrderSuccess";
+import Orders from "@/pages/order/Orders";
 
 //admin
-import Users from '../pages/admin/User'
-import AdminDashboard from '../pages/admin/Dashboard'
-import AdminProducts from '../pages/admin/AdminProductsList'
-import AdminReviews from '../pages/admin/Reviews'
+import Users from "../pages/admin/User";
+import AdminDashboard from "../pages/admin/Dashboard";
+import AdminProducts from "../pages/admin/AdminProductsList";
+import AdminReviews from "../pages/admin/AdminReviews";
 
 //seller
-import SellerDashboard from "../pages/seller/Dashboard"
-import SellerProducts from "../pages/seller/SellerProducts"
-import SellerOrders from "../pages/seller/Orders"
-import ProductsCreate from '@/pages/products/ProductsCreate';
-import ProductUpdate from '@/pages/products/ProductsUpdate';
-import OrderDetails from '@/pages/order/OrderDetails';
-import Category from '@/pages/category/Category';
-import ReviewForm from '@/pages/review/ReviewForm';
-import AdminOrders from '@/pages/admin/AdminOrders';
-import Seller from '@/pages/admin/Seller';
-import AdminLayout from '@/components/layout/AdminLayout';
-import SellerDetails from '@/pages/admin/SellerDetails';
-import AdminProductDetails from '@/pages/admin/AdminProductDetails';
-import LandingPage from '@/pages/LandingPage';
-import Dashboard from '../pages/seller/Dashboard';
-import SellerLayout from '@/components/layout/SellerLayout';
+
+import Dashboard from "../pages/seller/Dashboard";
+import SellerProducts from "../pages/seller/SellerProducts";
+import ProductsCreate from "@/pages/products/ProductsCreate";
+import ProductUpdate from "@/pages/products/ProductsUpdate";
+import OrderDetails from "@/pages/order/OrderDetails";
+import Category from "@/pages/category/Category";
+import ReviewForm from "@/pages/review/ReviewForm";
+import AdminOrders from "@/pages/admin/AdminOrders";
+import Seller from "@/pages/admin/Seller";
+import AdminLayout from "@/components/layout/AdminLayout";
+import SellerDetails from "@/pages/admin/SellerDetails";
+import AdminProductDetails from "@/pages/admin/AdminProductDetails";
+import LandingPage from "@/pages/LandingPage";
+import SellerLayout from "@/components/layout/SellerLayout";
+import SellerOrdersList from "@/pages/seller/SellerOrderList";
+import SellerReview from "@/pages/seller/SellerReview";
+import SellerProfile from "@/pages/seller/SellerProfile";
+import UserChangePassword from "@/pages/user/UserChangePassword";
 
 // import Category from '@/pages/category/Categories';
-
-
-
-
-
 
 const AppRoutes = () => {
   return (
     <Routes>
-
       {/* PUBLIC ROUTES */}
       <Route element={<MainLayout />}>
         {/* <Route path="/" element={<Home />} /> */}
@@ -72,16 +69,18 @@ const AppRoutes = () => {
       </Route>
 
       {/* USER ROUTES */}
-      <Route element={<RoleRoutes allowedRoles={["user", "admin", "seller"]} />}>
+      <Route
+        element={<RoleRoutes allowedRoles={["user", "admin", "seller"]} />}
+      >
         <Route element={<MainLayout />}>
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/changePassword" element={<UserChangePassword />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path='/orders/:id' element={<OrderDetails />} />
-
+          <Route path="/orders/:id" element={<OrderDetails />} />
         </Route>
       </Route>
 
@@ -92,7 +91,12 @@ const AppRoutes = () => {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/product/:id" element={<AdminProductDetails viewUrl="/admin" actiontType="admin" />} />
+          <Route
+            path="/admin/product/:id"
+            element={
+              <AdminProductDetails viewUrl="/admin" actiontType="admin" />
+            }
+          />
           <Route path="/admin/product/update/:id" element={<ProductUpdate />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />
           <Route path="/admin/category" element={<Category />} />
@@ -100,22 +104,37 @@ const AppRoutes = () => {
           <Route path="/admin/orders/:id" element={<OrderDetails />} />
           <Route path="/admin/sellers" element={<Seller />} />
           <Route path="/admin/sellers/:id" element={<SellerDetails />} />
-
-
         </Route>
       </Route>
-
+      <Route
+        element={<RoleRoutes allowedRoles={["user", "seller", "admin"]} />}
+      >
+        <Route element={<SellerLayout />}>
+          <Route path="/seller/profile" element={<SellerProfile />} />
+        </Route>
+      </Route>
       {/* SELLER ROUTES */}
       <Route element={<RoleRoutes allowedRoles={["seller"]} />}>
         <Route element={<SellerLayout />}>
           <Route path="/seller" element={<Dashboard />} />
           <Route path="/seller/dashboard" element={<Dashboard />} />
           <Route path="/seller/product/create" element={<ProductsCreate />} />
-          <Route path="/seller/product/update/:id" element={<ProductUpdate />} />
+          <Route
+            path="/seller/product/update/:id"
+            element={<ProductUpdate />}
+          />
           <Route path="/seller/products" element={<SellerProducts />} />
-          <Route path="/seller/orders" element={<SellerOrders />} />
+          <Route path="/seller/orders" element={<SellerOrdersList />} />
           <Route path="/seller/orders/:id" element={<OrderDetails />} />
-          <Route path="/seller/product/:id" element={<AdminProductDetails viewUrl="/seller" actiontType="seller" />} />
+          <Route path="/seller/orders/:id/status" element={<OrderDetails />} />
+          <Route path="/seller/reviews" element={<SellerReview />} />
+          {/* <Route path="/seller/profile" element={<SellerProfile />} /> */}
+          <Route
+            path="/seller/product/:id"
+            element={
+              <AdminProductDetails viewUrl="/seller" actiontType="seller" />
+            }
+          />
         </Route>
       </Route>
 
@@ -125,7 +144,6 @@ const AppRoutes = () => {
 
         </Route>
       </Route> */}
-
     </Routes>
   );
 };

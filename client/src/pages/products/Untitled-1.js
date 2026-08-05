@@ -1,105 +1,200 @@
 import { useEffect, useState } from "react";
+import useSeller from "@/hooks/useSeller";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Label } from "@/components/ui/label";
+import UserAvatar from "@/components/common/UserAvatar";
 
-import sellerService from "@/services/sellerService";
+const SellerProfile = () => {
+  const { seller, loading, getSellerProfile, updateSellerProfile } =
+    useSeller();
 
-import StatCard from "@/components/common/StatCard";
-import OrdersTable from "@/components/common/OrdersTable";
-import ProductsTable from "@/components/common/ProductsTable";
+  const [form, setForm] = useState({
+    shopName: "",
+    gstNumber: "",
+    businessPhone: "",
+    pickupAddress: {
+      addressLine1: "",
+      city: "",
+      state: "",
+      postalCode: "",
+    },
+  });
 
-const Dashboard = () => {
+  const [logo, setLogo] = useState(null);
 
-    const [dashboard, setDashboard] = useState(null);
-    const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getSellerProfile();
+  }, []);
 
-    const fetchDashboard = async () => {
-        try {
+  useEffect(() => {
+    if (seller) {
+      setForm({
+        shopName: seller.shopName || "",
+        gstNumber: seller.gstNumber || "",
+        businessPhone: seller.businessPhone || "",
+        pickupAddress: {
+          addressLine1: seller.pickupAddress?.addressLine1 || "",
+          city: seller.pickupAddress?.city || "",
+          state: seller.pickupAddress?.state || "",
+          postalCode: seller.pickupAddress?.postalCode || "",
+        },
+      });
+    }
+  }, [seller]);
 
-            const data = await sellerService.getSellerDashboard();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-            setDashboard(data);
+    if (
+      name === "addressLine1" ||
+      name === "city" ||
+      name === "state" ||
+      name === "postalCode"
+    ) {
+      setForm((prev) => ({
+        ...prev,
+        pickupAddress: {
+          ...prev.pickupAddress,
+          [name]: value,
+        },
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
 
-        } catch (error) {
-            console.log(error);
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-        } finally {
-            setLoading(false);
-        }
-    };
+    const formData = new FormData();
 
-    useEffect(() => {
-        fetchDashboard();
-    }, []);
+    formData.append("shopName", form.shopName);
+    formData.append("gstNumber", form.gstNumber);
+    formData.append("businessPhone", form.businessPhone);
 
-    if (loading) {
-        return (
-            <div className="text-center py-10">
-                Loading Dashboard...
-            </div>
-        );
+    formData.append("pickupAddress", JSON.stringify(form.pickupAddress));
+
+    if (logo) {
+      formData.append("logo", logo);
     }
 
-    return (
-        <div className="space-y-6">
+    updateSellerProfile(formData);
+  };
 
-            <h1 className="text-3xl font-bold">
-                Seller Dashboard
-            </h1>
+  if (loading) {
+    return <div className="p-10 text-center">Loading...</div>;
+  }
 
-            {/* Stats */}
+  return (
+    <div className="max-w-6xl mx-auto py-8">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Seller Profile</CardTitle>
+        </CardHeader>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-10">
+            {/* Left */}
 
-                <StatCard
-                    title="Total Sales"
-                    value={`₹${dashboard.stats.totalSales.toLocaleString()}`}
-                />
+            <div className="space-y-5 flex flex-col items-center">
+              <UserAvatar
+                image={seller?.logo}
+                name={seller?.shopName}
+                size="w-40 h-40"
+                textSize="text-4xl"
+              />
 
-                <StatCard
-                    title="Earnings"
-                    value={`₹${dashboard.stats.earnings.toLocaleString()}`}
-                />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setLogo(e.target.files[0])}
+              />
 
-                <StatCard
-                    title="Total Orders"
-                    value={dashboard.stats.totalOrders}
-                />
-
-                <StatCard
-                    title="Pending Orders"
-                    value={dashboard.stats.pendingOrders}
-                />
-
-                <StatCard
-                    title="Products"
-                    value={dashboard.stats.totalProducts}
-                />
-
-                <StatCard
-                    title="Average Rating"
-                    value={`⭐ ${dashboard.stats.averageRating.toFixed(1)}`}
-                />
-
+              <p className="text-xs text-muted-foreground">
+                JPG, PNG (Max 5MB)
+              </p>
             </div>
 
-            {/* Recent Orders */}
+            {/* Right */}
 
-            <OrdersTable
-                title="Recent Orders"
-                orders={dashboard.recentOrders}
-                showCustomer
-                showActions={false}
-                showPagination={false}
-            />
+            <div className="md:col-span-2 space-y-5">
+              <div>
+                <Label>Shop Name</Label>
+                <Input
+                  name="shopName"
+                  value={form.shopName}
+                  onChange={handleChange}
+                />
+              </div>
 
-            <ProductsTable
-                title="Low Stock Products"
-                products={dashboard.lowStockProducts}
-                actionType="seller"
-                showPagination={false}
-            />
+              <div>
+                <Label>GST Number</Label>
+                <Input
+                  name="gstNumber"
+                  value={form.gstNumber}
+                  onChange={handleChange}
+                />
+              </div>
 
-        </div>
-    );
+              <div>
+                <Label>Business Phone</Label>
+                <Input
+                  name="businessPhone"
+                  value={form.businessPhone}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <Label>Address Line</Label>
+                <Input
+                  name="addressLine1"
+                  value={form.pickupAddress.addressLine1}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>City</Label>
+                  <Input
+                    name="city"
+                    value={form.pickupAddress.city}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div>
+                  <Label>State</Label>
+                  <Input
+                    name="state"
+                    value={form.pickupAddress.state}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div>
+                  <Label>Postal Code</Label>
+                  <Input
+                    name="postalCode"
+                    value={form.pickupAddress.postalCode}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <Button type="submit">Save Changes</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
-export default Dashboard;
+export default SellerProfile;

@@ -34,67 +34,65 @@ const User = require("../models/User");
 // }
 
 const authMiddleware = async (req, res, next) => {
-    try {
-        console.log("🔥 AUTH MIDDLEWARE HIT");
-        const AuthHeader = req.headers.authorization;
-        // console.log("AuthHeader: ", AuthHeader);
+  try {
+    console.log("🔥 AUTH MIDDLEWARE HIT");
+    const AuthHeader = req.headers.authorization;
+    // console.log("AuthHeader: ", AuthHeader);
 
-        if (!AuthHeader) {
-            return res.status(401)
-                .json({ success: false, message: "No token Provided" });
-        }
-
-        // if (!AuthHeader || !AuthHeader.startsWith("Bearer ")) {
-        //     return res.status(401).json({ message: "No token" });
-        // }
-
-        const token = AuthHeader.split(" ")[1];
-        // console.log("token: ",token);
-        // if (!token) {
-        //     return res.status(401)
-        //         .json({ success: false, message: "No authorized" })
-        // }
-
-        const decoded = JWT.verify(token, JWT_ACCESS_SECRET);
-        // console.log("decoded", decoded);
-
-        if (!decoded) {
-            return res.status(401)
-                .json({
-                    success: false, message: "no Token"
-                })
-        }
-
-        console.log("Encoded: ", decoded);
-
-        const user = await User.findById(decoded.id).select("-password");
-
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not found",
-            });
-        }
-
-        if (user.isBlocked) {
-            return res.status(403).json({
-                success: false,
-                message: "Your account has been blocked by the administrator.",
-            });
-        }
-        req.user = decoded;
-        next();
-
-    } catch (error) {
-        //  console.log("JWT ERROR:", error.message);
-        if (error.name === 'TokenExpiredError') {
-            return res.status(401)
-                .json({ success: false, message: "Token expired" });
-        }
-        res.status(401)
-            .json({ success: false, message: "Not authorized" });
+    if (!AuthHeader) {
+      return res
+        .status(401)
+        .json({ success: false, message: "No token Provided" });
     }
 
-}
+    // if (!AuthHeader || !AuthHeader.startsWith("Bearer ")) {
+    //     return res.status(401).json({ message: "No token" });
+    // }
+
+    const token = AuthHeader.split(" ")[1];
+    // console.log("token: ",token);
+    // if (!token) {
+    //     return res.status(401)
+    //         .json({ success: false, message: "No authorized" })
+    // }
+
+    const decoded = JWT.verify(token, JWT_ACCESS_SECRET);
+    // console.log("decoded", decoded);
+
+    if (!decoded) {
+      return res.status(401).json({
+        success: false,
+        message: "no Token",
+      });
+    }
+
+    console.log("Encoded: ", decoded);
+
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account has been blocked by the administrator.",
+      });
+    }
+    req.user = decoded;
+    console.log(req.user);
+    next();
+  } catch (error) {
+    //  console.log("JWT ERROR:", error.message);
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ success: false, message: "Token expired" });
+    }
+    res.status(401).json({ success: false, message: "Not authorized" });
+  }
+};
 
 module.exports = authMiddleware;
