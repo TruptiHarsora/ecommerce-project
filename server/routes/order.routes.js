@@ -11,6 +11,7 @@ const {
   updateOrderStatus,
   getUserOrders,
   getOrderById,
+  cancelOrderItem,
 } = require("../controllers/order.controller");
 
 const {
@@ -31,7 +32,9 @@ router.post(
 );
 router.get("/", getUserOrders);
 router.get("/:id", getOrderById);
+
 router.patch("/:id/cancel", removeOrder);
+router.patch("/:orderId/items/:itemId/cancel", cancelOrderItem);
 
 router.patch("/:id/confirm", authorizeRoles("admin"), confirmOrder);
 router.patch(

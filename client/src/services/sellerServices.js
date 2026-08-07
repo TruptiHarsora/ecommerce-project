@@ -23,7 +23,7 @@ const getSellerOrdersById = async (id) => {
 };
 
 const updateSellerOrderStatus = async (id, orderStatus) => {
-  const res = await api.patch(`/seller/orders/${id}/status`, { orderStatus });
+  const res = await api.patch(`/seller/orders/${id}/status`, orderStatus);
   return res.data;
 };
 

@@ -256,12 +256,11 @@ const createProduct = async (req, res) => {
     //         await Promise.all(uploadTasks);
     // }
 
-    // const variantImageFiles =
-    //     req.files?.variantImages || [];
+    const variantImageFiles = req.files?.variantImages || [];
 
-    // const variantImageIndexes = JSON.parse(
-    //     req.body.variantImageIndexes || "[]"
-    // );
+    const variantImageIndexes = JSON.parse(
+      req.body.variantImageIndexes || "[]",
+    );
 
     if (variantImageFiles.length) {
       for (let i = 0; i < variantImageFiles.length; i++) {

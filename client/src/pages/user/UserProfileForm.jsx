@@ -82,6 +82,10 @@ const UserProfileForm = ({
                     )}
                   </div>
 
+                  {/* {formik.touched.name && formik.errors.name && (
+                    <p className="text-sm text-red-500">{formik.errors.name}</p>
+                  )} */}
+
                   <div>
                     <Label>Phone</Label>
                     <Field as={Input} name="phone" />

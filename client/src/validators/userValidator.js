@@ -6,7 +6,9 @@ const updateUserProfileSchema = Yup.object({
     .max(50, "User name must be less than 50 characters")
     .required("User name is required"),
 
-  phone: Yup.string().matches(/^[6-9]\d{9}$/, "Enter a valid phone number"),
+  phone: Yup.string()
+    .matches(/^[6-9]\d{9}$/, "Enter a valid phone number")
+    .required("Please enter phone number"),
 });
 
 const changePasswordSchema = Yup.object({

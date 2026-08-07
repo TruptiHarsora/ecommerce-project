@@ -461,6 +461,7 @@ const AdminOrders = () => {
                   <th className=" py-4">Customer</th>
                   <th className=" py-4">Email</th>
                   <th className=" py-4">Amount</th>
+                  <th className=" py-4">Items</th>
                   <th className=" py-4">Status</th>
                   <th className=" py-4">Date</th>
                   <th className=" py-4">Actions</th>
@@ -481,11 +482,13 @@ const AdminOrders = () => {
                       <td className="py-4">
                         ₹ {order.pricing?.grandTotal?.toLocaleString("en-IN")}
                       </td>
+                      <td className="py-4">{order.items?.length || 0}</td>
+
                       <td className="py-4">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${getStatusClass(order.orderStatus)}`}
                         >
-                          {order.orderStatus.replaceAll("-", " ")}
+                          {order.orderStatus.replaceAll("_", " ")}
                         </span>
                       </td>
 

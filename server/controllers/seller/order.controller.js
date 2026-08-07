@@ -19,26 +19,106 @@ const validStatuses = Object.keys(allowedTransitions);
 // Helper
 // ======================================
 
-const formatSellerOrder = (order, sellerId) => {
-  const sellerItems = order.items.filter(
-    (item) => item.seller.toString() === sellerId.toString(),
-  );
+// const formatSellerOrder = (order, sellerId) => {
+//   const sellerItems = order.items.filter(
+//     (item) => item.seller.toString() === sellerId.toString(),
+//   );
 
+//   const sellerTotal = sellerItems.reduce(
+//     (total, item) => total + (item.priceAtTime || item.price) * item.quantity,
+//     0,
+//   );
+
+//   return {
+//     ...order,
+//     items: sellerItems,
+//     sellerTotal,
+//   };
+// };
+
+// const formatSellerOrder = (order, sellerId) => {
+//   const sellerItems = order.items.filter(
+//     (item) => item.seller.toString() === sellerId.toString(),
+//   );
+//   const sellerTotal = sellerItems.reduce(
+//     (total, item) => total + item.price * item.quantity,
+//     0,
+//   );
+//   const sellerOrderStatus = sellerItems.every(
+//     (i) => i.orderStatus === "cancelled",
+//   )
+//     ? "cancelled"
+//     : sellerItems.every((i) => i.orderStatus === "delivered")
+//       ? "delivered"
+//       : sellerItems.some((i) => i.orderStatus === "out_for_delivery")
+//         ? "out_for_delivery"
+//         : sellerItems.some((i) => i.orderStatus === "shipped")
+//           ? "shipped"
+//           : sellerItems.some((i) => i.orderStatus === "confirmed")
+//             ? "confirmed"
+//             : "placed";
+//   return {
+//     ...order,
+//     items: sellerItems,
+//     sellerTotal,
+//     sellerOrderStatus,
+//   };
+// };
+
+//final
+// const formatSellerOrder = (order, sellerId) => {
+//   const sellerItems = order.items.filter(
+//     (item) => item.seller.toString() === sellerId.toString(),
+//   );
+
+//   const sellerTotal = sellerItems.reduce(
+//     (total, item) => total + item.price * item.quantity,
+//     0,
+//   );
+
+//   return {
+//     ...order,
+//     items: sellerItems,
+//     sellerTotal,
+//   };
+// };
+
+const formatSellerOrder = (order, sellerId) => {
+  const sellerItems = order.items.filter((item) => {
+    const itemSellerId =
+      item.seller?._id?.toString() || item.seller?.toString();
+    return itemSellerId === sellerId.toString();
+  });
   const sellerTotal = sellerItems.reduce(
-    (total, item) => total + (item.priceAtTime || item.price) * item.quantity,
+    (total, item) => total + item.price * item.quantity,
     0,
   );
-
-  return {
-    ...order,
-    items: sellerItems,
-    sellerTotal,
-  };
+  return { ...order, items: sellerItems, sellerTotal };
 };
 
 // ======================================
 // Get Seller Orders
 // ======================================
+
+// const formatSellerOrder = (order, sellerId) => {
+//   const sellerItems = order.items.filter(
+//     (item) => item.seller.toString() === sellerId.toString(),
+//   );
+
+//   const itemTotal = sellerItems.reduce(
+//     (total, item) => total + item.price * item.quantity,
+//     0,
+//   );
+
+//   const tax = Math.round(itemTotal * 0.18);
+//   const shipping = 0;
+//   const grandTotal = itemTotal + tax + shipping;
+//   return {
+//     ...order,
+//     items: sellerItems,
+//     sellerPricing: { itemTotal, tax, shipping, grandTotal },
+//   };
+// };
 
 const getSellerOrders = async (req, res) => {
   try {
@@ -52,10 +132,13 @@ const getSellerOrders = async (req, res) => {
 
     const filter = { "items.seller": sellerId };
 
-    if (status) {
-      filter.orderStatus = status;
-    }
+    // if (status) {
+    //   filter.orderStatus = status;
+    // }
 
+    if (status) {
+      filter["items.orderStatus"] = status;
+    }
     const sortOption = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
 
     const [orders, total] = await Promise.all([
@@ -113,6 +196,7 @@ const getSellerOrderById = async (req, res) => {
         "user items pricing paymentInfo shippingAddress orderStatus createdAt deliveredAt",
       )
       .populate("user", "name email phone")
+      .populate("items.seller", "shopName")
       .lean();
 
     if (!order) {
@@ -138,13 +222,80 @@ const getSellerOrderById = async (req, res) => {
 // Update Seller Order Status
 // ======================================
 
+// const updateSellerOrderStatus = async (req, res) => {
+//   try {
+//     const sellerId = req.seller._id;
+//     const { id } = req.params;
+//     const { orderStatus } = req.body;
+
+//     if (!validStatuses.includes(orderStatus)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid order status.",
+//       });
+//     }
+
+//     const order = await Order.findOne({
+//       _id: id,
+//       "items.seller": sellerId,
+//     });
+
+//     if (!order) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Order not found.",
+//       });
+//     }
+
+//     const currentStatus = order.orderStatus;
+//     const nextStatuses = allowedTransitions[currentStatus] || [];
+
+//     if (!nextStatuses.includes(orderStatus)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Cannot change order from "${currentStatus}" to "${orderStatus}".`,
+//       });
+//     }
+
+//     order.orderStatus = orderStatus;
+
+//     if (orderStatus === "delivered") {
+//       order.deliveredAt = new Date();
+//     }
+
+//     await order.save();
+
+//     const updatedOrder = await Order.findById(order._id)
+//       .select(
+//         "user items pricing paymentInfo shippingAddress orderStatus createdAt deliveredAt",
+//       )
+//       .populate("user", "name email phone")
+//       .lean();
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Order status updated successfully.",
+//       order: formatSellerOrder(updatedOrder, sellerId),
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
 const updateSellerOrderStatus = async (req, res) => {
   try {
     const sellerId = req.seller._id;
     const { id } = req.params;
-    const { orderStatus } = req.body;
+    const { itemId, status } = req.body;
 
-    if (!validStatuses.includes(orderStatus)) {
+    console.log("BODY =>", req.body);
+    console.log("STATUS =>", status);
+    console.log("VALID =>", validStatuses);
+
+    if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
         message: "Invalid order status.",
@@ -163,34 +314,57 @@ const updateSellerOrderStatus = async (req, res) => {
       });
     }
 
-    const currentStatus = order.orderStatus;
-    const nextStatuses = allowedTransitions[currentStatus] || [];
+    const item = order.items.find(
+      (i) =>
+        i._id.toString() === itemId &&
+        i.seller.toString() === sellerId.toString(),
+    );
 
-    if (!nextStatuses.includes(orderStatus)) {
-      return res.status(400).json({
+    if (!item) {
+      return res.status(404).json({
         success: false,
-        message: `Cannot change order from "${currentStatus}" to "${orderStatus}".`,
+        message: "Order item not found.",
       });
     }
 
-    order.orderStatus = orderStatus;
+    const currentStatus = item.orderStatus;
+    const nextStatuses = allowedTransitions[currentStatus] || [];
 
-    if (orderStatus === "delivered") {
-      order.deliveredAt = new Date();
+    if (!nextStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot change item from "${currentStatus}" to "${status}".`,
+      });
+    }
+
+    item.orderStatus = status;
+
+    if (status === "delivered") {
+      item.deliveredAt = new Date();
+    }
+
+    if (status === "cancelled") {
+      item.cancelledAt = new Date();
+    }
+
+    const allDelivered = order.items.every(
+      (i) => i.orderStatus === "delivered",
+    );
+
+    if (allDelivered) {
+      order.paymentInfo.status = "paid";
+      order.paidAt = new Date();
     }
 
     await order.save();
 
     const updatedOrder = await Order.findById(order._id)
-      .select(
-        "user items pricing paymentInfo shippingAddress orderStatus createdAt deliveredAt",
-      )
       .populate("user", "name email phone")
       .lean();
 
     res.status(200).json({
       success: true,
-      message: "Order status updated successfully.",
+      message: "Item status updated successfully.",
       order: formatSellerOrder(updatedOrder, sellerId),
     });
   } catch (error) {

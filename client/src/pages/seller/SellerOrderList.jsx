@@ -43,20 +43,75 @@ const SellerOrdersList = () => {
     fetchOrders(status);
   }, [status]);
 
-  const handleStatusChanges = async (orderId, orderStatus) => {
+  // const handleStatusChanges = async (orderId, orderStatus) => {
+  //   try {
+  //     await sellerServices.updateSellerOrderStatus(orderId, { orderStatus });
+
+  //     setOrders((prev) =>
+  //       prev.map((order) =>
+  //         order._id === orderId ? { ...order, orderStatus } : order,
+  //       ),
+  //     );
+
+  //     setSelectedStatuses((prev) => ({ ...prev, [orderId]: undefined }));
+  //     successToast("Order status updated successfully");
+  //   } catch (error) {
+  //     console.log(error);
+  //     errorToast(error.response?.data?.message || "Something went wrong");
+  //   }
+  // };
+
+  // const handleStatusChanges = async (orderId, itemId, orderStatus) => {
+  //   try {
+  //     await sellerServices.updateSellerOrderStatus(orderId, {
+  //       itemId,
+  //       status: orderStatus,
+  //     });
+
+  //     setOrders((prev) =>
+  //       prev.map((order) => {
+  //         if (order._id !== orderId) return order;
+
+  //         return {
+  //           ...order,
+  //           items: order.items.map((item) =>
+  //             item._id === itemId ? { ...item, orderStatus } : item,
+  //           ),
+  //         };
+  //       }),
+  //     );
+
+  //     setSelectedStatuses((prev) => ({
+  //       ...prev,
+  //       [itemId]: undefined,
+  //     }));
+
+  //     successToast("Item status updated successfully");
+  //   } catch (error) {
+  //     errorToast(error.response?.data?.message || "Something went wrong");
+  //   }
+  // };
+
+  const handleStatusChanges = async (orderId, itemId, orderStatus) => {
     try {
-      await sellerServices.updateSellerOrderStatus(orderId, { orderStatus });
-
+      await sellerServices.updateSellerOrderStatus(orderId, {
+        itemId,
+        status: orderStatus,
+      });
       setOrders((prev) =>
-        prev.map((order) =>
-          order._id === orderId ? { ...order, orderStatus } : order,
-        ),
+        prev.map((order) => {
+          if (order._id !== orderId) return order;
+          return {
+            ...order,
+            items: order.items.map((item) =>
+              item._id === itemId ? { ...item, orderStatus } : item,
+            ),
+          };
+        }),
       );
-
-      setSelectedStatuses((prev) => ({ ...prev, [orderId]: undefined }));
-      successToast("Order status updated successfully");
+      setSelectedStatuses((prev) => ({ ...prev, [itemId]: undefined }));
+      successToast("Item status updated successfully");
     } catch (error) {
-      console.log(error);
       errorToast(error.response?.data?.message || "Something went wrong");
     }
   };
@@ -130,7 +185,7 @@ const SellerOrdersList = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => {
+                {/* {orders.map((order) => {
                   const selectedStatus =
                     selectedStatuses[order._id] || order.orderStatus;
                   const isCompleted =
@@ -210,7 +265,120 @@ const SellerOrdersList = () => {
                       </td>
                     </tr>
                   );
-                })}
+                })} */}
+
+                {orders.map((order) =>
+                  order.items.map((item) => {
+                    // const selectedStatus =
+                    //   selectedStatuses[item._id] || item.orderStatus;
+
+                    const selectedStatus =
+                      selectedStatuses[item._id?.toString()] ||
+                      item.orderStatus;
+
+                    const isCompleted =
+                      item.orderStatus === "delivered" ||
+                      item.orderStatus === "cancelled";
+
+                    return (
+                      <tr className="border-b text-left" key={item._id}>
+                        <td className="py-4">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={item.variantImg}
+                              alt={item.title}
+                              className="w-12 h-12 rounded border object-cover"
+                            />
+                            <div>
+                              <p className="font-medium">{item.title}</p>
+                              <p className="text-xs text-gray-500">
+                                Qty: {item.quantity}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-4">{order.user?.name}</td>
+
+                        <td className="py-4">
+                          ₹{" "}
+                          {(item.price * item.quantity).toLocaleString("en-IN")}
+                        </td>
+
+                        <td className="py-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${getStatusClass(item.orderStatus)}`}
+                          >
+                            {item.orderStatus.replaceAll("_", " ")}
+                          </span>
+                        </td>
+
+                        <td className="py-4">
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </td>
+
+                        <td className="py-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                navigate(`/seller/orders/${order._id}`)
+                              }
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+
+                            {!isCompleted && (
+                              <>
+                                <select
+                                  value={selectedStatus}
+                                  onChange={(e) =>
+                                    // setSelectedStatuses((prev) => ({
+                                    //   ...prev,
+                                    //   [item._id]: e.target.value,
+
+                                    setSelectedStatuses((prev) => ({
+                                      ...prev,
+                                      [item._id?.toString()]: e.target.value,
+                                    }))
+                                  }
+                                  className="border rounded px-2 py-1"
+                                >
+                                  <option value={item.orderStatus}>
+                                    {item.orderStatus.replaceAll("_", " ")}
+                                  </option>
+
+                                  {statusTransitions[item.orderStatus]?.map(
+                                    (status) => (
+                                      <option key={status} value={status}>
+                                        {status.replaceAll("_", " ")}
+                                      </option>
+                                    ),
+                                  )}
+                                </select>
+
+                                <Button
+                                  size="sm"
+                                  disabled={selectedStatus === item.orderStatus}
+                                  onClick={() =>
+                                    handleStatusChanges(
+                                      order._id,
+                                      item._id,
+                                      selectedStatus,
+                                    )
+                                  }
+                                >
+                                  Update
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }),
+                )}
               </tbody>
             </table>
           </div>
