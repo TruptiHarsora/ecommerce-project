@@ -2,6 +2,8 @@ import userService from "@/services/userService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { act } from "react";
 
+import { getMe } from "@/services/authService";
+
 const fetchUserProfile = createAsyncThunk("user/fetchProfile", async () => {
   const res = await userService.fetchUserProfile();
   return res;
@@ -17,6 +19,11 @@ const updateUserProfile = createAsyncThunk(
 
 const changePassword = createAsyncThunk("user/changePassword", async (data) => {
   const res = await userService.changePassword(data);
+  return res;
+});
+
+const fetchMe = createAsyncThunk("user/getMe", async () => {
+  const res = await getMe();
   return res;
 });
 
@@ -75,10 +82,23 @@ const userSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
         state.user = action.error.message;
+      })
+
+      .addCase(fetchMe.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMe.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(fetchMe.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });
 
-export { fetchUserProfile, updateUserProfile, changePassword };
+export { fetchUserProfile, updateUserProfile, changePassword, fetchMe };
 export const { clearUserError } = userSlice.actions;
 export default userSlice.reducer;

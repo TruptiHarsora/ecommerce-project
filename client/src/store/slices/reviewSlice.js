@@ -18,6 +18,13 @@ export const getMyReview = createAsyncThunk(
   },
 );
 
+export const getMyReviews = createAsyncThunk(
+  "review/getMyReviews",
+  async () => {
+    const res = await reviewService.getMyReviews();
+    return res;
+  },
+);
 // export const createReview = createAsyncThunk("/review/createReview", async ({ productId, data }) => {
 //     const res = await reviewService.createReview({ productId, data });
 //     successToast(res.message);
@@ -61,12 +68,14 @@ export const markHelpful = createAsyncThunk("/review/helpful", async (id) => {
 const initialState = {
   reviews: [],
   myReview: null,
+  myReviews: [],
   loading: {
     create: false,
     fetch: false,
     update: false,
     delete: false,
     myReview: false,
+    myReviews: false,
     helpful: false,
   },
   error: null,
@@ -113,6 +122,20 @@ const reviewSlice = createSlice({
         state.error = action.error.message;
       })
 
+      // get User reviews
+      .addCase(getMyReviews.pending, (state) => {
+        state.loading.myReviews = true;
+        state.error = null;
+      })
+      .addCase(getMyReviews.fulfilled, (state, action) => {
+        state.loading.myReviews = false;
+        state.myReviews = action.payload.reviews || [];
+      })
+      .addCase(getMyReviews.rejected, (state, action) => {
+        state.loading.myReviews = false;
+        state.error = action.error.message;
+      })
+
       //create Review
       .addCase(createReview.pending, (state) => {
         state.loading.create = true;
@@ -134,18 +157,42 @@ const reviewSlice = createSlice({
         state.loading.update = true;
         state.error = null;
       })
+      // .addCase(updateReview.fulfilled, (state, action) => {
+      //   state.loading.update = false;
+      //   const updatedReview = action.payload.review;
+
+      //   const index = state.reviews.findIndex(
+      //     (review) => review._id === updatedReview._id,
+      //   );
+      //   if (index !== -1) {
+      //     state.reviews[index] = updatedReview;
+      //   }
+      //   state.myReview = updatedReview;
+
+      //   const myIndex = state.myReviews.findIndex(
+      //     (review) => review._id === updatedReview._id,
+      //   );
+      //   if (myIndex !== -1) {
+      //     state.myReviews[myIndex] = updatedReview;
+      //   }
+      //   // successToast("Review Updated successfully");
+      // })
       .addCase(updateReview.fulfilled, (state, action) => {
         state.loading.update = false;
         const updatedReview = action.payload.review;
-
         const index = state.reviews.findIndex(
           (review) => review._id === updatedReview._id,
         );
         if (index !== -1) {
           state.reviews[index] = updatedReview;
         }
+        const myIndex = state.myReviews.findIndex(
+          (review) => review._id === updatedReview._id,
+        );
+        if (myIndex !== -1) {
+          state.myReviews[myIndex] = updatedReview;
+        }
         state.myReview = updatedReview;
-        // successToast("Review Updated successfully");
       })
       .addCase(updateReview.rejected, (state, action) => {
         state.loading.update = false;
@@ -158,16 +205,31 @@ const reviewSlice = createSlice({
         state.loading.delete = true;
         state.error = null;
       })
+      // .addCase(deleteReview.fulfilled, (state, action) => {
+      //   state.loading.delete = false;
+
+      //   state.reviews = state.reviews.filter(
+      //     (review) => review._id !== action.payload.review._id,
+      //   );
+      //   if (state.myReview?._id === action.payload.review._id) {
+      //     state.myReview = null;
+      //   }
+      //   state.myReviews = state.myReviews.filter(
+      //     (review) => review._id !== action.payload.review._id,
+      //   );
+      //   // successToast("Review Deleted successfully");
+      // })
       .addCase(deleteReview.fulfilled, (state, action) => {
         state.loading.delete = false;
-
         state.reviews = state.reviews.filter(
+          (review) => review._id !== action.payload.review._id,
+        );
+        state.myReviews = state.myReviews.filter(
           (review) => review._id !== action.payload.review._id,
         );
         if (state.myReview?._id === action.payload.review._id) {
           state.myReview = null;
         }
-        // successToast("Review Deleted successfully");
       })
       .addCase(deleteReview.rejected, (state, action) => {
         state.loading.delete = false;

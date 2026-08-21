@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import useProducts from "@/hooks/useProducts";
+import { errorToast, successToast } from "@/lib/toast";
 import { getCategories } from "@/services/categoryService";
 import { productValidationSchema } from "@/validators/productValidator";
 import { useFormik } from "formik";
@@ -145,6 +146,7 @@ const ProductCreate = () => {
         }
 
         await createProduct(formData);
+        successToast(action.payload.message || "Product created Sucessfully");
 
         resetForm();
         setSpecInput({
@@ -169,7 +171,12 @@ const ProductCreate = () => {
           ? nav("/admin/products")
           : nav("/seller/products");
       } catch (error) {
-        console.log(error);
+        // console.log(error);
+        errorToast(
+          error?.response?.data?.message ||
+            error?.message ||
+            "somthing went wrong",
+        );
       }
     },
   });

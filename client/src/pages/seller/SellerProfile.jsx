@@ -208,7 +208,7 @@
 
 // export default SellerProfile;
 
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import Loader from "@/components/feedback/Loader";
 import SellerProfileForm from "./SellerProfileForm";
@@ -217,7 +217,8 @@ import { errorToast, successToast } from "@/lib/toast";
 import useAuth from "@/hooks/useAuth";
 
 const SellerProfile = () => {
-  const { user } = useAuth();
+  const { user, getMeData } = useAuth();
+  // const { getMe } = useContext(AuthContext);
 
   const {
     seller,
@@ -226,12 +227,16 @@ const SellerProfile = () => {
     becomeSeller,
     updateSellerProfile,
   } = useSeller();
+
   console.log("Seller", seller);
+
   useEffect(() => {
     getSellerProfile();
   }, []);
+
   console.log("User", user);
   console.log("seller", seller);
+
   const sellerProfileInitialValues = {
     logo: null,
     shopName: "",
@@ -244,7 +249,9 @@ const SellerProfile = () => {
       postalCode: "",
     },
   };
+
   console.log("Seller", seller);
+
   const initialValues = seller
     ? {
         logo: seller.logo || null,
@@ -301,9 +308,11 @@ const SellerProfile = () => {
         const res = await becomeSeller(formData);
         successToast(res.message || "Seller account created successfully");
       }
-
+      const data = await getMeData();
+      console.log("get ME data", data);
       getSellerProfile(); // Refresh latest profile
     } catch (error) {
+      console.log("error", error);
       errorToast(
         error?.response?.data?.message ||
           error?.message ||

@@ -5,7 +5,9 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../utils/generateToken");
+
 const { JWT_REFRESH_SECRET } = require("../config/config");
+
 const Seller = require("../models/Seller.js");
 
 const register = async (req, res) => {
@@ -176,4 +178,82 @@ const refreshTokenHandler = async (req, res) => {
   }
 };
 
-module.exports = { register, login, logout, refreshTokenHandler };
+// const getMe = async (req, res) => {
+//   const user = User.findById(req.user.id).select("-password -accessToken");
+
+//   if (!user) {
+//     res.status(404).json({
+//       success: false,
+//       message: "User not found",
+//     });
+//   }
+
+//   const seller = Seller.findOne({ user: user._id });
+
+//   if (!seller) {
+//     res.status(404).json({
+//       success: false,
+//       message: "Seller not found",
+//     });
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     user: {
+//       id: user._id,
+//       name: user.name,
+//       email: user.email,
+//       role: user.role,
+//       isVerified: user.isVerified,
+//       seller: seller
+//         ? {
+//             _id: seller._id,
+//             shopName: seller.shopName,
+//           }
+//         : null,
+//     },
+//   });
+// };
+
+const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select(
+      "-password -refreshToken",
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const seller = await Seller.findOne({ user: user._id }).select(
+      "_id shopName",
+    );
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isVerified: user.isVerified,
+        seller: seller
+          ? {
+              _id: seller._id,
+              shopName: seller.shopName,
+            }
+          : null,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { register, login, logout, refreshTokenHandler, getMe };

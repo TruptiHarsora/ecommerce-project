@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/Button";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
@@ -7,12 +7,15 @@ import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { Heart } from "lucide-react";
+import { errorToast, successToast } from "@/lib/toast";
 
 const ProductCard = ({ product }) => {
   const nav = useNavigate();
   const { user } = useAuth();
   const { addToCart, loading, fetchCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const [adding, setAdding] = useState(false);
 
   const selectedVariant = product.variants?.[0];
   const variantSku = selectedVariant?.sku;
@@ -42,6 +45,7 @@ const ProductCard = ({ product }) => {
     if (product.sellers?.[0]?.stock <= 0) return;
 
     try {
+      setAdding(true);
       console.log(product);
       console.log({
         product: product._id,
@@ -50,17 +54,27 @@ const ProductCard = ({ product }) => {
         quantity: 1,
       });
 
-      await addToCart({
+      const res = await addToCart({
         product: product._id,
         seller: product.sellers?.[0]?.seller,
         variantSku: selectedVariant.sku,
         quantity: 1,
       });
+
+      // successToast(res.message || "added to Cart");
       console.log("Added successfully");
+
       fetchCart();
       nav("/cart");
     } catch (error) {
       console.log(error);
+      // errorToast(
+      //   error?.response?.data?.message ||
+      //     error?.message ||
+      //     "somthing went wrong",
+      // );
+    } finally {
+      setAdding(false);
     }
   };
   const handleWishlist = async (e) => {
@@ -117,7 +131,8 @@ const ProductCard = ({ product }) => {
             }}
             disabled={loading.add}
           >
-            {loading.add ? "Adding..." : "Add To Cart"}
+            {/* {loading.add ? "Adding..." : "Add To Cart"} */}
+            {adding ? "Adding..." : "Add To Cart"}
           </Button>
 
           <Button

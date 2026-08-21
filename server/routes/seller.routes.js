@@ -29,6 +29,7 @@ const {
 } = require("../controllers/seller/dashboard.controller");
 const { mongoIdSchema } = require("../validators/admin.validator");
 const parseBody = require("../middlewares/parseBody.middleware");
+const requireVerifiedSeller = require("../middlewares/requireVerifiedSeller");
 const router = express.Router();
 
 router.use(sellerLimiter);
@@ -42,6 +43,7 @@ router.post(
   validate(becomeSellerSchema, "body"),
   becomeSeller,
 );
+
 router.get(
   "/profile",
   authMiddleware,
@@ -75,6 +77,7 @@ router.get(
   authMiddleware,
   isSeller,
   authorizeRoles("seller"),
+  requireVerifiedSeller,
   getSellerProducts,
 );
 router.patch(
@@ -83,6 +86,7 @@ router.patch(
   isSeller,
   authorizeRoles("seller"),
   validate(mongoIdSchema, "params"),
+  requireVerifiedSeller,
   toggleProductStatus,
 );
 
@@ -92,6 +96,7 @@ router.get(
   authMiddleware,
   isSeller,
   authorizeRoles("seller"),
+  requireVerifiedSeller,
   getSellerOrders,
 );
 router.get(
@@ -99,6 +104,7 @@ router.get(
   authMiddleware,
   isSeller,
   authorizeRoles("seller"),
+  requireVerifiedSeller,
   validate(mongoIdSchema, "params"),
   getSellerOrderById,
 );
@@ -107,6 +113,7 @@ router.patch(
   authMiddleware,
   isSeller,
   authorizeRoles("seller"),
+  requireVerifiedSeller,
   validate(mongoIdSchema, "params"),
   updateSellerOrderStatus,
 );
@@ -117,6 +124,7 @@ router.get(
   authMiddleware,
   isSeller,
   authorizeRoles("seller"),
+  requireVerifiedSeller,
   getSellerDashboard,
 );
 
@@ -126,6 +134,7 @@ router.get(
   authMiddleware,
   isSeller,
   authorizeRoles("seller"),
+  requireVerifiedSeller,
   getSellerReviews,
 );
 

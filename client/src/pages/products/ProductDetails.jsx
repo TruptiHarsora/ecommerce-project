@@ -220,16 +220,22 @@ const ProductDetails = () => {
         quantity: 1,
       });
 
-      await addToCart({
+      const res = await addToCart({
         product: product._id,
         seller: product.sellers?.[0]?.seller?._id,
         variantSku: selectedVariant.sku,
         variantImg: allImages?.[0],
         quantity: 1,
       });
+      successToast(res.message || "added to Cart");
       fetchCart();
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      errorToast(
+        error?.response?.data?.message ||
+          error?.message ||
+          "somthing went wrong",
+      );
     }
   };
   // =====================================
@@ -312,7 +318,7 @@ const ProductDetails = () => {
 
       if (editingReview) {
         console.log(editingReview._id);
-        await updateReview({
+        const res = await updateReview({
           id: editingReview._id,
           data: formData,
         }).unwrap();
@@ -346,7 +352,16 @@ const ProductDetails = () => {
   };
 
   const handleDeleteReview = async (reviewId) => {
-    await deleteReview(reviewId);
+    try {
+      const res = await deleteReview(reviewId);
+      successToast(res.message || "Review deleted successfully");
+    } catch (error) {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.message ||
+          "somthing went wrong",
+      );
+    }
   };
 
   const handleEditReview = (review) => {
@@ -728,6 +743,7 @@ const ProductDetails = () => {
                )
             } */}
 
+        {/* REVIEWS */}
         <Card>
           <CardContent className="p-6">
             <div className="mb-8">

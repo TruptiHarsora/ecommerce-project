@@ -357,7 +357,7 @@ const getAllProduct = async (req, res) => {
   try {
     let {
       page = 1,
-      limit = 10,
+      limit = 12,
       category,
       brand,
       search,
@@ -375,7 +375,7 @@ const getAllProduct = async (req, res) => {
     rating = rating ? Number(rating) : undefined;
 
     page = Number(page) || 1;
-    limit = Number(limit) || 10;
+    limit = Number(limit) || 12;
 
     const query = {
       isActive: true,

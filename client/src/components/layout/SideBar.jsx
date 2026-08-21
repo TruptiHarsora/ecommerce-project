@@ -125,7 +125,6 @@
 
 // // export default Sidebar
 
-
 // import React, { useEffect, useMemo, useState } from "react"
 // import { Link } from "react-router-dom"
 // import CategoryItem from "./CategoryItem"
@@ -153,8 +152,6 @@
 //     fetchCategories()
 //   }, [])
 
-
-
 //   // BUILD TREE (OPTIMIZED WITH useMemo)
 //   const tree = useMemo(() => {
 //     const buildTree = (items, parent = null) => {
@@ -171,7 +168,6 @@
 
 //     return buildTree(categories)
 //   }, [categories])
-
 
 //    // const buildTree = (items, parent = null) => {
 //   //   return items
@@ -248,11 +244,7 @@
 
 // export default Sidebar
 
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -269,18 +261,24 @@ import { getCategories } from "../../services/categoryService";
 import useProducts from "@/hooks/useProducts";
 import { Separator } from "../ui/separator";
 import useAuth from "@/hooks/useAuth";
-import { Boxes, ClipboardList, LayoutGrid, Package, PackageCheck, Store } from "lucide-react";
+import {
+  Boxes,
+  ClipboardList,
+  LayoutGrid,
+  Package,
+  PackageCheck,
+  Star,
+  Store,
+} from "lucide-react";
 
 const Sidebar = () => {
-
   const { user } = useAuth();
 
   // ==========================================
   // STATES
   // ==========================================
 
-  const [categories, setCategories] =
-    useState([]);
+  const [categories, setCategories] = useState([]);
 
   // ==========================================
   // PRODUCTS HOOK
@@ -288,41 +286,24 @@ const Sidebar = () => {
 
   // ✅ CHANGE:
   // added filter controls
-  const {
-    filters,
-    setFilter,
-    clearFilter,
-  } = useProducts();
+  const { filters, setFilter, clearFilter } = useProducts();
 
   // ==========================================
   // FETCH CATEGORIES
   // ==========================================
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
 
-    const fetchCategories =
-      async () => {
-
-        try {
-
-          const data =
-            await getCategories();
-
-          setCategories(data);
-
-        } catch (error) {
-
-          console.log(
-            "Category fetch error:",
-            error
-          );
-
-        }
-
-      };
+        setCategories(data);
+      } catch (error) {
+        console.log("Category fetch error:", error);
+      }
+    };
 
     fetchCategories();
-
   }, []);
 
   // ==========================================
@@ -332,29 +313,20 @@ const Sidebar = () => {
   // ✅ CHANGE:
   // optimized category tree
   const tree = useMemo(() => {
-
     const buildTree = (items, parent = null) => {
+      return items
+        .filter((cat) => {
+          if (!cat.parent) return parent === null;
 
-      return items.filter((cat) => {
-        if (!cat.parent)
-          return parent === null;
-
-        return (cat.parent?._id === parent);
-
-      })
+          return cat.parent?._id === parent;
+        })
         .map((cat) => ({
           ...cat,
-          children: buildTree(
-            items,
-            cat._id
-          ),
-
+          children: buildTree(items, cat._id),
         }));
-
     };
 
     return buildTree(categories);
-
   }, [categories]);
 
   // ==========================================
@@ -365,12 +337,11 @@ const Sidebar = () => {
   // category filter
   const handleCategory = (category) => {
     setFilter({ category: category._id });
-
   };
 
   const clearCategory = () => {
     setFilter({ category: "" });
-  }
+  };
 
   // ==========================================
   // SORT CHANGE
@@ -380,7 +351,6 @@ const Sidebar = () => {
   // sorting filter
   const handleSort = (value) => {
     setFilter({ sort: value });
-
   };
 
   // ==========================================
@@ -389,19 +359,13 @@ const Sidebar = () => {
 
   // ✅ CHANGE:
   // min max price
-  const handlePrice = (
-    type,
-    value
-  ) => {
-
+  const handlePrice = (type, value) => {
     setFilter({
       [type]: value,
     });
-
   };
 
   return (
-
     <aside
       className="
         h-full
@@ -411,15 +375,12 @@ const Sidebar = () => {
         overflow-y-auto
       "
     >
-
       <div className="p-3 space-y-5">
-
         {/* ================================= */}
         {/* MAIN MENU */}
         {/* ================================= */}
 
         <div>
-
           <p
             className="
               text-xs
@@ -431,13 +392,17 @@ const Sidebar = () => {
           </p>
 
           <div className="space-y-1">
-
-            <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100 " >
+            <Link
+              to="/"
+              className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100 "
+            >
               <HomeIcon className="w-5 h-5" />
               Home
             </Link>
 
-            <Link to="/products" className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100"
+            <Link
+              to="/products"
+              className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100"
             >
               <LayoutGrid className="w-5 h-5" />
               {/* <Store className="w-5 h-5" />
@@ -445,22 +410,34 @@ const Sidebar = () => {
               Products
             </Link>
 
-            <Link to={!user ? "/login" : "/cart"}
-              className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100">
-
+            <Link
+              to={!user ? "/login" : "/cart"}
+              className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100"
+            >
               <ShoppingCartIcon className="w-5 h-5" />
               Cart
             </Link>
 
-            <Link to={!user ? "/login" : "/orders"}
-              className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100">
+            <Link
+              to={!user ? "/login" : "/orders"}
+              className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100"
+            >
               {/* <Package className="w-5 h-5" /> */}
               <ClipboardList className="w-5 h-5" />
               Orders
             </Link>
 
+            {user && (
+              <Link
+                to={"/reviews"}
+                className="flex items-center gap-3 px-3 py-2 rounded hover:bg-gray-100"
+              >
+                {/* <Package className="w-5 h-5" /> */}
+                <Star className="w-5 h-5" />
+                My Reviews
+              </Link>
+            )}
           </div>
-
         </div>
         <Separator />
         {/* ================================= */}
@@ -468,7 +445,6 @@ const Sidebar = () => {
         {/* ================================= */}
 
         <div>
-
           <div
             className="
               flex
@@ -477,7 +453,6 @@ const Sidebar = () => {
               mb-2
             "
           >
-
             <p
               className="
                 text-xs
@@ -509,9 +484,6 @@ const Sidebar = () => {
             >
               Clear filter
             </button>
-
-
-
           </div>
 
           {/* ============================= */}
@@ -523,7 +495,6 @@ const Sidebar = () => {
           */}
 
           <div className="mb-4">
-
             <label
               className="
                 text-sm
@@ -537,11 +508,7 @@ const Sidebar = () => {
 
             <select
               value={filters.sort}
-              onChange={(e) =>
-                handleSort(
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleSort(e.target.value)}
               className="
                 w-full
                 border
@@ -551,25 +518,14 @@ const Sidebar = () => {
                 text-sm
               "
             >
+              <option value="">Default</option>
 
-              <option value="">
-                Default
-              </option>
+              <option value="latest">Latest</option>
 
-              <option value="latest">
-                Latest
-              </option>
+              <option value="lowToHigh">Price: Low to High</option>
 
-              <option value="lowToHigh">
-                Price: Low to High
-              </option>
-
-              <option value="highToLow">
-                Price: High to Low
-              </option>
-
+              <option value="highToLow">Price: High to Low</option>
             </select>
-
           </div>
 
           {/* ============================= */}
@@ -581,7 +537,6 @@ const Sidebar = () => {
           */}
 
           <div className="mb-4">
-
             <p
               className="
                 text-sm
@@ -593,19 +548,11 @@ const Sidebar = () => {
             </p>
 
             <div className="space-y-2">
-
               <input
                 type="number"
                 placeholder="Min Price"
-                value={
-                  filters.minPrice
-                }
-                onChange={(e) =>
-                  handlePrice(
-                    "minPrice",
-                    e.target.value
-                  )
-                }
+                value={filters.minPrice}
+                onChange={(e) => handlePrice("minPrice", e.target.value)}
                 className="
                   w-full
                   border
@@ -619,15 +566,8 @@ const Sidebar = () => {
               <input
                 type="number"
                 placeholder="Max Price"
-                value={
-                  filters.maxPrice
-                }
-                onChange={(e) =>
-                  handlePrice(
-                    "maxPrice",
-                    e.target.value
-                  )
-                }
+                value={filters.maxPrice}
+                onChange={(e) => handlePrice("maxPrice", e.target.value)}
                 className="
                   w-full
                   border
@@ -637,11 +577,8 @@ const Sidebar = () => {
                   text-sm
                 "
               />
-
             </div>
-
           </div>
-
         </div>
 
         <Separator />
@@ -650,8 +587,6 @@ const Sidebar = () => {
         {/* ================================= */}
 
         <div>
-
-
           <p
             className="
               text-xs
@@ -662,13 +597,14 @@ const Sidebar = () => {
             CATEGORIES
           </p>
 
-          <div className="
+          <div
+            className="
               flex
               items-center
               justify-end
               mb-2
-            ">
-
+            "
+          >
             <button
               onClick={clearCategory}
               className="text-xs  text-gray-500 hover:text-gray-700
@@ -678,52 +614,34 @@ const Sidebar = () => {
             </button>
           </div>
 
-
-
-
-
-
-
           {/* ✅ CHANGE:
               category filter
           */}
 
           <div className="space-y-1">
+            {tree.map((cat) => (
+              <CategoryItem
+                key={cat._id}
+                category={cat}
+                selectable={true}
+                selectedCategory={{
+                  _id: filters.category,
+                }}
+                // selectedCategory={
+                //   filters.category
+                // }
 
-            {
-              tree.map((cat) => (
+                // setSelectedCategory={
+                //   handleCategory
+                // }
 
-                <CategoryItem
-                  key={cat._id}
-                  category={cat}
-                  selectable={true}
-
-                  selectedCategory={{
-                    _id: filters.category,
-                  }}
-
-                  // selectedCategory={
-                  //   filters.category
-                  // }
-
-                  // setSelectedCategory={
-                  //   handleCategory
-                  // }
-
-                  onSelectCategory={handleCategory}
-                />
-
-              ))
-            }
-
+                onSelectCategory={handleCategory}
+              />
+            ))}
           </div>
-
         </div>
-
       </div>
-
-    </aside >
-
+    </aside>
   );
 };
 

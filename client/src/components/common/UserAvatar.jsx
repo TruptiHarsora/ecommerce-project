@@ -22,9 +22,8 @@ const UserAvatar = ({
 
   const color =
     colors[
-      name
-        .split("")
-        .reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % colors.length
+      name.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0) %
+        colors.length
     ];
 
   if (user?.avatar) {
@@ -32,7 +31,7 @@ const UserAvatar = ({
       <img
         src={user.avatar}
         alt={name}
-        className={`${size} rounded-full object-cover ${className}`}
+        className={`${size} rounded-full border-2 border-gray object-cover ${className}`}
       />
     );
   }

@@ -4,6 +4,7 @@ import {
   createReview as createReviewThunk,
   deleteReview as deleteReviewThunk,
   getMyReview as getMyReviewThunk,
+  getMyReviews as getMyReviewsThunk,
   getProductReviews as getProductReviewsThunk,
   markHelpful as markHelpfulThunk,
   updateReview as updateReviewThunk,
@@ -11,7 +12,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 const useReview = () => {
-  const { reviews, myReview, loading, error } = useSelector(
+  const { reviews, myReview, myReviews, loading, error } = useSelector(
     (state) => state.review,
   );
   const dispatch = useDispatch();
@@ -19,12 +20,14 @@ const useReview = () => {
   return {
     reviews,
     myReview,
+    myReviews,
     loading,
     error,
 
     getProductReviews: (productId) =>
       dispatch(getProductReviewsThunk(productId)),
     getMyReview: (productId) => dispatch(getMyReviewThunk(productId)),
+    getMyReviews: () => dispatch(getMyReviewsThunk()),
     createReview: (payload) => dispatch(createReviewThunk(payload)),
     updateReview: (payload) => dispatch(updateReviewThunk(payload)),
     deleteReview: (id) => dispatch(deleteReviewThunk(id)),

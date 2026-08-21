@@ -1,13 +1,14 @@
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/label';
-import useCart from '@/hooks/useCart'
-import useOrder from '@/hooks/useOrder';
-import checkoutValidationSchema from '@/validators/checkoutValidator';
-import { useFormik } from 'formik';
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/label";
+import useCart from "@/hooks/useCart";
+import useOrder from "@/hooks/useOrder";
+import { errorToast, successToast } from "@/lib/toast";
+import checkoutValidationSchema from "@/validators/checkoutValidator";
+import { useFormik } from "formik";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 const Checkout = () => {
@@ -17,10 +18,7 @@ const Checkout = () => {
 
   const location = useLocation();
 
-  const buyNowItems =
-    location.state?.buyNow
-      ? location.state.items
-      : null;
+  const buyNowItems = location.state?.buyNow ? location.state.items : null;
 
   const items = buyNowItems || cartItems;
 
@@ -34,7 +32,7 @@ const Checkout = () => {
       city: "",
       state: "",
       postalCode: "",
-      country: "India"
+      country: "India",
     },
     validationSchema: checkoutValidationSchema,
 
@@ -47,18 +45,20 @@ const Checkout = () => {
             seller: item.seller?._id,
             variantSku: item.variantSku,
             variantImg: item.variantImg,
-            quantity: item.quantity
+            quantity: item.quantity,
           })),
           shippingAddress: {
-            ...values, country: "India"
+            ...values,
+            country: "India",
           },
-          paymentInfo: { method: "cod" }
+          paymentInfo: { method: "cod" },
         };
 
-        // console.log("Order Paylod:", payload);
+        console.log("Order Paylod:", payload);
 
         const res = await createOrder(payload);
-        // console.log("res order", res);
+        console.log("res order", res);
+        successToast("Order placed successfully");
 
         await fetchCart();
 
@@ -66,129 +66,127 @@ const Checkout = () => {
 
         navigate("/order-success", {
           state: {
-            orderId: res.order._id
-          }
+            orderId: res.order._id,
+          },
         });
-
       } catch (error) {
-        console.log(error);
+        // console.log(error);
+        errorToast(
+          error?.response?.data?.message ||
+            error?.message ||
+            "somthing went wrong",
+        );
       }
-    }
+    },
   });
 
   const formatPrice = (price) => {
     return Number(price || 0).toLocaleString("en-In", {
       style: "currency",
-      currency: "INR"
-    })
-  }
+      currency: "INR",
+    });
+  };
 
   if (!items.length) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-        <h2 className="text-2xl font-semibold">
-          Your cart is empty
-        </h2>
+        <h2 className="text-2xl font-semibold">Your cart is empty</h2>
 
         <p className="text-muted-foreground">
           Add some products before checkout.
         </p>
 
         <Link to="/products">
-          <Button>
-            Continue Shopping
-          </Button>
+          <Button>Continue Shopping</Button>
         </Link>
       </div>
     );
   }
   return (
-    <div className='min-h-screen bg-muted/40 p-6'>
-      <div className='max-w-7xl mx-auto'>
-        <div className='grid lg:grid-cols-3 gap-6'>
-
+    <div className="min-h-screen bg-muted/40 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-3 gap-6">
           {/* //shipping address form  */}
 
-          <div className='lg:col-span-2'>
-            <form className='space-y-6' onSubmit={formik.handleSubmit}>
+          <div className="lg:col-span-2">
+            <form className="space-y-6" onSubmit={formik.handleSubmit}>
               <Card>
                 <CardHeader>
-                  <CardTitle>
-                    Shipping Address
-                  </CardTitle>
+                  <CardTitle>Shipping Address</CardTitle>
                 </CardHeader>
 
-                <CardContent className='space-y-5'>
-
-                  <div className='space-y-2'>
+                <CardContent className="space-y-5">
+                  <div className="space-y-2">
                     <Label>Full Name</Label>
-                    <Input type="text" name="fullName"
+                    <Input
+                      type="text"
+                      name="fullName"
                       placeholder="Amit Dave"
                       value={formik.values.fullName}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     />
                     {formik.touched.fullName && formik.errors.fullName && (
-                      <p className='text-sm text-red-500'>
+                      <p className="text-sm text-red-500">
                         {formik.errors.fullName}
                       </p>
-                    )
-                    }
+                    )}
                   </div>
 
-                  <div className='space-y-2'>
+                  <div className="space-y-2">
                     <Label>Phone Number</Label>
-                    <Input type="text" name="phone"
+                    <Input
+                      type="text"
+                      name="phone"
                       placeholder="9876543210"
                       value={formik.values.phone}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     />
-                    {
-                      formik.touched.phone && formik.errors.phone && (
-                        <p className='text-red-500 text-sm'>
-                          {formik.errors.phone}
-                        </p>
-                      )
-                    }
+                    {formik.touched.phone && formik.errors.phone && (
+                      <p className="text-red-500 text-sm">
+                        {formik.errors.phone}
+                      </p>
+                    )}
                   </div>
 
-                  <div className='space-y-2'>
+                  <div className="space-y-2">
                     <Label>Address Line 1</Label>
-                    <Input type="text" name="addressLine1"
+                    <Input
+                      type="text"
+                      name="addressLine1"
                       placeholder="House No, Street, Area"
                       value={formik.values.addressLine1}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     />
-                    {
-                      formik.touched.addressLine1 && formik.errors.addressLine1 && (
-                        <p className='text-red-500 text-sm'>
+                    {formik.touched.addressLine1 &&
+                      formik.errors.addressLine1 && (
+                        <p className="text-red-500 text-sm">
                           {formik.errors.addressLine1}
                         </p>
-                      )
-                    }
+                      )}
                   </div>
 
-                  <div className='space-y-2'>
+                  <div className="space-y-2">
                     <Label>Address Line 2</Label>
-                    <Input type="text" name="addressLine2"
+                    <Input
+                      type="text"
+                      name="addressLine2"
                       placeholder="Apartment, Landmark (Optional)"
                       value={formik.values.addressLine2}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                     />
-                    {
-                      formik.touched.addressLine2 && formik.errors.addressLine2 && (
-                        <p className='text-red-500 text-sm'>
+                    {formik.touched.addressLine2 &&
+                      formik.errors.addressLine2 && (
+                        <p className="text-red-500 text-sm">
                           {formik.errors.addressLine2}
                         </p>
-                      )
-                    }
+                      )}
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-5">
-
                     <div className="space-y-2">
                       <Label>City</Label>
 
@@ -200,12 +198,11 @@ const Checkout = () => {
                         onBlur={formik.handleBlur}
                       />
 
-                      {formik.touched.city &&
-                        formik.errors.city && (
-                          <p className="text-sm text-red-500">
-                            {formik.errors.city}
-                          </p>
-                        )}
+                      {formik.touched.city && formik.errors.city && (
+                        <p className="text-sm text-red-500">
+                          {formik.errors.city}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -219,12 +216,11 @@ const Checkout = () => {
                         onBlur={formik.handleBlur}
                       />
 
-                      {formik.touched.state &&
-                        formik.errors.state && (
-                          <p className="text-sm text-red-500">
-                            {formik.errors.state}
-                          </p>
-                        )}
+                      {formik.touched.state && formik.errors.state && (
+                        <p className="text-sm text-red-500">
+                          {formik.errors.state}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -266,7 +262,6 @@ const Checkout = () => {
                         )}
                     </div> */}
 
-
                     <div className="space-y-2">
                       <Label>Country</Label>
 
@@ -276,7 +271,6 @@ const Checkout = () => {
                         disabled
                       />
                     </div>
-
                   </div>
                 </CardContent>
               </Card>
@@ -287,7 +281,7 @@ const Checkout = () => {
                 </CardHeader>
 
                 <CardContent>
-                  <div className='border rounded-lg p-4'>
+                  <div className="border rounded-lg p-4">
                     <label className="flex items-center gap-2">
                       <input type="radio" checked readOnly />
                       Cash On Delivery (COD)
@@ -306,9 +300,7 @@ const Checkout = () => {
 
               </Button> */}
 
-              <pre>
-                {JSON.stringify(formik.errors, null, 2)}
-              </pre>
+              {/* <pre>{JSON.stringify(formik.errors, null, 2)}</pre> */}
               {/* <Button
                 type="submit"
                 onClick={() => {
@@ -322,15 +314,11 @@ const Checkout = () => {
 
               <Button
                 type="submit"
-                disabled={
-                  loading.create ||
-                  items.length === 0
-                }
-              > {
-                  loading.create
-                    ? "Placing order..."
-                    : "place Order"
-                }</Button>
+                disabled={loading.create || items.length === 0}
+              >
+                {" "}
+                {loading.create ? "Placing order..." : "place Order"}
+              </Button>
             </form>
           </div>
 
@@ -341,51 +329,38 @@ const Checkout = () => {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
 
-              <CardContent className='space-y-4'>
+              <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span>Items Total</span>
-                  <span>
-                    {formatPrice(pricing.itemTotal)}
-                  </span>
+                  <span>{formatPrice(pricing.itemTotal)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>CGST</span>
-                  <span>
-                    {formatPrice(pricing.cgst)}
-                  </span>
+                  <span>{formatPrice(pricing.cgst)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>SGST</span>
-                  <span>
-                    {formatPrice(pricing.sgst)}
-                  </span>
+                  <span>{formatPrice(pricing.sgst)}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>
-                    {formatPrice(pricing.shipping)}
-                  </span>
+                  <span>{formatPrice(pricing.shipping)}</span>
                 </div>
                 <hr />
 
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>
-                    {formatPrice(pricing.grandTotal)}
-                  </span>
+                  <span>{formatPrice(pricing.grandTotal)}</span>
                 </div>
 
                 <hr />
 
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div
-                      key={item._id}
-                      className="border-b pb-3 last:border-0"
-                    >
+                    <div key={item._id} className="border-b pb-3 last:border-0">
                       <div className="flex justify-between gap-4">
                         <div className="flex-1">
                           <p className="text-sm font-medium line-clamp-2">
@@ -398,28 +373,19 @@ const Checkout = () => {
                         </div>
 
                         <span className="font-semibold">
-                          {formatPrice(
-                            item.priceAtTime * item.quantity
-                          )}
+                          {formatPrice(item.priceAtTime * item.quantity)}
                         </span>
                       </div>
                     </div>
                   ))}
                 </div>
-
               </CardContent>
             </Card>
-
-
           </div>
-
         </div>
-
       </div>
-
     </div>
-  )
-}
+  );
+};
 
-export default Checkout
-
+export default Checkout;

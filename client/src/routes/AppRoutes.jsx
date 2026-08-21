@@ -7,7 +7,7 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ProductList from "../pages/products/ProductList";
 import ProductDetails from "../pages/products/ProductDetails";
-
+import Category from "@/pages/category/Category";
 import RoleRoutes from "../guards/RoleRoute";
 
 //user
@@ -17,33 +17,33 @@ import Wishlist from "@/pages/wishlist/Wishlist";
 import Checkout from "@/pages/order/CheckOut";
 import OrderSuccess from "@/pages/order/OrderSuccess";
 import Orders from "@/pages/order/Orders";
+import UserChangePassword from "@/pages/user/UserChangePassword";
+import UserReviews from "@/pages/user/UserReviews";
 
 //admin
-import Users from "../pages/admin/User";
 import AdminDashboard from "../pages/admin/Dashboard";
+import AdminLayout from "@/components/layout/AdminLayout";
 import AdminProducts from "../pages/admin/AdminProductsList";
+import AdminProductDetails from "@/pages/admin/AdminProductDetails";
 import AdminReviews from "../pages/admin/AdminReviews";
+import AdminOrders from "@/pages/admin/AdminOrders";
+import Users from "../pages/admin/User";
+import Seller from "@/pages/admin/Seller";
+import SellerDetails from "@/pages/admin/SellerDetails";
 
 //seller
-
 import Dashboard from "../pages/seller/Dashboard";
+import SellerLayout from "@/components/layout/SellerLayout";
 import SellerProducts from "../pages/seller/SellerProducts";
 import ProductsCreate from "@/pages/products/ProductsCreate";
 import ProductUpdate from "@/pages/products/ProductsUpdate";
 import OrderDetails from "@/pages/order/OrderDetails";
-import Category from "@/pages/category/Category";
-import ReviewForm from "@/pages/review/ReviewForm";
-import AdminOrders from "@/pages/admin/AdminOrders";
-import Seller from "@/pages/admin/Seller";
-import AdminLayout from "@/components/layout/AdminLayout";
-import SellerDetails from "@/pages/admin/SellerDetails";
-import AdminProductDetails from "@/pages/admin/AdminProductDetails";
-import LandingPage from "@/pages/LandingPage";
-import SellerLayout from "@/components/layout/SellerLayout";
 import SellerOrdersList from "@/pages/seller/SellerOrderList";
 import SellerReview from "@/pages/seller/SellerReview";
 import SellerProfile from "@/pages/seller/SellerProfile";
-import UserChangePassword from "@/pages/user/UserChangePassword";
+
+import LandingPage from "@/pages/LandingPage";
+import SellerRoutes from "@/guards/SellerRoutes";
 
 // import Category from '@/pages/category/Categories';
 
@@ -81,6 +81,7 @@ const AppRoutes = () => {
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetails />} />
+          <Route path="/reviews" element={<UserReviews />} />
         </Route>
       </Route>
 
@@ -115,26 +116,31 @@ const AppRoutes = () => {
       </Route>
       {/* SELLER ROUTES */}
       <Route element={<RoleRoutes allowedRoles={["seller"]} />}>
-        <Route element={<SellerLayout />}>
-          <Route path="/seller" element={<Dashboard />} />
-          <Route path="/seller/dashboard" element={<Dashboard />} />
-          <Route path="/seller/product/create" element={<ProductsCreate />} />
-          <Route
-            path="/seller/product/update/:id"
-            element={<ProductUpdate />}
-          />
-          <Route path="/seller/products" element={<SellerProducts />} />
-          <Route path="/seller/orders" element={<SellerOrdersList />} />
-          <Route path="/seller/orders/:id" element={<OrderDetails />} />
-          <Route path="/seller/orders/:id/status" element={<OrderDetails />} />
-          <Route path="/seller/reviews" element={<SellerReview />} />
-          {/* <Route path="/seller/profile" element={<SellerProfile />} /> */}
-          <Route
-            path="/seller/product/:id"
-            element={
-              <AdminProductDetails viewUrl="/seller" actiontType="seller" />
-            }
-          />
+        <Route element={<SellerRoutes />}>
+          <Route element={<SellerLayout />}>
+            <Route path="/seller" element={<Dashboard />} />
+            <Route path="/seller/dashboard" element={<Dashboard />} />
+            <Route path="/seller/product/create" element={<ProductsCreate />} />
+            <Route
+              path="/seller/product/update/:id"
+              element={<ProductUpdate />}
+            />
+            <Route path="/seller/products" element={<SellerProducts />} />
+            <Route path="/seller/orders" element={<SellerOrdersList />} />
+            <Route path="/seller/orders/:id" element={<OrderDetails />} />
+            <Route
+              path="/seller/orders/:id/status"
+              element={<OrderDetails />}
+            />
+            <Route path="/seller/reviews" element={<SellerReview />} />
+            {/* <Route path="/seller/profile" element={<SellerProfile />} /> */}
+            <Route
+              path="/seller/product/:id"
+              element={
+                <AdminProductDetails viewUrl="/seller" actiontType="seller" />
+              }
+            />
+          </Route>
         </Route>
       </Route>
 

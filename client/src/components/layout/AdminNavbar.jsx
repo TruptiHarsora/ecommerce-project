@@ -52,16 +52,25 @@
 
 // export default AdminNavbar;
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Menu } from "@headlessui/react";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../common/UserAvatar";
+import useUser from "@/hooks/useUser";
 
 const AdminNavbar = ({ setOpen }) => {
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
+  const { user: authUser, logout } = useAuth();
+  const { user, getProfile } = useUser();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authUser) {
+      getProfile();
+    }
+  }, [authUser]);
 
   return (
     <header className="h-16 bg-[#131921] text-white px-6 flex items-center justify-between">
@@ -77,7 +86,7 @@ const AdminNavbar = ({ setOpen }) => {
       {/* Right */}
       <div className="flex items-center gap-4">
         <span className="hidden md:block">
-          Welcome, <b>{user?.name}</b>
+          Welcome, <b>{authUser?.name}</b>
         </span>
 
         <Menu as="div" className="relative">
@@ -89,7 +98,12 @@ const AdminNavbar = ({ setOpen }) => {
                             className="w-9 h-9 rounded-full"
                             alt="admin"
                         /> */}
-            <UserAvatar user={user} />
+            {/* <UserAvatar user={user} /> */}
+            <UserAvatar
+              user={user || authUser}
+              src={user?.avatar || authUser?.avatar}
+              className="w-8 h-8"
+            />
           </Menu.Button>
 
           <Menu.Items className="absolute right-0 mt-2 w-48 bg-white text-black rounded shadow-lg z-50">
@@ -104,7 +118,7 @@ const AdminNavbar = ({ setOpen }) => {
               )}
             </Menu.Item>
 
-            <Menu.Item>
+            {/* <Menu.Item>
               {() => (
                 <button
                   onClick={() => navigate("/")}
@@ -113,7 +127,7 @@ const AdminNavbar = ({ setOpen }) => {
                   Visit Store
                 </button>
               )}
-            </Menu.Item>
+            </Menu.Item> */}
 
             <Menu.Item>
               {() => (

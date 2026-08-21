@@ -408,7 +408,7 @@ const getProductReviews = async (req, res) => {
       product: req.params.productId,
       isDeleted: false,
     })
-      .populate("user", "name")
+      .populate("user", "name avatar")
       .sort({ createdAt: -1 });
 
     return res.json({
@@ -435,6 +435,28 @@ const getMyReview = async (req, res) => {
     return res.json({
       success: true,
       review,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getMyReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({
+      user: req.user.id,
+      isDeleted: false,
+    })
+      .populate("product", "title images brand")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: reviews.length,
+      reviews,
     });
   } catch (error) {
     return res.status(500).json({
@@ -502,6 +524,7 @@ module.exports = {
   markHelpful,
   getProductReviews,
   getMyReview,
+  getMyReviews,
   //   getSellerReviews,
   //   getAdminAllReviews,
 };

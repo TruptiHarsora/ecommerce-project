@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import useAuth from "@/hooks/useAuth";
 import sellerServices from "@/services/sellerServices";
+import { errorToast, successToast } from "@/lib/toast";
 
 const OrderDetails = () => {
   const { id } = useParams();
@@ -32,7 +33,12 @@ const OrderDetails = () => {
           await fetchOrderByID(id);
         }
       } catch (error) {
-        console.log(error);
+        // console.log(error);
+        errorToast(
+          error?.response?.data?.message ||
+            error?.message ||
+            "somthing went wrong",
+        );
       } finally {
         setPageLoading(false);
       }
@@ -303,8 +309,14 @@ const OrderDetails = () => {
                         onClick={async (e) => {
                           e.stopPropagation();
                           // console.log("currentorder.id", currentOrder._id);
-                          await cancelOrderItem(currentOrder._id, item._id);
+                          const res = await cancelOrderItem(
+                            currentOrder._id,
+                            item._id,
+                          );
                           await fetchOrderByID(currentOrder._id);
+                          successToast(
+                            res.message || "Item cancel sucessfully",
+                          );
                         }}
                       >
                         Cancel Item

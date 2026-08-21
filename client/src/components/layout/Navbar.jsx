@@ -11,7 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import useProducts from "@/hooks/useProducts";
 import useCart from "@/hooks/useCart";
-import { Heart } from "lucide-react";
+import { Heart, LayoutDashboard, LogOut, Store, User } from "lucide-react";
 import useWishlist from "@/hooks/useWishlist";
 import UserAvatar from "../common/UserAvatar";
 import useUser from "@/hooks/useUser";
@@ -43,6 +43,7 @@ const Navbar = ({ setOpen }) => {
 
   const { items } = useCart();
   console.log("Navbar cart items:", items);
+  console.log("Navbar AuthUser:", authUser);
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -307,20 +308,70 @@ const Navbar = ({ setOpen }) => {
               {() => (
                 <button
                   onClick={() => navigate("/profile")}
-                  className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                  className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
                 >
+                  <User className="w-5 h-5" />
                   Profile
                 </button>
               )}
             </Menu.Item>
-            {authUser.role === "seller" && (
+            {/* {authUser.role === "seller" && authUser.isVerified === true && (
               <Menu.Item>
                 {() => (
                   <button
                     onClick={() => navigate("/seller/dashboard")}
-                    className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
                   >
-                    Dashboard
+                    <Store className="w-5 h-5" />
+                    <span>Dashboard</span>
+                  </button>
+                )}
+              </Menu.Item>
+            )}
+
+            {authUser.role !== "seller" && authUser.isVerified === false && (
+              <Menu.Item>
+                {() => (
+                  <button
+                    onClick={() => navigate("/seller/profile")}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    <Store className="w-5 h-5" />
+                    <span>Become a Seller</span>
+                  </button>
+                )}
+              </Menu.Item>
+            )} */}
+
+            {(authUser.role !== "seller" ||
+              (authUser.role === "seller" &&
+                authUser.isVerified === false)) && (
+              <Menu.Item>
+                {() => (
+                  <button
+                    onClick={() => navigate("/seller/profile")}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    {/* <Store className="w-5 h-5" /> */}
+                    <span>
+                      {authUser.role === "seller"
+                        ? "Seller Profile"
+                        : "Become a Seller"}
+                    </span>
+                  </button>
+                )}
+              </Menu.Item>
+            )}
+
+            {authUser.role === "seller" && authUser.isVerified === true && (
+              <Menu.Item>
+                {() => (
+                  <button
+                    onClick={() => navigate("/seller/dashboard")}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    {/* <Store className="w-5 h-5" /> */}
+                    <span>Seller Dashboard</span>
                   </button>
                 )}
               </Menu.Item>
@@ -333,6 +384,7 @@ const Navbar = ({ setOpen }) => {
                     onClick={() => navigate("/admin/dashboard")}
                     className="w-full text-left px-3 py-2 hover:bg-gray-100"
                   >
+                    {/* <LayoutDashboard className="w-5 h-5" /> */}
                     Dashboard
                   </button>
                 )}
@@ -342,8 +394,9 @@ const Navbar = ({ setOpen }) => {
               {() => (
                 <button
                   onClick={logout}
-                  className="w-full text-left px-3 py-2 text-red-500 hover:bg-gray-100"
+                  className="w-full text-left px-3 py-2 text-red-500 hover:bg-gray-100 flex items-center gap-2"
                 >
+                  {/* <LogOut className="w-5 h-5" /> */}
                   Logout
                 </button>
               )}

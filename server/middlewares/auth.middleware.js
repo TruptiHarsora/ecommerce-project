@@ -83,7 +83,14 @@ const authMiddleware = async (req, res, next) => {
         message: "Your account has been blocked by the administrator.",
       });
     }
-    req.user = decoded;
+    // req.user = decoded;
+    req.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isVerified: user.isVerified,
+    };
     console.log(req.user);
     next();
   } catch (error) {

@@ -5,6 +5,7 @@ import {
   updateUserProfile,
   changePassword,
   clearUserError,
+  fetchMe,
 } from "@/store/slices/userSlice";
 
 const useUser = () => {
@@ -18,6 +19,8 @@ const useUser = () => {
     error,
 
     getProfile: () => dispatch(fetchUserProfile()),
+
+    getMe: () => dispatch(fetchMe()),
 
     updateProfile: (formData) => dispatch(updateUserProfile(formData)).unwrap(),
 

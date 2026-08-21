@@ -86,13 +86,13 @@ const orderSlice = createSlice({
         state.loading.create = false;
         state.order = action.payload;
 
-        successToast(action.payload.message || "Order placed successfully");
+        // successToast(action.payload.message || "Order placed successfully");
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading.create = false;
         state.error = action.error?.message;
 
-        errorToast(state.error);
+        // errorToast(state.error);
       })
 
       // FETCH ORDERS
@@ -108,7 +108,7 @@ const orderSlice = createSlice({
         state.loading.fetch = false;
         state.error = action.error?.message;
 
-        errorToast(state.error);
+        // errorToast(state.error);
       })
 
       // ORDER DETAILS
@@ -124,7 +124,7 @@ const orderSlice = createSlice({
         state.loading.details = false;
         state.error = action.error?.message;
 
-        errorToast(state.error);
+        // errorToast(state.error);
       })
 
       //CANCLE ORDER ITEM
