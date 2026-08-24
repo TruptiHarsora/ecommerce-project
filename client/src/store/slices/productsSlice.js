@@ -13,7 +13,7 @@ const createProduct = createAsyncThunk("products/create", async (data) => {
 const fetchProducts = createAsyncThunk("products/getAll", async (params) => {
   console.log("API CALLED");
   const res = await productServices.getAllProducts(params);
-  // console.log("fetchProducta", res);
+  console.log("fetchProducta", res);
   return res;
 });
 

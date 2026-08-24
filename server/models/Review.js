@@ -1,66 +1,115 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = new mongoose.Schema({
+const reviewSchema = new mongoose.Schema(
+  {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
     rating: { type: Number, min: 1, max: 5, required: true },
     title: { type: String, trim: true, maxlength: 100 },
     comment: { type: String, trim: true, maxlength: 2000 },
     images: { type: [String], default: [] },
     isVerifiedPurchase: { type: Boolean, default: false },
     helpfulCount: { type: Number, default: 0 },
-    helpfulUsers: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-    ],
-    isDeleted: { type: Boolean, default: false }
-}, { timestamps: true });
+    helpfulUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    isDeleted: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
 
 reviewSchema.index(
-    { user: 1, product: 1 },
-    { unique: true, partialFilterExpression: { isDeleted: false } }
+  { user: 1, product: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: false } },
 );
 reviewSchema.index({ product: 1, createdAt: -1 });
 
 reviewSchema.statics.updateRatingStats = async function (productId) {
-    const stats = await this.aggregate([
-        {
-            $match: {
-                product: productId,
-                isDeleted: false
-            }
+  const stats = await this.aggregate([
+    {
+      $match: {
+        product: new mongoose.Types.ObjectId(productId),
+        isDeleted: false,
+      },
+    },
+
+    {
+      $group: {
+        _id: "$product",
+
+        ratingSum: {
+          $sum: "$rating",
         },
-        {
-            $group: {
-                _id: "$product",
-                avgRating: { $avg: "$rating" },
-                count: { $sum: 1 }
-            }
-        }
-    ]);
 
-    const Product = mongoose.model("Product");
+        ratingCount: {
+          $sum: 1,
+        },
 
-    await Product.findByIdAndUpdate(productId, {
-        ratingAverage: stats[0]?.avgRating || 0,
-        ratingCount: stats[0]?.count || 0
-    });
+        ratingAverage: {
+          $avg: "$rating",
+        },
+      },
+    },
+  ]);
+
+  const Product = mongoose.model("Product");
+
+  const ratingSum = stats[0]?.ratingSum || 0;
+  const ratingCount = stats[0]?.ratingCount || 0;
+
+  const ratingAverage =
+    ratingCount > 0 ? Number((ratingSum / ratingCount).toFixed(1)) : 0;
+
+  await Product.findByIdAndUpdate(productId, {
+    $set: {
+      ratingSum,
+      ratingCount,
+      ratingAverage,
+    },
+  });
 };
 
+// reviewSchema.statics.updateRatingStats = async function (productId) {
+//   const stats = await this.aggregate([
+//     {
+//       $match: {
+//         product: productId,
+//         isDeleted: false,
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: "$product",
+//         avgRating: { $avg: "$rating" },
+//         count: { $sum: 1 },
+//       },
+//     },
+//   ]);
 
-reviewSchema.post("save", async function () {
-    await this.constructor.updateRatingStats(this.product);
-});
+//   const Product = mongoose.model("Product");
 
-reviewSchema.post("findOneAndUpdate", async function (doc) {
-    if (doc) {
-        await doc.constructor.updateRatingStats(doc.product);
-    }
-})
+//   await Product.findByIdAndUpdate(productId, {
+//     ratingAverage: stats[0]?.avgRating || 0,
+//     ratingCount: stats[0]?.count || 0,
+//   });
+// };
 
-reviewSchema.post("findOneAndDelete", async function (doc) {
-    if (doc) {
-        await doc.constructor.updateRatingStats(doc.product);
-    }
-})
+// reviewSchema.post("save", async function () {
+//     await this.constructor.updateRatingStats(this.product);
+// });
+
+// reviewSchema.post("findOneAndUpdate", async function (doc) {
+//     if (doc) {
+//         await doc.constructor.updateRatingStats(doc.product);
+//     }
+// })
+
+// reviewSchema.post("findOneAndDelete", async function (doc) {
+//     if (doc) {
+//         await doc.constructor.updateRatingStats(doc.product);
+//     }
+// })
 
 module.exports = mongoose.model("Review", reviewSchema);

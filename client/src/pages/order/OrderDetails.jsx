@@ -1,55 +1,64 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import useOrder from "@/hooks/useOrder";
+import useAuth from "@/hooks/useAuth";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
-import useAuth from "@/hooks/useAuth";
+
 import sellerServices from "@/services/sellerServices";
 import { errorToast, successToast } from "@/lib/toast";
 
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { user } = useAuth();
+
   const { order, fetchOrderByID, loading, cancelOrder, cancelOrderItem } =
     useOrder();
+
   const [localOrder, setLocalOrder] = useState(null);
-  //   console.log("order", order);
-  //   useEffect(() => {
-  //     fetchOrderByID(id);
-  //   }, [id]);
   const [pageLoading, setPageLoading] = useState(true);
+
   useEffect(() => {
     const loadOrder = async () => {
       setPageLoading(true);
+
       try {
-        if (user?.role === "seller") {
+        const isSellerOrder = location.pathname.startsWith("/seller/orders/");
+
+        if (isSellerOrder) {
           const data = await sellerServices.getSellerOrdersById(id);
-          console.log("data", data);
+
+          console.log("Seller Order:", data);
           setLocalOrder(data.order);
         } else {
-          await fetchOrderByID(id);
+          const data = await fetchOrderByID(id);
+
+          console.log("Buyer Order:", data);
+          setLocalOrder(data?.order || data);
         }
       } catch (error) {
-        // console.log(error);
         errorToast(
           error?.response?.data?.message ||
             error?.message ||
-            "somthing went wrong",
+            "Something went wrong",
         );
       } finally {
         setPageLoading(false);
       }
     };
+
     if (id && user) {
       loadOrder();
     }
-  }, [id, user]);
+  }, [id, user, location.pathname]);
 
-  console.log("loading", loading);
-  const currentOrder = user?.role === "seller" ? localOrder : order;
+  const currentOrder =
+    user?.role === "seller" ? localOrder : localOrder || order;
 
   const formatPrice = (price) => {
     return Number(price || 0).toLocaleString("en-IN", {
@@ -58,335 +67,316 @@ const OrderDetails = () => {
     });
   };
 
-  if (pageLoading || loading.details) {
-    return <div className="max-w-6xl mx-auto p-6">Loading order...</div>;
+  const handleCancelItem = async (itemId) => {
+    try {
+      const res = await cancelOrderItem(currentOrder._id, itemId);
+
+      console.log("Cancel item response:", res);
+
+      if (res?.order) {
+        setLocalOrder(res.order);
+      }
+
+      successToast(res?.message || "Item cancelled successfully");
+    } catch (error) {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to cancel item",
+      );
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    try {
+      const res = await cancelOrder(currentOrder._id);
+
+      console.log("Cancel order response:", res);
+
+      if (res?.order) {
+        setLocalOrder(res.order);
+      } else {
+        await fetchOrderByID(currentOrder._id);
+      }
+
+      successToast(res?.message || "Order cancelled successfully");
+    } catch (error) {
+      errorToast(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to cancel order",
+      );
+    }
+  };
+
+  if (pageLoading || loading?.details) {
+    return (
+      <div className="min-h-screen bg-[#eaeded] flex items-center justify-center px-4">
+        <p className="text-gray-600 text-sm sm:text-base">Loading order...</p>
+      </div>
+    );
   }
-  // if (!currentOrder) {
-  //   return (
-  //     <div className="min-h-screen bg-[#eaeded] flex items-center justify-center">
-  //       {" "}
-  //       <div className="text-lg font-medium">Loading order details...</div>{" "}
-  //     </div>
-  //   );
-  // }
+
   if (!currentOrder) {
-    return <div className="max-w-6xl mx-auto p-6">Order not found</div>;
+    return (
+      <div className="min-h-screen bg-[#eaeded] flex items-center justify-center px-4">
+        <p className="text-gray-600 text-base sm:text-lg">Order not found</p>
+      </div>
+    );
   }
-
-  //   const visibleItems =
-  //     user?.role === "seller"
-  //       ? order.items?.filter((item) => item.seller?._id === user?.seller?._id)
-  //       : order.items;
-
-  //   const visibleItems =
-  //     user?.role === "seller"
-  //       ? order.items?.filter(
-  //           (item) => item.seller?._id?.toString() === user?._id?.toString(),
-  //         )
-  //       : order.items;
-
-  //   const sellerId = user?.seller?._id || user?.seller || user?._id;
-  //   const visibleItems =
-  //     user?.role === "seller"
-  //       ? order.items?.filter(
-  //           (item) => item.seller?._id?.toString() === sellerId?.toString(),
-  //         )
-  //       : order.items;
 
   const visibleItems = currentOrder.items || [];
 
+  const isVerifiedSeller = user?.role === "seller" && user?.isVerified === true;
+
   return (
-    <div className="min-h-screen bg-[#eaeded] py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        {/*<div className="bg-white border rounded-lg mb-6">
-                     <div className="p-6">
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-
-                            <div>
-                                <h3 className="text-2xl font-bold text-gray-700">
-                                    Order: #{order?._id?.slice(-8)}
-                                </h3>
-                                    <p className="text-gray-500 mt-1">
-                                    Placed on {new Date(order.createdAt).toDateString("en-IN")}
-                                </p> 
-                            </div>
-
-
-                            <span className={`px-4 py-2 rounded-full text-sm font-medium 
-                                ${order.orderStatus === "deliverd"
-                                    ? "bg-green-100 text-green-700"
-                                    : order.orderStatus === "cancelled"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"}
-                                `}>
-                                {order.orderStatus}
-                            </span>
-                        </div>
-                    </div> */}
-
-        {/* <div className="border-t bg-gray-50 p-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase">
-                                    Order Placed
-                                </p>
-                                <p className="font-medium">
-                                    {new Date(order.createdAt).toLocaleDateString("en-IN")}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase">Total</p>
-                                <p className="font-medium">
-                                    {formatPrice(order?.pricing?.grandTotal)}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase">Payment</p>
-                                <p className="font-medium uppercase">
-                                    {order?.paymentInfo?.method}
-                                </p>
-                            </div>
-
-                            <div>
-                                <p className="text-xs text-gray-500 uppercase">Order ID</p>
-                                <p className="font-medium break-all">
-                                    {order?._id}
-                                </p>
-                            </div>
-                        </div>
-                    </div> 
-                </div>*/}
-
-        <Card className="mb-5">
-          <CardContent className="px-6">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-700">
+    <div className="min-h-screen bg-[#eaeded] py-4 sm:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+        {/* ================= HEADER ================= */}
+        <Card className="mb-4 sm:mb-5 overflow-hidden">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h3 className="text-lg sm:text-2xl font-bold text-gray-700 truncate">
                   Order: #{currentOrder?._id?.slice(-8)}
                 </h3>
-                {/* <p className="text-gray-500 mt-1">
-                                    Placed on {new Date(order.createdAt).toDateString("en-IN")}
-                                </p> */}
+
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                  Placed on{" "}
+                  {currentOrder.createdAt
+                    ? new Date(currentOrder.createdAt).toLocaleDateString(
+                        "en-IN",
+                      )
+                    : "-"}
+                </p>
               </div>
 
-              {/* {user?.role !== "seller" && (
-                <span
-                  className={`px-4 py-2 rounded-full text-sm font-medium 
-                                ${
-                                  currentOrder.orderStatus === "delivered"
-                                    ? "bg-green-100 text-green-700"
-                                    : currentOrder.orderStatus === "cancelled"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-yellow-100 text-yellow-700"
-                                }
-                                `}
-                >
-                  {currentOrder.orderStatus}
-                </span>
-              )} */}
+              {/* Order Status */}
+              <span
+                className={`self-start sm:self-auto px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium capitalize whitespace-nowrap
+                  ${
+                    currentOrder.orderStatus === "delivered"
+                      ? "bg-green-100 text-green-700"
+                      : currentOrder.orderStatus === "cancelled"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-yellow-100 text-yellow-700"
+                  }
+                `}
+              >
+                {currentOrder.orderStatus?.replaceAll("_", " ") || "Unknown"}
+              </span>
             </div>
           </CardContent>
-          <CardContent className="border-t bg-gray-50 p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div>
-                <p className="text-xs text-gray-500 uppercase">Order Placed</p>
-                <p className="font-medium">
+
+          {/* Order Information */}
+          <CardContent className="border-t bg-gray-50 p-4 sm:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                  Order Placed
+                </p>
+
+                <p className="font-medium text-sm sm:text-base mt-1">
                   {new Date(currentOrder.createdAt).toLocaleDateString("en-IN")}
                 </p>
               </div>
 
-              <div>
-                <p className="text-xs text-gray-500 uppercase">Total</p>
-                <p className="font-medium">
-                  {/* {formatPrice(currentOrder?.pricing?.grandTotal)} */}
-                  {/* {formatPrice(
-                    user?.role === "seller"
-                      ? currentOrder.sellerPricing?.grandTotal
-                      : currentOrder.pricing?.grandTotal,
-                  )} */}
-                  {/* {formatPrice(
-                    user?.role === "seller"
-                      ? currentOrder.sellerTotal
-                      : currentOrder.pricing?.itemTotal,
-                  )} */}
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                  Total
+                </p>
 
+                <p className="font-medium text-sm sm:text-base mt-1">
                   {formatPrice(
-                    user?.role === "seller"
+                    isVerifiedSeller
                       ? currentOrder.sellerTotal
                       : currentOrder.pricing?.grandTotal,
                   )}
                 </p>
               </div>
 
-              <div>
-                <p className="text-xs text-gray-500 uppercase">Payment</p>
-                <p className="font-medium uppercase">
-                  {currentOrder?.paymentInfo?.method}
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                  Payment
+                </p>
+
+                <p className="font-medium uppercase text-sm sm:text-base mt-1">
+                  {currentOrder?.paymentInfo?.method || "-"}
                 </p>
               </div>
 
-              <div>
-                <p className="text-xs text-gray-500 uppercase">Order ID</p>
-                <p className="font-medium break-all">{currentOrder?._id}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-gray-500 uppercase">
+                  Order ID
+                </p>
+
+                <p className="font-medium text-xs sm:text-sm mt-1 break-all">
+                  {currentOrder?._id}
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* content */}
-        <div className="grid lg:grid-cols-12 gap-6">
-          {/* product */}
-          <div className="lg:col-span-8 space-y-4">
-            {
-              // console.log("ORDER=>", order.items.product._id)
-              // console.log("ORDER=>", order);
-            }
-            {/* {order.items?.map((item, index) => ( */}
-            {visibleItems?.map((item, index) => (
+        {/* ================= MAIN CONTENT ================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+          {/* ================= PRODUCTS ================= */}
+          <div className="lg:col-span-8 space-y-3 sm:space-y-4">
+            {visibleItems.map((item, index) => (
               <div
-                className="bg-white border rounded-lg p-5"
                 key={item?._id || index}
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log("ID=>", item._id);
-                  const variantSku = item.variantSku;
+                className="bg-white border rounded-lg p-3 sm:p-5 cursor-pointer hover:shadow-sm transition"
+                onClick={() => {
+                  if (!item?.product?._id) return;
+
                   navigate(
-                    `/product/${item.product._id}?variantSku=${variantSku}`,
+                    `/product/${item.product._id}?variantSku=${item.variantSku}`,
                   );
-                  // console.log("ORDER=>", item.product._id)
                 }}
               >
-                <div className="flex gap-5 text-left ">
-                  <img
-                    src={item.variantImg}
-                    alt={item.product.title}
-                    className="w-32 h-32 object-cover border rounded"
-                  />
+                <div className="flex flex-col xs:flex-row sm:flex-row gap-3 sm:gap-5">
+                  {/* Product Image */}
+                  <div className="flex-shrink-0">
+                    <img
+                      src={item.variantImg}
+                      alt={item.product?.title || "Product"}
+                      className="
+                        w-24 h-24
+                        sm:w-28 sm:h-28
+                        md:w-32 md:h-32
+                        object-cover
+                        border rounded
+                        mx-auto xs:mx-0
+                      "
+                    />
+                  </div>
 
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">
+                  {/* Product Details */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-lg leading-5 sm:leading-6 line-clamp-2">
                       {item.product?.title}
                     </h3>
-                    <p className="text-sm">{item.variantSku}</p>
-                    <p className="text-gray-700 font-semibold  text-sm">
-                      Sold By: {item.seller?.shopName}
-                    </p>
-                    <p className="text-sm">Qty: {item.quantity}</p>
 
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1 break-all">
+                      SKU: {item.variantSku}
+                    </p>
+
+                    <p className="text-gray-700 font-semibold text-xs sm:text-sm mt-1 truncate">
+                      Sold By: {item.seller?.shopName || "-"}
+                    </p>
+
+                    <p className="text-xs sm:text-sm mt-1">
+                      Qty: {item.quantity}
+                    </p>
+
+                    {/* Status */}
                     <div className="mt-2">
                       <span
-                        className={`inline-flex px-2 py-1 rounded-full text-xs font-medium capitalize
-                                ${
-                                  item.orderStatus === "delivered"
-                                    ? "bg-green-100 text-green-700"
-                                    : item.orderStatus === "cancelled"
-                                      ? "bg-red-100 text-red-700"
-                                      : item.orderStatus === "confirmed"
-                                        ? "bg-blue-100 text-blue-700"
-                                        : item.orderStatus === "shipped"
-                                          ? "bg-indigo-100 text-indigo-700"
-                                          : item.orderStatus ===
-                                              "out_for_delivery"
-                                            ? "bg-orange-100 text-orange-700"
-                                            : "bg-yellow-100 text-yellow-700"
-                                }
-                              `}
+                        className={`inline-flex px-2 py-1 rounded-full text-[10px] sm:text-xs font-medium capitalize
+                          ${
+                            item.orderStatus === "delivered"
+                              ? "bg-green-100 text-green-700"
+                              : item.orderStatus === "cancelled"
+                                ? "bg-red-100 text-red-700"
+                                : item.orderStatus === "confirmed"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : item.orderStatus === "shipped"
+                                    ? "bg-indigo-100 text-indigo-700"
+                                    : item.orderStatus === "out_for_delivery"
+                                      ? "bg-orange-100 text-orange-700"
+                                      : "bg-yellow-100 text-yellow-700"
+                          }
+                        `}
                       >
-                        {item.orderStatus.replaceAll("_", " ")}
+                        {item.orderStatus?.replaceAll("_", " ")}
                       </span>
                     </div>
-                    <p className="text-lg  font-semibold ">
+
+                    {/* Price */}
+                    <p className="text-base sm:text-lg font-semibold mt-2">
                       {formatPrice(item.price)}
                     </p>
 
-                    {user && item.orderStatus === "placed" && (
+                    {/* Cancel Item */}
+                    {user?.role === "user" && item.orderStatus === "placed" && (
                       <Button
-                        className="mt-3 bg-red-100 text-red-700 hover:bg-red-200"
-                        onClick={async (e) => {
+                        className="mt-3 w-full sm:w-auto bg-red-100 text-red-700 hover:bg-red-200 text-xs sm:text-sm"
+                        onClick={(e) => {
                           e.stopPropagation();
-                          // console.log("currentorder.id", currentOrder._id);
-                          const res = await cancelOrderItem(
-                            currentOrder._id,
-                            item._id,
-                          );
-                          await fetchOrderByID(currentOrder._id);
-                          successToast(
-                            res.message || "Item cancel sucessfully",
-                          );
+                          handleCancelItem(item._id);
                         }}
                       >
                         Cancel Item
                       </Button>
                     )}
+
+                    {user?.role === "seller" &&
+                      !user?.isVerified &&
+                      item.orderStatus === "placed" && (
+                        <Button
+                          className="mt-3 w-full sm:w-auto bg-red-100 text-red-700 hover:bg-red-200 text-xs sm:text-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelItem(item._id);
+                          }}
+                        >
+                          Cancel Item
+                        </Button>
+                      )}
                   </div>
-                  <div></div>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* ================= RIGHT SIDEBAR ================= */}
           <div className="lg:col-span-4">
-            <div className="sticky top-4 space-y-4">
-              {/* Summary */}
-              <div className="bg-white border rounded-lg p-5">
-                <h2 className="p-3">Order Summary</h2>
+            <div className="lg:sticky lg:top-4 space-y-4">
+              {/* ================= SUMMARY ================= */}
+              <div className="bg-white border rounded-lg p-4 sm:p-5">
+                <h2 className="text-lg sm:text-xl font-semibold pb-3 border-b">
+                  Order Summary
+                </h2>
 
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span>Item Total</span>
-                    {/* <span>{formatPrice(currentOrder.pricing?.itemTotal)}</span> */}
-                    <span>
+                <div className="space-y-3 mt-4">
+                  {/* Item Total */}
+                  <div className="flex justify-between gap-4 text-sm sm:text-base">
+                    <span className="text-gray-600">Item Total</span>
+
+                    <span className="font-medium text-right">
                       {formatPrice(
-                        user?.role === "seller"
+                        isVerifiedSeller
                           ? currentOrder.sellerTotal
                           : currentOrder.pricing?.itemTotal,
                       )}
-                      {/* {formatPrice(
-                        user?.role === "seller"
-                          ? currentOrder.sellerPricing?.itemTotal
-                          : currentOrder.pricing?.itemTotal,
-                      )} */}
                     </span>
                   </div>
 
-                  <div className="flex justify-between">
-                    <span>Tax</span>
+                  {/* Tax */}
+                  <div className="flex justify-between gap-4 text-sm sm:text-base">
+                    <span className="text-gray-600">Tax</span>
+
                     <span>{formatPrice(currentOrder.pricing?.tax)}</span>
-                    {/* <span>
-                      {formatPrice(
-                        user?.role === "seller"
-                          ? currentOrder.sellerPricing?.tax
-                          : currentOrder.pricing?.tax,
-                      )}
-                    </span> */}
                   </div>
 
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
+                  {/* Shipping */}
+                  <div className="flex justify-between gap-4 text-sm sm:text-base">
+                    <span className="text-gray-600">Shipping</span>
+
                     <span>{formatPrice(currentOrder.pricing?.shipping)}</span>
-                    {/* <span>
-                      {formatPrice(
-                        user?.role === "seller"
-                          ? currentOrder.sellerPricing?.shipping
-                          : currentOrder.pricing?.shipping,
-                      )}
-                    </span> */}
                   </div>
+
                   <hr />
-                  <div className="flex justify-between">
+
+                  {/* Grand Total */}
+                  <div className="flex justify-between gap-4 font-semibold text-sm sm:text-base">
                     <span>
-                      {user?.role === "seller"
-                        ? "Your Earnings"
-                        : "Grand Total"}
+                      {isVerifiedSeller ? "Your Earnings" : "Grand Total"}
                     </span>
-                    {/* <span>{formatPrice(currentOrder.pricing?.grandTotal)}</span> */}
-                    <span>
+
+                    <span className="text-right">
                       {formatPrice(
-                        user?.role === "seller"
+                        isVerifiedSeller
                           ? currentOrder.sellerTotal
                           : currentOrder.pricing?.grandTotal,
                       )}
@@ -394,62 +384,57 @@ const OrderDetails = () => {
                   </div>
                 </div>
 
-                {/* {user?.role === "admin" &&
-                  currentOrder.orderStatus === "placed" && (
-                    <Button
-                      className="w-full mt-5 text-lg text-red-700 bg-red-100"
-                      onClick={async () => {
-                        await cancelOrder(currentOrder._id);
-                        fetchOrderByID(currentOrder._id);
-                      }}
-                    >
-                      Cancel Order
-                    </Button>
-                  )} */}
-
-                {currentOrder.items.orderStatus === "placed" && (
+                {/* Cancel Order */}
+                {currentOrder.items?.some(
+                  (item) => item.orderStatus === "placed",
+                ) && (
                   <Button
-                    className="w-full mt-5 text-lg text-red-700 bg-red-100"
-                    onClick={async () => {
-                      await cancelOrder(currentOrder._id);
-                      fetchOrderByID(currentOrder._id);
-                    }}
+                    className="w-full mt-5 text-sm sm:text-lg text-red-700 bg-red-100 hover:bg-red-200"
+                    onClick={handleCancelOrder}
                   >
                     Cancel Order
                   </Button>
                 )}
               </div>
 
-              {/* Address */}
-              <div className="bg-white border rounded-lg p-6">
-                <h2 className="p-3">Shipping Address</h2>
+              {/* ================= ADDRESS ================= */}
+              <div className="bg-white border rounded-lg p-4 sm:p-6">
+                <h2 className="text-lg sm:text-xl font-semibold pb-3 border-b mb-4">
+                  Shipping Address
+                </h2>
 
-                <div className="space-y-1 text-sm text-start">
-                  <p className="font-bold text-lg">
+                <div className="space-y-2 text-xs sm:text-sm text-start break-words">
+                  <p className="font-bold text-base sm:text-lg">
                     {currentOrder.shippingAddress?.fullName}
                   </p>
+
                   <p>
-                    <b>Phone: </b> {currentOrder.shippingAddress?.phone}
+                    <b>Phone:</b> {currentOrder.shippingAddress?.phone}
                   </p>
+
                   <p>
-                    <b>Address: </b>{" "}
-                    {currentOrder.shippingAddress?.addressLine1}
+                    <b>Address:</b> {currentOrder.shippingAddress?.addressLine1}
                   </p>
+
                   {currentOrder.shippingAddress?.addressLine2 && (
-                    <p>{currentOrder.shippingAddress?.addressLine2}</p>
+                    <p>{currentOrder.shippingAddress.addressLine2}</p>
                   )}
+
                   <p>
-                    <b>City: </b> {currentOrder.shippingAddress?.city}
+                    <b>City:</b> {currentOrder.shippingAddress?.city}
                   </p>
+
                   <p>
-                    <b>State: </b> {currentOrder.shippingAddress?.state}
+                    <b>State:</b> {currentOrder.shippingAddress?.state}
                   </p>
+
                   <p>
-                    <b>Postal Code: </b>{" "}
+                    <b>Postal Code:</b>{" "}
                     {currentOrder.shippingAddress?.postalCode}
                   </p>
+
                   <p>
-                    <b>Country: </b> {currentOrder.shippingAddress?.country}
+                    <b>Country:</b> {currentOrder.shippingAddress?.country}
                   </p>
                 </div>
               </div>
@@ -462,3 +447,529 @@ const OrderDetails = () => {
 };
 
 export default OrderDetails;
+
+// import React, { useEffect, useState } from "react";
+// import { useNavigate, useParams } from "react-router-dom";
+
+// import useOrder from "@/hooks/useOrder";
+
+// import { Card, CardContent } from "@/components/ui/card";
+// import { Button } from "@/components/ui/Button";
+// import useAuth from "@/hooks/useAuth";
+// import sellerServices from "@/services/sellerServices";
+// import { errorToast, successToast } from "@/lib/toast";
+
+// const OrderDetails = () => {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const { user } = useAuth();
+//   const { order, fetchOrderByID, loading, cancelOrder, cancelOrderItem } =
+//     useOrder();
+//   const [localOrder, setLocalOrder] = useState(null);
+//   //   console.log("order", order);
+//   //   useEffect(() => {
+//   //     fetchOrderByID(id);
+//   //   }, [id]);
+//   const [pageLoading, setPageLoading] = useState(true);
+//   // useEffect(() => {
+//   //   const loadOrder = async () => {
+//   //     setPageLoading(true);
+//   //     try {
+//   //       if (user?.role === "seller") {
+//   //         const data = await sellerServices.getSellerOrdersById(id);
+//   //         console.log("data", data);
+//   //         setLocalOrder(data.order);
+//   //       } else {
+//   //         await fetchOrderByID(id);
+//   //       }
+//   //     } catch (error) {
+//   //       // console.log(error);
+//   //       errorToast(
+//   //         error?.response?.data?.message ||
+//   //           error?.message ||
+//   //           "somthing went wrong",
+//   //       );
+//   //     } finally {
+//   //       setPageLoading(false);
+//   //     }
+//   //   };
+//   //   if (id && user) {
+//   //     loadOrder();
+//   //   }
+//   // }, [id, user]);
+
+//   useEffect(() => {
+//     const loadOrder = async () => {
+//       setPageLoading(true);
+
+//       try {
+//         const isSellerOrder = location.pathname.startsWith("/seller/orders/");
+
+//         if (isSellerOrder) {
+//           // Seller is managing an order
+//           const data = await sellerServices.getSellerOrdersById(id);
+
+//           console.log("Seller Order:", data);
+//           setLocalOrder(data.order);
+//         } else {
+//           // User/seller/admin is viewing their purchased order
+//           const data = await fetchOrderByID(id);
+//           console.log("seller as buyer", data);
+//           setLocalOrder(data.order);
+//         }
+//       } catch (error) {
+//         errorToast(
+//           error?.response?.data?.message ||
+//             error?.message ||
+//             "Something went wrong",
+//         );
+//       } finally {
+//         setPageLoading(false);
+//       }
+//     };
+
+//     if (id && user) {
+//       loadOrder();
+//     }
+//   }, [id, user, location.pathname]);
+
+//   console.log("loading", loading);
+//   const currentOrder = user?.role === "seller" ? localOrder : order;
+//   console.log("Current Order", currentOrder);
+
+//   const formatPrice = (price) => {
+//     return Number(price || 0).toLocaleString("en-IN", {
+//       style: "currency",
+//       currency: "INR",
+//     });
+//   };
+
+//   if (pageLoading || loading.details) {
+//     return <div className="max-w-6xl mx-auto p-6">Loading order...</div>;
+//   }
+//   // if (!currentOrder) {
+//   //   return (
+//   //     <div className="min-h-screen bg-[#eaeded] flex items-center justify-center">
+//   //       {" "}
+//   //       <div className="text-lg font-medium">Loading order details...</div>{" "}
+//   //     </div>
+//   //   );
+//   // }
+//   if (!currentOrder) {
+//     return <div className="max-w-6xl mx-auto p-6">Order not found</div>;
+//   }
+
+//   //   const visibleItems =
+//   //     user?.role === "seller"
+//   //       ? order.items?.filter((item) => item.seller?._id === user?.seller?._id)
+//   //       : order.items;
+
+//   //   const visibleItems =
+//   //     user?.role === "seller"
+//   //       ? order.items?.filter(
+//   //           (item) => item.seller?._id?.toString() === user?._id?.toString(),
+//   //         )
+//   //       : order.items;
+
+//   //   const sellerId = user?.seller?._id || user?.seller || user?._id;
+//   //   const visibleItems =
+//   //     user?.role === "seller"
+//   //       ? order.items?.filter(
+//   //           (item) => item.seller?._id?.toString() === sellerId?.toString(),
+//   //         )
+//   //       : order.items;
+
+//   const visibleItems = currentOrder.items || [];
+
+//   return (
+//     <div className="min-h-screen bg-[#eaeded] py-8">
+//       <div className="max-w-7xl mx-auto px-4">
+//         {/* Header */}
+//         {/*<div className="bg-white border rounded-lg mb-6">
+//                      <div className="p-6">
+//                         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+
+//                             <div>
+//                                 <h3 className="text-2xl font-bold text-gray-700">
+//                                     Order: #{order?._id?.slice(-8)}
+//                                 </h3>
+//                                     <p className="text-gray-500 mt-1">
+//                                     Placed on {new Date(order.createdAt).toDateString("en-IN")}
+//                                 </p>
+//                             </div>
+
+//                             <span className={`px-4 py-2 rounded-full text-sm font-medium
+//                                 ${order.orderStatus === "deliverd"
+//                                     ? "bg-green-100 text-green-700"
+//                                     : order.orderStatus === "cancelled"
+//                                         ? "bg-red-100 text-red-700"
+//                                         : "bg-yellow-100 text-yellow-700"}
+//                                 `}>
+//                                 {order.orderStatus}
+//                             </span>
+//                         </div>
+//                     </div> */}
+
+//         {/* <div className="border-t bg-gray-50 p-6">
+//                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+//                             <div>
+//                                 <p className="text-xs text-gray-500 uppercase">
+//                                     Order Placed
+//                                 </p>
+//                                 <p className="font-medium">
+//                                     {new Date(order.createdAt).toLocaleDateString("en-IN")}
+//                                 </p>
+//                             </div>
+
+//                             <div>
+//                                 <p className="text-xs text-gray-500 uppercase">Total</p>
+//                                 <p className="font-medium">
+//                                     {formatPrice(order?.pricing?.grandTotal)}
+//                                 </p>
+//                             </div>
+
+//                             <div>
+//                                 <p className="text-xs text-gray-500 uppercase">Payment</p>
+//                                 <p className="font-medium uppercase">
+//                                     {order?.paymentInfo?.method}
+//                                 </p>
+//                             </div>
+
+//                             <div>
+//                                 <p className="text-xs text-gray-500 uppercase">Order ID</p>
+//                                 <p className="font-medium break-all">
+//                                     {order?._id}
+//                                 </p>
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>*/}
+
+//         <Card className="mb-5">
+//           <CardContent className="px-6">
+//             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+//               <div>
+//                 <h3 className="text-2xl font-bold text-gray-700">
+//                   Order: #{currentOrder?._id?.slice(-8)}
+//                 </h3>
+//                 {/* <p className="text-gray-500 mt-1">
+//                                     Placed on {new Date(order.createdAt).toDateString("en-IN")}
+//                                 </p> */}
+//               </div>
+
+//               {/* {user?.role !== "seller" && (
+//                 <span
+//                   className={`px-4 py-2 rounded-full text-sm font-medium
+//                                 ${
+//                                   currentOrder.orderStatus === "delivered"
+//                                     ? "bg-green-100 text-green-700"
+//                                     : currentOrder.orderStatus === "cancelled"
+//                                       ? "bg-red-100 text-red-700"
+//                                       : "bg-yellow-100 text-yellow-700"
+//                                 }
+//                                 `}
+//                 >
+//                   {currentOrder.orderStatus}
+//                 </span>
+//               )} */}
+//             </div>
+//           </CardContent>
+//           <CardContent className="border-t bg-gray-50 p-6">
+//             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+//               <div>
+//                 <p className="text-xs text-gray-500 uppercase">Order Placed</p>
+//                 <p className="font-medium">
+//                   {new Date(currentOrder.createdAt).toLocaleDateString("en-IN")}
+//                 </p>
+//               </div>
+
+//               <div>
+//                 <p className="text-xs text-gray-500 uppercase">Total</p>
+//                 <p className="font-medium">
+//                   {/* {formatPrice(currentOrder?.pricing?.grandTotal)} */}
+//                   {/* {formatPrice(
+//                     user?.role === "seller"
+//                       ? currentOrder.sellerPricing?.grandTotal
+//                       : currentOrder.pricing?.grandTotal,
+//                   )} */}
+//                   {/* {formatPrice(
+//                     user?.role === "seller"
+//                       ? currentOrder.sellerTotal
+//                       : currentOrder.pricing?.itemTotal,
+//                   )} */}
+
+//                   {formatPrice(
+//                     user?.role === "seller" && user?.isVerified === true
+//                       ? currentOrder.sellerTotal
+//                       : currentOrder.pricing?.grandTotal,
+//                   )}
+//                 </p>
+//               </div>
+
+//               <div>
+//                 <p className="text-xs text-gray-500 uppercase">Payment</p>
+//                 <p className="font-medium uppercase">
+//                   {currentOrder?.paymentInfo?.method}
+//                 </p>
+//               </div>
+
+//               <div>
+//                 <p className="text-xs text-gray-500 uppercase">Order ID</p>
+//                 <p className="font-medium break-all">{currentOrder?._id}</p>
+//               </div>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         {/* content */}
+//         <div className="grid lg:grid-cols-12 gap-6">
+//           {/* product */}
+//           <div className="lg:col-span-8 space-y-4">
+//             {
+//               // console.log("ORDER=>", order.items.product._id)
+//               // console.log("ORDER=>", order);
+//             }
+//             {/* {order.items?.map((item, index) => ( */}
+//             {visibleItems?.map((item, index) => (
+//               <div
+//                 className="bg-white border rounded-lg p-5"
+//                 key={item?._id || index}
+//                 onClick={(e) => {
+//                   e.preventDefault();
+//                   console.log("ID=>", item._id);
+//                   const variantSku = item.variantSku;
+//                   navigate(
+//                     `/product/${item.product._id}?variantSku=${variantSku}`,
+//                   );
+//                   // console.log("ORDER=>", item.product._id)
+//                 }}
+//               >
+//                 <div className="flex gap-5 text-left ">
+//                   <img
+//                     src={item.variantImg}
+//                     alt={item.product.title}
+//                     className="w-32 h-32 object-cover border rounded"
+//                   />
+
+//                   <div className="flex-1">
+//                     <h3 className="font-semibold text-lg">
+//                       {item.product?.title}
+//                     </h3>
+//                     <p className="text-sm">{item.variantSku}</p>
+//                     <p className="text-gray-700 font-semibold  text-sm">
+//                       Sold By: {item.seller?.shopName}
+//                     </p>
+//                     <p className="text-sm">Qty: {item.quantity}</p>
+
+//                     <div className="mt-2">
+//                       <span
+//                         className={`inline-flex px-2 py-1 rounded-full text-xs font-medium capitalize
+//                                 ${
+//                                   item.orderStatus === "delivered"
+//                                     ? "bg-green-100 text-green-700"
+//                                     : item.orderStatus === "cancelled"
+//                                       ? "bg-red-100 text-red-700"
+//                                       : item.orderStatus === "confirmed"
+//                                         ? "bg-blue-100 text-blue-700"
+//                                         : item.orderStatus === "shipped"
+//                                           ? "bg-indigo-100 text-indigo-700"
+//                                           : item.orderStatus ===
+//                                               "out_for_delivery"
+//                                             ? "bg-orange-100 text-orange-700"
+//                                             : "bg-yellow-100 text-yellow-700"
+//                                 }
+//                               `}
+//                       >
+//                         {item.orderStatus.replaceAll("_", " ")}
+//                       </span>
+//                     </div>
+//                     <p className="text-lg  font-semibold ">
+//                       {formatPrice(item.price)}
+//                     </p>
+//                     {user.role == "user"
+//                       ? user &&
+//                         item.orderStatus === "placed" && (
+//                           <Button
+//                             className="mt-3 bg-red-100 text-red-700 hover:bg-red-200"
+//                             onClick={async (e) => {
+//                               e.stopPropagation();
+//                               // console.log("currentorder.id", currentOrder._id);
+//                               const res = await cancelOrderItem(
+//                                 currentOrder._id,
+//                                 item._id,
+//                               );
+//                               console.log("res", res);
+//                               currentOrder = res.order;
+//                               // await fetchOrderByID(currentOrder._id);
+//                               successToast(
+//                                 res.message || "Item cancel sucessfully",
+//                               );
+//                             }}
+//                           >
+//                             Cancel Item
+//                           </Button>
+//                         )
+//                       : user.role === "seller" &&
+//                         !user.isVerified &&
+//                         item.orderStatus === "placed" && (
+//                           <Button
+//                             className="mt-3 bg-red-100 text-red-700 hover:bg-red-200"
+//                             onClick={async (e) => {
+//                               e.stopPropagation();
+//                               // console.log("currentorder.id", currentOrder._id);
+//                               const res = await cancelOrderItem(
+//                                 currentOrder._id,
+//                                 item._id,
+//                               );
+//                               console.log("seller res", res);
+//                               currentOrder = res.order;
+//                               // await fetchOrderByID(currentOrder._id);
+//                               successToast(
+//                                 res.message || "Item cancel sucessfully",
+//                               );
+//                             }}
+//                           >
+//                             Cancel Item
+//                           </Button>
+//                         )}
+//                   </div>
+//                   <div></div>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+
+//           <div className="lg:col-span-4">
+//             <div className="sticky top-4 space-y-4">
+//               {/* Summary */}
+//               <div className="bg-white border rounded-lg p-5">
+//                 <h2 className="p-3">Order Summary</h2>
+
+//                 <div className="space-y-3">
+//                   <div className="flex justify-between">
+//                     <span>Item Total</span>
+//                     {/* <span>{formatPrice(currentOrder.pricing?.itemTotal)}</span> */}
+//                     <span>
+//                       {formatPrice(
+//                         user?.role === "seller" && user?.isVerified === true
+//                           ? currentOrder.sellerTotal
+//                           : currentOrder.pricing?.itemTotal,
+//                       )}
+//                       {/* {formatPrice(
+//                         user?.role === "seller"
+//                           ? currentOrder.sellerPricing?.itemTotal
+//                           : currentOrder.pricing?.itemTotal,
+//                       )} */}
+//                     </span>
+//                   </div>
+
+//                   <div className="flex justify-between">
+//                     <span>Tax</span>
+//                     <span>{formatPrice(currentOrder.pricing?.tax)}</span>
+//                     {/* <span>
+//                       {formatPrice(
+//                         user?.role === "seller"
+//                           ? currentOrder.sellerPricing?.tax
+//                           : currentOrder.pricing?.tax,
+//                       )}
+//                     </span> */}
+//                   </div>
+
+//                   <div className="flex justify-between">
+//                     <span>Shipping</span>
+//                     <span>{formatPrice(currentOrder.pricing?.shipping)}</span>
+//                     {/* <span>
+//                       {formatPrice(
+//                         user?.role === "seller"
+//                           ? currentOrder.sellerPricing?.shipping
+//                           : currentOrder.pricing?.shipping,
+//                       )}
+//                     </span> */}
+//                   </div>
+//                   <hr />
+//                   <div className="flex justify-between">
+//                     <span>
+//                       {user?.role === "seller" && user?.isVerified === true
+//                         ? "Your Earnings"
+//                         : "Grand Total"}
+//                     </span>
+//                     {/* <span>{formatPrice(currentOrder.pricing?.grandTotal)}</span> */}
+//                     <span>
+//                       {formatPrice(
+//                         user?.role === "seller" && user?.isVerified === true
+//                           ? currentOrder.sellerTotal
+//                           : currentOrder.pricing?.grandTotal,
+//                       )}
+//                     </span>
+//                   </div>
+//                 </div>
+
+//                 {/* {user?.role === "admin" &&
+//                   currentOrder.orderStatus === "placed" && (
+//                     <Button
+//                       className="w-full mt-5 text-lg text-red-700 bg-red-100"
+//                       onClick={async () => {
+//                         await cancelOrder(currentOrder._id);
+//                         fetchOrderByID(currentOrder._id);
+//                       }}
+//                     >
+//                       Cancel Order
+//                     </Button>
+//                   )} */}
+
+//                 {currentOrder.items.orderStatus === "placed" && (
+//                   <Button
+//                     className="w-full mt-5 text-lg text-red-700 bg-red-100"
+//                     onClick={async () => {
+//                       await cancelOrder(currentOrder._id);
+//                       fetchOrderByID(currentOrder._id);
+//                     }}
+//                   >
+//                     Cancel Order
+//                   </Button>
+//                 )}
+//               </div>
+
+//               {/* Address */}
+//               <div className="bg-white border rounded-lg p-6">
+//                 <h2 className="p-3">Shipping Address</h2>
+
+//                 <div className="space-y-1 text-sm text-start">
+//                   <p className="font-bold text-lg">
+//                     {currentOrder.shippingAddress?.fullName}
+//                   </p>
+//                   <p>
+//                     <b>Phone: </b> {currentOrder.shippingAddress?.phone}
+//                   </p>
+//                   <p>
+//                     <b>Address: </b>{" "}
+//                     {currentOrder.shippingAddress?.addressLine1}
+//                   </p>
+//                   {currentOrder.shippingAddress?.addressLine2 && (
+//                     <p>{currentOrder.shippingAddress?.addressLine2}</p>
+//                   )}
+//                   <p>
+//                     <b>City: </b> {currentOrder.shippingAddress?.city}
+//                   </p>
+//                   <p>
+//                     <b>State: </b> {currentOrder.shippingAddress?.state}
+//                   </p>
+//                   <p>
+//                     <b>Postal Code: </b>{" "}
+//                     {currentOrder.shippingAddress?.postalCode}
+//                   </p>
+//                   <p>
+//                     <b>Country: </b> {currentOrder.shippingAddress?.country}
+//                   </p>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default OrderDetails;

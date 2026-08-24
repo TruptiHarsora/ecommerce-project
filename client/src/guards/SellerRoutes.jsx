@@ -22,7 +22,7 @@ const SellerRoutes = () => {
   //     return <Navigate to="/seller/profile" replace />;
   //   }
 
-  if (user.isVerified !== true) {
+  if (user?.role === "seller" && user?.isVerified !== true) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8 text-center">

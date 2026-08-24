@@ -784,6 +784,36 @@ const cancelOrderItem = async (req, res) => {
   item.orderStatus = "cancelled";
   item.cancelledAt = new Date();
 
+  const activeItems = order.items.filter(
+    (item) => item.orderStatus !== "cancelled",
+  );
+
+  const itemTotal = activeItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
+
+  const tax = Math.round(itemTotal * 0.18);
+
+  const shipping = itemTotal > 1000 ? 0 : itemTotal > 0 ? 50 : 0;
+
+  const discount = order.pricing.discount || 0;
+
+  const grandTotal = itemTotal + tax + shipping - discount;
+
+  order.pricing.itemTotal = itemTotal;
+  order.pricing.tax = tax;
+  order.pricing.shipping = shipping;
+  order.pricing.grandTotal = grandTotal;
+
+  // If everything is cancelled
+  if (activeItems.length === 0) {
+    order.pricing.itemTotal = 0;
+    order.pricing.tax = 0;
+    order.pricing.shipping = 0;
+    order.pricing.grandTotal = 0;
+  }
+
   await order.save();
   res.json({
     success: true,

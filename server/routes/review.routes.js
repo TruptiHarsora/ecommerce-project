@@ -38,8 +38,8 @@ router.post(
 router.put(
   "/:id",
   authMiddleware,
-  checkReviewOwnerOrAdmin,
   upload.array("images", 5),
+  checkReviewOwnerOrAdmin,
   validate(reviewUpdateSchema, "body"),
   updateReview,
 );

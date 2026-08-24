@@ -367,18 +367,20 @@ const Sidebar = () => {
 
   return (
     <aside
+      // className="
+      //   h-full
+      //   w-64
+      //   bg-white
+      //   border-r
+      //   overflow-y-auto
+      // "
       className="
-        h-full
-        w-64
-        bg-white
-        border-r
-        overflow-y-auto
-      "
+    w-full
+    bg-white
+  "
     >
       <div className="p-3 space-y-5">
-        {/* ================================= */}
         {/* MAIN MENU */}
-        {/* ================================= */}
 
         <div>
           <p
@@ -440,9 +442,8 @@ const Sidebar = () => {
           </div>
         </div>
         <Separator />
-        {/* ================================= */}
+
         {/* FILTERS */}
-        {/* ================================= */}
 
         <div>
           <div
@@ -486,9 +487,7 @@ const Sidebar = () => {
             </button>
           </div>
 
-          {/* ============================= */}
           {/* SORT */}
-          {/* ============================= */}
 
           {/* ✅ CHANGE:
               sorting dropdown
@@ -528,13 +527,9 @@ const Sidebar = () => {
             </select>
           </div>
 
-          {/* ============================= */}
           {/* PRICE */}
-          {/* ============================= */}
 
-          {/* ✅ CHANGE:
-              price range
-          */}
+          {/* ✅ CHANGE:price range   */}
 
           <div className="mb-4">
             <p
@@ -582,9 +577,8 @@ const Sidebar = () => {
         </div>
 
         <Separator />
-        {/* ================================= */}
+
         {/* CATEGORIES */}
-        {/* ================================= */}
 
         <div>
           <p
@@ -613,10 +607,6 @@ const Sidebar = () => {
               Clear Category
             </button>
           </div>
-
-          {/* ✅ CHANGE:
-              category filter
-          */}
 
           <div className="space-y-1">
             {tree.map((cat) => (
