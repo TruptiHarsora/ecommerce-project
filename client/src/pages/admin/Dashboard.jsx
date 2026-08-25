@@ -13,7 +13,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState(null);
   const navigate = useNavigate();
-  console.log("adminOrders", adminOrders);
+ // console.log("adminOrders", adminOrders);
 
   const fetchData = async () => {
     try {
@@ -24,7 +24,7 @@ const Dashboard = () => {
 
       setDashboard(dashboardData);
       // setOrders(ordersData.orders);
-      console.log("orders", ordersData.orders);
+     // console.log("orders", ordersData.orders);
     } catch (error) {
       console.log(error);
     } finally {

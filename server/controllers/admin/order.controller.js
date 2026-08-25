@@ -37,35 +37,12 @@ const getAllOrdersAdmin = async (req, res) => {
   }
 };
 
-// const updateOrderStatusAdmin = async (req, res) => {
-//     const { id } = req.params;
-//     const { orderStatus } = req.body;
-
-//     const order = await Order.findById(id);
-
-//     if (!order) {
-//         return res.status(404).json({
-//             success: false,
-//             message: "Order not found"
-//         });
-//     }
-
-//     order.orderStatus = orderStatus;
-
-//     await order.save();
-
-//     res.json({
-//         success: true,
-//         order
-//     });
-// };
-
 const updateOrderStatusAdmin = async (req, res) => {
   try {
     const { id } = req.params;
     const { orderStatus } = req.body;
 
-    console.log("orderStatus", req.body);
+    // console.log("orderStatus", req.body);
 
     const order = await Order.findById(id);
 
@@ -84,7 +61,7 @@ const updateOrderStatusAdmin = async (req, res) => {
       order.deliveredAt = new Date();
     }
 
-    console.log("Saving order status:", order.orderStatus);
+    // console.log("Saving order status:", order.orderStatus);
     await order.save();
 
     res.status(200).json({

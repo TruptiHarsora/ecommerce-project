@@ -4,14 +4,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import adminService from "@/services/adminService";
 
 const createOrder = createAsyncThunk("orders/create", async (data) => {
-  console.log("paylod order", data);
+  // console.log("paylod order", data);
   const res = await orderService.createOrder(data);
   return res;
 });
 
 const fetchOrders = createAsyncThunk("orders/fetch", async () => {
   const res = await orderService.getOrders();
-  console.log("order:", res);
+  // console.log("order:", res);
   return res;
 });
 
@@ -39,7 +39,7 @@ const fetchAdminOrders = createAsyncThunk(
   "orders/adminFetch",
   async (params) => {
     const res = await adminService.getAllUserOrderAdmin(params);
-    console.log("thunk", res);
+    // console.log("thunk", res);
     return res;
   },
 );

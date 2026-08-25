@@ -48,7 +48,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    console.log("LOGIN HIT");
+    // console.log("LOGIN HIT");
 
     const { email, password } = req.body;
     // console.log("controller email, password", email, password);
@@ -77,7 +77,7 @@ const login = async (req, res) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    console.log("ACCESS token", accessToken);
+    // console.log("ACCESS token", accessToken);
     // console.log("REFRESH token", refreshToken);
 
     user.refreshToken = refreshToken;
@@ -100,6 +100,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
         seller: seller ? { _id: seller._id, shopName: seller.shopName } : null,
       },
     });
@@ -148,7 +149,7 @@ const refreshTokenHandler = async (req, res) => {
     }
 
     // const decoded = JWT.verify(token, JWT_REFRESH_SECRET);
-    console.log("decoded : ", decoded);
+    // console.log("decoded : ", decoded);
     let decoded;
     try {
       decoded = JWT.verify(token, JWT_REFRESH_SECRET);
@@ -177,43 +178,6 @@ const refreshTokenHandler = async (req, res) => {
     });
   }
 };
-
-// const getMe = async (req, res) => {
-//   const user = User.findById(req.user.id).select("-password -accessToken");
-
-//   if (!user) {
-//     res.status(404).json({
-//       success: false,
-//       message: "User not found",
-//     });
-//   }
-
-//   const seller = Seller.findOne({ user: user._id });
-
-//   if (!seller) {
-//     res.status(404).json({
-//       success: false,
-//       message: "Seller not found",
-//     });
-//   }
-
-//   res.status(200).json({
-//     success: true,
-//     user: {
-//       id: user._id,
-//       name: user.name,
-//       email: user.email,
-//       role: user.role,
-//       isVerified: user.isVerified,
-//       seller: seller
-//         ? {
-//             _id: seller._id,
-//             shopName: seller.shopName,
-//           }
-//         : null,
-//     },
-//   });
-// };
 
 const getMe = async (req, res) => {
   try {

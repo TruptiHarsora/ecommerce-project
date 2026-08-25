@@ -54,48 +54,14 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [editingReview, setEditingReview] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  // =====================================
+
   // FETCH PRODUCT
-  // =====================================
 
   useEffect(() => {
     if (id) fetchProductById(id);
   }, [id]);
 
-  // =====================================
   // DEFAULT VARIANT
-  // =====================================
-
-  // useEffect(() => {
-
-  //    if (product?.variants?.length) {
-
-  //       setSelectedVariant(
-  //          product.variants[0]
-  //       );
-
-  //       setSelectedImage(
-  //          product.variants[0]?.images?.[0]
-  //          || product.images?.[0]
-  //       );
-  //    }
-
-  // }, [product]);
-
-  // useEffect(() => {
-  //    if (!product) return;
-
-  //    const firstVariant = product?.variants?.[0];
-
-  //    setSelectedVariant(firstVariant || null);
-
-  //    setSelectedImage(
-  //       firstVariant?.images?.[0]
-  //       || product?.images?.[0]
-  //       || ""
-  //    );
-
-  // }, [product]);
 
   useEffect(() => {
     if (!product) return;
@@ -116,24 +82,7 @@ const ProductDetails = () => {
     getMyReview(id);
   }, [id]);
 
-  // =====================================
   // ALL IMAGES
-  // =====================================
-
-  // const allImages = useMemo(() => {
-
-  //    const productImages =
-  //       product?.images || [];
-
-  //    const variantImages =
-  //       selectedVariant?.images || [];
-
-  //    return [
-  //       ...productImages,
-  //       ...variantImages,
-  //    ];
-
-  // }, [product, selectedVariant]);
 
   const allImages = useMemo(() => {
     // show variant images first
@@ -198,7 +147,7 @@ const ProductDetails = () => {
       },
     });
   };
-  console.log("Product", product);
+  //console.log("Product", product);
 
   const handleAddToCart = async () => {
     if (!user) {
@@ -211,14 +160,14 @@ const ProductDetails = () => {
     if (product.sellers?.[0]?.stock <= 0) return;
 
     try {
-      console.log("AddToCArt");
+      //console.log("AddToCArt");
 
-      console.log({
-        product: product._id,
-        seller: product.sellers?.[0]?.seller?._id,
-        variantSku: selectedVariant?.sku,
-        quantity: 1,
-      });
+      // console.log({
+      //   product: product._id,
+      //   seller: product.sellers?.[0]?.seller?._id,
+      //   variantSku: selectedVariant?.sku,
+      //   quantity: 1,
+      // });
 
       const res = await addToCart({
         product: product._id,
@@ -238,17 +187,14 @@ const ProductDetails = () => {
       );
     }
   };
-  // =====================================
+
   // LOADING
-  // =====================================
 
   if (loading.single) {
     return <div className="text-center mt-20 text-lg">Loading...</div>;
   }
 
-  // =====================================
   // NO PRODUCT
-  // =====================================
 
   if (!product) {
     return <div className="text-center mt-20 text-lg">Product not found</div>;
@@ -261,48 +207,11 @@ const ProductDetails = () => {
     images: [],
   };
 
-  // const handleReviewSubmit = async (values, { resetForm }) => {
-
-  //    const formData = new FormData();
-
-  //    formData.append("rating", values.rating);
-  //    formData.append("title", values.title);
-  //    formData.append("comment", values.comment);
-
-  //    values.images?.forEach((file) => {
-  //       formData.append("images", file);
-  //    });
-
-  //    for (const [key, value] of formData.entries()) {
-  //       console.log(key, value);
-  //    }
-
-  //    if (editingReview) {
-
-  //       await updateReview({
-  //          id: editingReview._id,
-  //          data: formData
-  //       });
-
-  //       setEditingReview(null);
-
-  //    } else {
-
-  //       await createReview({
-  //          productId: id,
-  //          data: formData
-  //       });
-  //    }
-  //    await getProductReviews(id);
-  //    await getMyReview(id);
-  //    resetForm();
-  // };
-
   const handleReviewSubmit = async (values, { resetForm }) => {
     try {
       const formData = new FormData();
 
-      console.log("VALUES", values);
+      // console.log("VALUES", values);
 
       formData.append("rating", values.rating);
       formData.append("title", values.title);
@@ -312,18 +221,18 @@ const ProductDetails = () => {
         formData.append("images", file);
       });
 
-      for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(key, value);
+      // }
 
       if (editingReview) {
-        console.log(editingReview._id);
+        // console.log(editingReview._id);
         const res = await updateReview({
           id: editingReview._id,
           data: formData,
         }).unwrap();
       } else {
-        console.log(id);
+        // console.log(id);
         await createReview({
           productId: id,
           data: formData,
@@ -586,72 +495,6 @@ const ProductDetails = () => {
             </div>
           </div>
         </div>
-
-        {/* =====================================
-                SPECIFICATIONS
-            ===================================== */}
-
-        {/* <Card>
-
-               <CardContent className="p-6 space-y-6">
-
-                  <h2 className="
-                     text-2xl
-                     font-bold
-                     text-left
-                  ">
-                     Specifications
-                  </h2>
-
-                  <div className="overflow-x-auto">
-
-                     <table className="
-                        w-full
-                        border-collapse
-                     ">
-
-                        <tbody>
-
-                           {
-                              product.specification?.map(
-                                 (spec, index) => (
-
-                                    <tr
-                                       key={index}
-                                       className="border-b"
-                                    >
-
-                                       <td className="
-                                          w-[250px]
-                                          p-4
-                                          bg-muted
-                                          font-medium
-                                          text-left
-                                       ">
-                                          {spec.key}
-                                       </td>
-
-                                       <td className="
-                                          p-4
-                                          text-left
-                                       ">
-                                          {spec.value}
-                                       </td>
-
-                                    </tr>
-                                 )
-                              )
-                           }
-
-                        </tbody>
-
-                     </table>
-
-                  </div>
-
-               </CardContent>
-
-            </Card> */}
 
         <Card>
           <CardContent className="p-6 space-y-6">

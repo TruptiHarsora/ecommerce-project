@@ -2,7 +2,7 @@ import api from "./api";
 
 const createReview = async ({ productId, data }) => {
   const res = await api.post(`/review/${productId}`, data);
-  console.log("cretae Review:", res.data);
+  // console.log("cretae Review:", res.data);
   return res.data;
 };
 
@@ -33,7 +33,7 @@ const getMyReviews = async () => {
 
 const markHelpful = async (reviewId) => {
   const res = await api.patch(`/review/${reviewId}/helpful`);
-  console.log("helpful:", res);
+  // console.log("helpful:", res);
   return res.data;
 };
 

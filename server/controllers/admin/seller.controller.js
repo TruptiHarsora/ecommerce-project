@@ -3,81 +3,6 @@ const Product = require("../../models/Product");
 const Seller = require("../../models/Seller");
 const User = require("../../models/User");
 
-// const getAllSellersAdmin = async (req, res) => {
-//     try {
-
-//         const page = Number(req.query.page) || 1;
-//         const limit = 10;
-//         const skip = (page - 1) * limit;
-
-//         const sellers = await Seller.find()
-//             .populate("user", "name email")
-//             .sort({ createdAt: -1 })
-//             .skip(skip)
-//             .limit(limit);
-
-//         const sellersWithStats = await Promise.all(
-//             sellers.map(async (seller) => {
-//                 const totalOrders = await Order.countDocuments({
-//                     "items.seller": seller._id,
-//                 });
-
-//                 const earnings = await Order.aggregate([
-//                     {
-//                         $match: {
-//                             "items.seller": seller._id,
-//                             orderStatus: "delivered",
-//                         },
-//                     },
-//                     {
-//                         $unwind: "$items",
-//                     },
-//                     {
-//                         $match: {
-//                             "items.seller": seller._id,
-//                         },
-//                     },
-//                     {
-//                         $group: {
-//                             _id: null,
-//                             earnings: {
-//                                 $sum: {
-//                                     $multiply: [
-//                                         "$items.price",
-//                                         "$items.quantity",
-//                                     ],
-//                                 },
-//                             },
-//                         },
-//                     },
-//                 ]);
-
-//                 return {
-//                     ...seller.toObject(),
-//                     totalOrder: totalOrders,
-//                     earnings: earnings[0]?.earnings || 0,
-//                 };
-//             })
-//         );
-
-//         const total = await Seller.countDocuments();
-
-//         res.json({
-//             success: true,
-//             sellers: sellersWithStats,
-//             totalPages: Math.ceil(total / limit)
-//         });
-
-//     } catch (err) {
-
-//         res.status(500).json({
-//             success: false,
-//             message: err.message
-//         });
-
-//     }
-// };
-
 const getAllSellersAdmin = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -95,36 +20,6 @@ const getAllSellersAdmin = async (req, res) => {
         const totalOrder = await Order.countDocuments({
           "items.seller": seller._id,
         });
-
-        // const earningsAgg = await Order.aggregate([
-        //     {
-        //         $match: {
-        //             orderStatus: "delivered",
-        //             "items.seller": seller._id,
-        //         },
-        //     },
-        //     {
-        //         $unwind: "$items",
-        //     },
-        //     {
-        //         $match: {
-        //             "items.seller": seller._id,
-        //         },
-        //     },
-        //     {
-        //         $group: {
-        //             _id: null,
-        //             earnings: {
-        //                 $sum: {
-        //                     $multiply: [
-        //                         "$items.price",
-        //                         "$items.quantity",
-        //                     ],
-        //                 },
-        //             },
-        //         },
-        //     },
-        // ]);
 
         const earningsAgg = await Order.aggregate([
           { $unwind: "$items" },
@@ -201,18 +96,6 @@ const getSellerDetailsAdmin = async (req, res) => {
           .limit(5),
       ]);
 
-    // const formattedProducts = recentProducts.map(product => {
-    //     const sellerInfo = product.sellers.find(
-    //         s => s.seller.toString() === seller._id.toString()
-    //     );
-
-    //     return {
-    //         ...product.toObject(),
-    //         price: sellerInfo?.price,
-    //         stock: sellerInfo?.stock,
-    //     };
-    // });
-
     const formattedProducts = recentProducts.map((product) => {
       const sellerInfo = product.sellers.find((s) =>
         s.seller.equals(seller._id),
@@ -224,33 +107,6 @@ const getSellerDetailsAdmin = async (req, res) => {
         stock: sellerInfo?.stock ?? 0,
       };
     });
-
-    // const earningsAgg = await Order.aggregate([
-    //   {
-    //     $match: {
-    //       orderStatus: "delivered",
-    //       "items.seller": seller._id,
-    //     },
-    //   },
-    //   {
-    //     $unwind: "$items",
-    //   },
-    //   {
-    //     $match: {
-    //       "items.seller": seller._id,
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: null,
-    //       earnings: {
-    //         $sum: {
-    //           $multiply: ["$items.price", "$items.quantity"],
-    //         },
-    //       },
-    //     },
-    //   },
-    // ]);
 
     const earningsAgg = await Order.aggregate([
       { $unwind: "$items" },
@@ -301,25 +157,6 @@ const getSellerDetailsAdmin = async (req, res) => {
     });
   }
 };
-
-// const verifySellerAdmin = async (req, res) => {
-
-//     const seller = await Seller.findByIdAndUpdate(
-//         req.params.id,
-//         {
-//             isVerified: req.body.isVerified
-//         },
-//         {
-//             returnDocument: "after"
-//         }
-//     );
-
-//     res.json({
-//         success: true,
-//         seller
-//     });
-
-// };
 
 const verifySellerAdmin = async (req, res) => {
   try {

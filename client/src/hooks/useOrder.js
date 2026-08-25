@@ -16,7 +16,7 @@ const useOrder = () => {
   const { order, orders, adminOrders, loading, error } = useSelector(
     (state) => state.order,
   );
-  console.log(adminOrders);
+  // console.log(adminOrders);
   return {
     order,
     orders,

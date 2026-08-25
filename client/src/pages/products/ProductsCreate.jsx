@@ -96,19 +96,6 @@ const ProductCreate = () => {
           formData.append("images", image);
         });
 
-        // const varianPayload = values.variants.map((variant, index) => {
-        //    variant.variantImages.forEach((image) => {
-        //       formData.append(`varinatImages_${index}`, image);
-        //    });
-        //    return {
-        //       sku: variant.sku,
-        //       attributes: variant.attributes.reduce((acc, attr) => {
-        //          acc[attr.key] = attr.value;
-        //          return acc;
-        //       }, {})
-        //    }
-        // })
-
         const variantImageIndexes = [];
 
         const variantPayload = values.variants.map((variant, index) => {
@@ -141,9 +128,9 @@ const ProductCreate = () => {
 
         // formData.append("variants", JSON.stringify(varianPayload));
 
-        for (let pair of formData.entries()) {
-          console.log(pair[0], pair[1]);
-        }
+        // for (let pair of formData.entries()) {
+        //   console.log(pair[0], pair[1]);
+        // }
 
         await createProduct(formData);
         successToast(action.payload.message || "Product created Sucessfully");
@@ -209,33 +196,6 @@ const ProductCreate = () => {
     };
     return buildTree(categories);
   }, [categories]);
-
-  //handleChange input
-  // const handleChange = (e) => {
-  //    setform((prev) => ({
-  //       ...prev, productData: { ...prev.productData, [e.target.name]: e.target.value }
-  //    }))
-  // }
-
-  // const handleImages = (e) => {
-  //    setform((prev) => ({
-  //       ...prev, images: [...e.target.files]
-  //    }))
-  // }
-
-  // const handleSpecChnage = (e) => {
-  //    setform((prev) => ({
-  //       ...prev, specInput: { ...prev.specInput, [e.target.name]: e.target.value }
-  //    }))
-  // }
-
-  // const addSpecification = () => {
-  //    const spec = form.specInput;
-
-  //    if (!spec.group || !spec.key || !spec.value) {
-  //       return alert("All specification filed is")
-  //    }
-  // }
 
   const handleImage = (e) => {
     formik.setFieldValue("images", [...e.target.files]);
@@ -518,22 +478,6 @@ const ProductCreate = () => {
                         setShowCategory={setShowCategory}
                       />
                     ))}
-
-                    {/* {tree.map((cat) => (
-                      <CategoryItem
-                        key={cat._id}
-                        category={cat}
-                        selectable
-                        selectedCategory={categories.find(
-                          (c) => c._id === formik.values.category,
-                        )}
-                        onSelectCategory={(category) => {
-                          formik.setFieldValue("category", category._id);
-                          setShowCategory(false);
-                        }}
-                        setShowCategory={setShowCategory}
-                      />
-                    ))} */}
                   </div>
                 )}
               </div>

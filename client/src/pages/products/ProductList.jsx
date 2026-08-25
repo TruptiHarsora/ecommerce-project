@@ -23,30 +23,6 @@ const ProductList = () => {
   const nav = useNavigate();
   // const dispatch = useDispatch();
 
-  // // useEffect(() => {
-  // //   fetchProducts();
-  // // }, [])
-
-  // useEffect(() => {
-
-  //   fetchProducts({
-  //     page,
-  //     search: filters.search,
-  //     category: filters.category,
-  //     sort: filters.sort,
-  //     minPrice: filters.minPrice,
-  //     maxPrice: filters.maxPrice,
-  //   })
-
-  // }, [
-  //   page,
-  //   filters.search,
-  //   filters.category,
-  //   filters.sort,
-  //   filters.minPrice,
-  //   filters.maxPrice,
-  // ]);
-
   useEffect(() => {
     fetchProducts({
       page,

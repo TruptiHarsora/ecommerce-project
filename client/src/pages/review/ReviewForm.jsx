@@ -127,7 +127,7 @@ const ReviewForm = ({
                                     onChange={(e) => {
                                         const files = Array.from(e.target.files || []);
 
-                                        console.log("SELECTED FILES:", files);
+                                        // console.log("SELECTED FILES:", files);
 
                                         setFieldValue("images", files);
                                     }}

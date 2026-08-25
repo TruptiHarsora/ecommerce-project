@@ -9,80 +9,6 @@ const { generateVariantSku } = require("../utils/generateSKU.js");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-// const safeString = (val) => typeof val === "string" ? val.trim().slice(0, 120) : "";
-// const toNumber = (val, fallback = 0) => isNaN(Number(val)) ? fallback : Number(val);
-
-// const safeParse = (value, fallback = []) => {
-
-//     try {
-//         if (!value) return fallback;
-
-//         // already parsed object/array
-//         if (typeof value !== "string") {
-//             return value;
-//         }
-
-//         return JSON.parse(value);
-
-//     } catch (error) {
-//         console.log("JSON PARSE ERROR =>", error.message);
-
-//         return fallback;
-//     }
-// };
-
-// const uploadImages = async (files = []) => {
-
-//     if (!files.length) return [];
-
-//     return Promise.all(files.map(async (file) => {
-
-//         // validate image type
-//         if (!file.mimetype.startsWith("image/")) {
-//             throw new Error("Only image files allowed");
-//         }
-
-//         // validate image size
-//         if (file.size > 5 * 1024 * 1024) {
-//             throw new Error("Image size exceeds 5MB");
-//         }
-
-//         // compress image
-//         const compressed = await compressImage(file.buffer);
-
-//         // upload image
-//         const result = await uploadToCloudinary(compressed);
-
-//         return result.secure_url;
-//     })
-//     );
-// };
-
-// const validateSkus = async (variants, productId = null) => {
-
-//     const skus = variants.map((v) => v.sku).filter(Boolean);
-
-//     // duplicate in request
-//     const hasDuplicate = new Set(skus).size !== skus.length;
-
-//     if (hasDuplicate) {
-//         throw new Error("Duplicate SKU found");
-//     }
-
-//     // duplicate in database
-//     const query = { "variants.sku": { $in: skus }, };
-
-//     // exclude current product during update
-//     if (productId) { query._id = { $ne: productId }; }
-
-//     const existing = await Product.findOne(query);
-
-//     if (existing) {
-//         throw new Error("SKU already exists"
-//         );
-//     }
-// };
-
 const createProduct = async (req, res) => {
   try {
     let {
@@ -193,68 +119,6 @@ const createProduct = async (req, res) => {
 
       uploadImages = await Promise.all(uploadTasks);
     }
-
-    // const formattedTags =
-    //     Array.isArray(tags)
-    //         ? tags.map((tag) => tag.trim())
-    //         : typeof tags === "string"
-    //             ? tags.split(",").map((tag) => tag.trim())
-    //             : [];
-
-    // {
-
-    //     // const parsedVariants = typeof variants === "string"
-    //     //     ? JSON.parse(variants || "[]")
-    //     //     : variants || [];
-
-    //     // const parsedSpecs = typeof specification === "string"
-    //     //     ? JSON.parse(specification || "[]")
-    //     //     : specification || [];
-
-    //     // const parsedSellers = typeof sellers === "string"
-    //     //     ? JSON.parse(sellers || "[]")
-    //     //     : sellers || [];
-
-    //     // const product = await Product.create({
-    //     //     ...req.body,
-    //     //     slug: slugify(title, { lower: true, strict: true }),
-    //     //     images
-    //     // });
-
-    // }
-
-    // if (!sellers || sellers.length === 0) {
-    //     return res.status(400).json({
-    //         message: "At least one seller required"
-    //     });
-    // }
-
-    // const variantImageFiles =
-    //     req.files?.variantImages || [];
-
-    // let uploadedVariantImages = [];
-
-    // if (variantImageFiles.length) {
-
-    //     const uploadTasks =
-    //         variantImageFiles.map(async (file) => {
-
-    //             await scanFile(file.buffer);
-
-    //             const compressed =
-    //                 await compressImage(file.buffer);
-
-    //             const result =
-    //                 await uploadToCloudinary(
-    //                     compressed
-    //                 );
-
-    //             return result.secure_url;
-    //         });
-
-    //     uploadedVariantImages =
-    //         await Promise.all(uploadTasks);
-    // }
 
     const variantImageFiles = req.files?.variantImages || [];
 
@@ -378,9 +242,7 @@ const getAllProduct = async (req, res) => {
 
     rating = rating !== undefined && rating !== "" ? Number(rating) : undefined;
 
-    // =========================
     // SELLER FILTER
-    // =========================
 
     const sellerFilter = {
       isActive: true,
@@ -401,10 +263,6 @@ const getAllProduct = async (req, res) => {
       };
     }
 
-    // =========================
-    // BASE QUERY
-    // =========================
-
     const query = {
       isActive: true,
 
@@ -413,9 +271,7 @@ const getAllProduct = async (req, res) => {
       },
     };
 
-    // =========================
     // SEARCH
-    // =========================
 
     if (search && search.trim()) {
       const searchTerm = search.trim().slice(0, 100);
@@ -455,9 +311,7 @@ const getAllProduct = async (req, res) => {
       ];
     }
 
-    // =========================
     // CATEGORY
-    // =========================
 
     if (category && isValidId(category)) {
       const categoryIds = await getCategoryAndChildrenIds(category);
@@ -467,17 +321,13 @@ const getAllProduct = async (req, res) => {
       };
     }
 
-    // =========================
     // BRAND
-    // =========================
 
     if (brand && brand.trim()) {
       query.brand = brand.trim();
     }
 
-    // =========================
     // RATING
-    // =========================
 
     if (rating !== undefined) {
       query.ratingAverage = {
@@ -485,9 +335,7 @@ const getAllProduct = async (req, res) => {
       };
     }
 
-    // =========================
     // SORT
-    // =========================
 
     const sortMap = {
       latest: {
@@ -515,7 +363,6 @@ const getAllProduct = async (req, res) => {
       },
     };
 
-    // =========================
     // PRODUCTS
     // =========================
 
@@ -803,7 +650,7 @@ const getSellerProducts = async (req, res) => {
   try {
     const sellerId = req.seller._id;
 
-    console.log("SELLER ID =>", sellerId);
+    // console.log("SELLER ID =>", sellerId);
 
     const products = await Product.find({
       "sellers.seller": sellerId,
@@ -812,7 +659,7 @@ const getSellerProducts = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    console.log("SELLER PRODUCTS =>", products);
+    // console.log("SELLER PRODUCTS =>", products);
 
     return res.status(200).json({
       success: true,
@@ -899,9 +746,9 @@ const toggleProductStatus = async (req, res) => {
         message: "Product not found",
       });
     }
-    console.log("Before:", product.isActive);
+    // console.log("Before:", product.isActive);
     product.isActive = !product.isActive;
-    console.log("After:", product.isActive);
+    // console.log("After:", product.isActive);
     await product.save();
 
     return res.status(200).json({
@@ -916,595 +763,11 @@ const toggleProductStatus = async (req, res) => {
     });
   }
 };
-// const updateProduct = async (req, res) => {
-//     try {
-//         const { id } = req.params;
-
-//         if (!isValidId(id)) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Invalid Product ID"
-//             });
-//         }
-//         const product = await Product.findById(id);
-
-//         if (!product) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: "Product not found"
-//             });
-//         }
-
-//         const sellerId = req.seller?._id?.toString();
-
-//         const isOwner = product.sellers.some(
-//             s => s.seller.toString() === sellerId
-//         );
-
-//         if (!isOwner && req.user.role !== "admin") {
-//             return res.status(403).json({
-//                 success: false,
-//                 message: "Not allowed"
-//             });
-//         }
-
-//         const forbiddenFields = [
-//             "sellers",
-//             "ratingAverage",
-//             "ratingCount",
-//             "ratingSum"
-//         ];
-
-//         forbiddenFields.forEach(field => {
-//             if (req.body[field] !== undefined) {
-//                 delete req.body[field];
-//             }
-//         });
-
-//         // const update = req.body;
-
-//         if (req.body.title) {
-//             req.body.slug = slugify(req.body.title, { lower: true, strict: true });
-//         }
-
-//         if (req.body.variants && !Array.isArray(req.body.variants)) {
-//             req.body.variants = [];
-//         }
-
-//         const allowedFields = [
-//             "title",
-//             "slug",
-//             "description",
-//             "brand",
-//             "category",
-//             "images",
-//             "variants",
-//             "specification",
-//             "tags",
-//             // "isFeatured",
-//             "isActive"
-//         ];
-
-//         const update = {};
-
-//         allowedFields.forEach(field => {
-//             if (req.body[field] !== undefined) {
-//                 update[field] = req.body[field];
-//             }
-//         });
-
-//         const result = await Product.findByIdAndUpdate(
-//             id,
-//             { $set: update },
-//             { new: true, runValidators: true }).lean();
-
-//         if (!result) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: "Product not found"
-//             })
-//         }
-
-//         return res.status(200).json({
-//             success: true,
-//             message: "Product update sucessfully",
-//             result
-//         })
-//     } catch (error) {
-//         // res.status(500)
-//         //     .json({ success: false, message: error.message });
-
-//         console.log("PRODUCT Update ERROR =>", error);
-
-//         res.status(500).json({
-//             success: false,
-//             message: error.message,
-//             stack: error.stack,
-//         });
-//     }
-// }
-
-// const updateProduct = async (req, res) => {
-
-//     try {
-
-//         const { id } = req.params;
-//         console.log("update product id", id);
-
-//         if (!isValidId(id)) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Invalid Product ID",
-//             });
-//         }
-
-//         const product = await Product.findById(id);
-
-//         if (!product) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: "Product not found",
-//             });
-//         }
-
-//       //         // PARSE JSON FIELDS
-//
-//         // const specification = req.body.specification || [];
-
-//         // const variants = req.body.variants || [];
-
-//         // const existingImages = req.body.existingImages || [];
-
-//         // const variantImageIndexes = req.body.variantImageIndexes || [];
-
-//         const specification =
-//             typeof req.body.specification === "string"
-//                 ? JSON.parse(req.body.specification || "[]")
-//                 : req.body.specification || [];
-
-//         const variants =
-//             typeof req.body.variants === "string"
-//                 ? JSON.parse(req.body.variants || "[]")
-//                 : req.body.variants || [];
-
-//         const safeVariants = variants.map((variant) => ({
-//             ...variant,
-
-//             sku:
-//                 variant.sku && variant.sku.trim() !== ""
-//                     ? variant.sku
-//                     : generateVariantSku(
-//                         req.body.title,
-//                         variant.attributes || {}
-//                     ),
-//         }));
-
-//         const existingImages =
-//             typeof req.body.existingImages === "string"
-//                 ? JSON.parse(req.body.existingImages || "[]")
-//                 : req.body.existingImages || [];
-
-//         const variantImageIndexes =
-//             typeof req.body.variantImageIndexes === "string"
-//                 ? JSON.parse(req.body.variantImageIndexes || "[]")
-//                 : req.body.variantImageIndexes || [];
-
-//       //         // PRODUCT IMAGES
-//
-//         // let uploadedProductImages = [];
-
-//         // if (req.files?.images?.length > 0) {
-
-//         //     for (const file of req.files.images) {
-
-//         //         const uploaded = await new Promise((resolve, reject) => {
-
-//         //             const stream =
-//         //                 uploadToCloudinary.uploader.upload(
-//         //                     {
-//         //                         folder: "products",
-//         //                     },
-//         //                     (error, result) => {
-
-//         //                         if (error) reject(error);
-
-//         //                         else resolve(result);
-//         //                     }
-//         //                 );
-
-//         //             streamifier
-//         //                 .createReadStream(file.buffer)
-//         //                 .pipe(stream);
-//         //         });
-
-//         //         uploadedProductImages.push(uploaded.secure_url);
-//         //     }
-//         // }
-
-//         // const updatedSellers = product.sellers.map((sellerItem) => {
-
-//         // update ONLY current logged in seller
-//         //     if (sellerItem.seller.toString() === req.seller._id.toString()) {
-//         //         return {
-//         //             ...sellerItem.toObject(),
-//         //             price: req.body.price !== undefined
-//         //                 ? Number(req.body.price)
-//         //                 : sellerItem.price,
-//         //             stock: req.body.stock !== undefined
-//         //                 ? Number(req.body.stock)
-//         //                 : sellerItem.stock,
-//         //         };
-//         //     }
-//         //     return sellerItem;
-//         // });
-
-//         // let updatedSellers = product.sellers;
-
-//         // if (req.user.role === "seller") {
-
-//         //     updatedSellers = product.sellers.map((sellerItem) => {
-
-//         //         if (
-//         //             sellerItem.seller.toString() ===
-//         //             req.seller._id.toString()
-//         //         ) {
-//         //             return {
-//         //                 ...sellerItem.toObject(),
-//         //                 price: req.body.price !== undefined
-//         //                     ? Number(req.body.price)
-//         //                     : sellerItem.price,
-
-//         //                 stock: req.body.stock !== undefined
-//         //                     ? Number(req.body.stock)
-//         //                     : sellerItem.stock,
-//         //             };
-//         //         }
-
-//         //         return sellerItem;
-//         //     });
-
-//         // }
-
-//         let updatedSellers = product.sellers.map((sellerItem) => {
-
-//             if (
-//                 sellerItem.seller.toString() ===
-//                 req.seller._id.toString()
-//             ) {
-
-//                 return {
-//                     ...sellerItem.toObject(),
-
-//                     price:
-//                         req.body.price !== undefined
-//                             ? Number(req.body.price)
-//                             : sellerItem.price,
-
-//                     stock:
-//                         req.body.stock !== undefined
-//                             ? Number(req.body.stock)
-//                             : sellerItem.stock,
-//                 };
-//             }
-
-//             return sellerItem;
-//         });
-
-//       //         // ADMIN UPDATE
-//
-//         if (req.user.role === "admin") {
-
-//             updatedSellers = product.sellers.map((sellerItem) => ({
-
-//                 ...sellerItem.toObject(),
-
-//                 price:
-//                     req.body.price !== undefined
-//                         ? Number(req.body.price)
-//                         : sellerItem.price,
-
-//                 stock:
-//                     req.body.stock !== undefined
-//                         ? Number(req.body.stock)
-//                         : sellerItem.stock,
-//             }));
-//         }
-
-//         let uploadedProductImages = [];
-
-//         const productFiles = req.files?.images || [];
-
-//         if (productFiles.length) {
-
-//             const uploadTasks = productFiles.map(async (file) => {
-
-//                 if (!file.mimetype.startsWith("image/")) {
-//                     throw new Error("Only image files allowed");
-//                 }
-
-//                 const compressed =
-//                     await compressImage(file.buffer);
-
-//                 const result =
-//                     await uploadToCloudinary(compressed);
-
-//                 return result.secure_url;
-//             });
-
-//             uploadedProductImages =
-//                 await Promise.all(uploadTasks);
-//         }
-
-//         // MERGE OLD + NEW IMAGES
-//         const finalImages = [
-//             ...existingImages,
-//             ...uploadedProductImages,
-//         ];
-
-//       //         // VARIANT IMAGES
-//
-//         // const uploadedVariantImages = [];
-
-//         // if (req.files?.variantImages?.length > 0) {
-
-//         //     for (const file of req.files.variantImages) {
-
-//         //         const uploaded = await new Promise((resolve, reject) => {
-
-//         //             const stream =
-//         //                 cloudinary.uploader.upload_stream(
-//         //                     {
-//         //                         folder: "products/variants",
-//         //                     },
-//         //                     (error, result) => {
-
-//         //                         if (error) reject(error);
-
-//         //                         else resolve(result);
-//         //                     }
-//         //                 );
-
-//         //             streamifier
-//         //                 .createReadStream(file.buffer)
-//         //                 .pipe(stream);
-//         //         });
-
-//         //         uploadedVariantImages.push(uploaded.secure_url);
-//         //     }
-//         // }
-
-//         const variantFiles =
-//             req.files?.variantImages || [];
-
-//         const uploadedVariantImages = [];
-
-//         if (variantFiles.length) {
-
-//             for (const file of variantFiles) {
-
-//                 const compressed =
-//                     await compressImage(file.buffer);
-
-//                 const result =
-//                     await uploadToCloudinary(compressed);
-
-//                 uploadedVariantImages.push(
-//                     result.secure_url
-//                 );
-//             }
-//         }
-
-//       //         // MERGE VARIANT IMAGES
-//
-//         const skus =
-//             safeVariants.map(v => v.sku).filter(Boolean);
-
-//         const duplicateInRequest =
-//             new Set(skus).size !== skus.length;
-
-//         if (duplicateInRequest) {
-
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "Duplicate SKU found in request",
-//             });
-//         }
-
-//         // CHECK SKU EXISTS IN OTHER PRODUCTS
-
-//         const existingSkuProduct =
-//             await Product.findOne({
-//                 _id: { $ne: id },
-//                 "variants.sku": { $in: skus }
-//             });
-
-//         if (existingSkuProduct) {
-
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "SKU already exists",
-//             });
-//         }
-
-//         // let variantUploadCounter = 0;
-
-//         // const finalVariants = variants.map((variant, index) => {
-
-//         //     const newImages = [];
-
-//         //     variantImageIndexes.forEach((variantIndex, i) => {
-
-//         //         if (variantIndex === index) {
-
-//         //             newImages.push(
-//         //                 uploadedVariantImages[variantUploadCounter]
-//         //             );
-
-//         //             variantUploadCounter++;
-//         //         }
-//         //     });
-
-//         //     return {
-
-//         //         sku: variant.sku,
-
-//         //         attributes: variant.attributes,
-
-//         //         images: [
-//         //             ...(variant.existingImages || []),
-//         //             ...newImages,
-//         //         ],
-
-//         //         isActive: variant.isActive ?? true,
-//         //     };
-//         // });
-
-//         // const finalVariants = safeVariants.map((variant, index) => {
-
-//         //     console.log("FINAL VARIANT", variant);
-//         //     const newImages = [];
-
-//         //     variantImageIndexes.forEach((variantIndex, imageIndex) => {
-
-//         //         if (variantIndex === index) {
-
-//         //             newImages.push(
-//         //                 uploadedVariantImages[imageIndex]
-//         //             );
-//         //         }
-//         //     });
-
-//         //     return {
-//         //         sku: variant.sku?.trim(),
-//         //         attributes: variant.attributes,
-
-//         //         images: [
-//         //             ...(variant.existingImages || []),
-//         //             ...newImages,
-//         //         ],
-
-//         //         isActive: variant.isActive ?? true,
-//         //     };
-//         // });
-
-//         const finalVariants = safeVariants.map((variant, index) => {
-
-//             console.log("FINAL VARIANT =>", variant);
-
-//             const newImages = [];
-
-//             variantImageIndexes.forEach((variantIndex, uploadIndex) => {
-
-//                 if (Number(variantIndex) === index) {
-
-//                     const uploadedImage =
-//                         uploadedVariantImages[uploadIndex];
-
-//                     if (uploadedImage) {
-//                         newImages.push(uploadedImage);
-//                     }
-//                 }
-//             });
-
-//             return {
-
-//                 // sku:
-//                 //     variant.sku?.trim() ||
-//                 //     generateVariantSku(
-//                 //         req.body.title,
-//                 //         variant.attributes || {}
-//                 //     ),
-//                 sku:
-//                     variant.sku?.trim()
-//                         ? variant.sku
-//                         : generateVariantSku(
-//                             req.body.title,
-//                             variant.attributes || {}
-//                         ),
-
-//                 attributes: variant.attributes || {},
-
-//                 images: [
-//                     ...(variant.existingImages || []),
-//                     ...newImages,
-//                 ],
-
-//                 isActive: variant.isActive ?? true,
-//             };
-//         });
-
-//       //         // UPDATE OBJECT
-//
-//         const updateData = {
-
-//             title: req.body.title,
-//             slug: slugify(req.body.title,
-//                 {
-//                     lower: true,
-//                     strict: true,
-//                 }
-//             ),
-//             description: req.body.description,
-//             brand: req.body.brand,
-//             category: req.body.category || product.category,
-//             specification,
-//             tags: Array.isArray(req.body.tags)
-//                 ? req.body.tags.map(tag => tag.trim())
-//                 : typeof req.body.tags === "string"
-//                     ? req.body.tags.split(",").map(tag => tag.trim())
-//                     : [],
-
-//             images: finalImages,
-//             variants: finalVariants,
-//             sellers: updatedSellers,
-//         };
-
-//       //         // UPDATE
-//
-//         console.log(JSON.stringify(updateData, null, 2));
-//         console.log("PRICE =>", req.body.price);
-//         console.log("STOCK =>", req.body.stock);
-
-//         const updatedProduct =
-//             await Product.findByIdAndUpdate(
-//                 id,
-//                 // updateData,
-//                 {
-//                     $set: updateData
-//                 },
-//                 {
-//                     // new: true,
-//                     // runValidators: true,
-//                     returnDocument: "after",
-//                     runValidators: true,
-
-//                 }
-//             ).lean();
-
-//         console.log("UPDATED PRODUCT =>",
-//             JSON.stringify(updatedProduct, null, 2)
-//         );
-//         return res.status(200).json({
-//             success: true,
-//             message: "Product updated successfully",
-//             product: updatedProduct,
-//         });
-
-//     } catch (error) {
-
-//         console.log("UPDATE PRODUCT ERROR =>", error);
-
-//         return res.status(500).json({
-//             success: false,
-//             message: error.message,
-//         });
-//     }
-// };
 
 const updateProduct = async (req, res) => {
   try {
-    console.log("REQ USER =>", req.user);
-    console.log("REQ SELLER =>", req.seller);
+    // console.log("REQ USER =>", req.user);
+    // console.log("REQ SELLER =>", req.seller);
     const { id } = req.params;
 
     if (!isValidId(id)) {
@@ -1759,7 +1022,7 @@ const updateProduct = async (req, res) => {
       product: updatedProduct,
     });
   } catch (error) {
-    console.log("UPDATE PRODUCT ERROR =>", error);
+    // console.log("UPDATE PRODUCT ERROR =>", error);
 
     return res.status(500).json({
       success: false,

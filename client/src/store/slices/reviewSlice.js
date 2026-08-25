@@ -25,11 +25,6 @@ export const getMyReviews = createAsyncThunk(
     return res;
   },
 );
-// export const createReview = createAsyncThunk("/review/createReview", async ({ productId, data }) => {
-//     const res = await reviewService.createReview({ productId, data });
-//     successToast(res.message);
-//     return res;
-// });
 
 export const createReview = createAsyncThunk(
   "/review/createReview",
@@ -157,26 +152,7 @@ const reviewSlice = createSlice({
         state.loading.update = true;
         state.error = null;
       })
-      // .addCase(updateReview.fulfilled, (state, action) => {
-      //   state.loading.update = false;
-      //   const updatedReview = action.payload.review;
 
-      //   const index = state.reviews.findIndex(
-      //     (review) => review._id === updatedReview._id,
-      //   );
-      //   if (index !== -1) {
-      //     state.reviews[index] = updatedReview;
-      //   }
-      //   state.myReview = updatedReview;
-
-      //   const myIndex = state.myReviews.findIndex(
-      //     (review) => review._id === updatedReview._id,
-      //   );
-      //   if (myIndex !== -1) {
-      //     state.myReviews[myIndex] = updatedReview;
-      //   }
-      //   // successToast("Review Updated successfully");
-      // })
       .addCase(updateReview.fulfilled, (state, action) => {
         state.loading.update = false;
         const updatedReview = action.payload.review;
@@ -205,20 +181,7 @@ const reviewSlice = createSlice({
         state.loading.delete = true;
         state.error = null;
       })
-      // .addCase(deleteReview.fulfilled, (state, action) => {
-      //   state.loading.delete = false;
 
-      //   state.reviews = state.reviews.filter(
-      //     (review) => review._id !== action.payload.review._id,
-      //   );
-      //   if (state.myReview?._id === action.payload.review._id) {
-      //     state.myReview = null;
-      //   }
-      //   state.myReviews = state.myReviews.filter(
-      //     (review) => review._id !== action.payload.review._id,
-      //   );
-      //   // successToast("Review Deleted successfully");
-      // })
       .addCase(deleteReview.fulfilled, (state, action) => {
         state.loading.delete = false;
         state.reviews = state.reviews.filter(

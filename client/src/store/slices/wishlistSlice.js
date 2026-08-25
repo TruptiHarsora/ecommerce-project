@@ -3,31 +3,31 @@ import wishlistService from "../../services/wishlistService.js";
 
 const fetchWishlist = createAsyncThunk("wishlist/fetchWishlist", async () => {
     const res = await wishlistService.getWishlist();
-    console.log("getWishlist", res);
+    // console.log("getWishlist", res);
     return res;
 })
 
 const toggleWishlist = createAsyncThunk("wishlist/toggleWishlist", async (data) => {
     const res = await wishlistService.toggleWishlist(data);
-    console.log("ToggleWishlist", res);
+    // console.log("ToggleWishlist", res);
     return res;
 })
 
 const removeFromWishlist = createAsyncThunk("wishlist/removeFromWishlist", async ({ productId, variantSku }) => {
     const res = await wishlistService.removeFromWishlist(productId, variantSku);
-    console.log("removeFromWishlist", res);
+    // console.log("removeFromWishlist", res);
     return res;
 })
 
 const moveWishlistToCart = createAsyncThunk("wishlist/moveWishlistToCart", async (data) => {
     const res = await wishlistService.moveWishlistToCart(data);
-    console.log("moveWishlistToCart", res);
+    // console.log("moveWishlistToCart", res);
     return res;
 })
 
 const clearWishlist = createAsyncThunk("wishlist/clearWishlist", async () => {
     const res = await wishlistService.clearWishlist();
-    console.log("clearWishlist", res);
+    // console.log("clearWishlist", res);
     return res;
 })
 
@@ -58,8 +58,8 @@ const wishlistSlice = createSlice({
             .addCase(fetchWishlist.fulfilled, (state, action) => {
                 state.loading.fetch = false;
                 state.items = action.payload.wishlist?.items || [];
-                console.log("thunk fetch Items", state.items);
-                console.log("action.payload", action.payload.wishlist);
+                // console.log("thunk fetch Items", state.items);
+                // console.log("action.payload", action.payload.wishlist);
             })
             .addCase(fetchWishlist.rejected, (state, action) => {
                 state.loading.fetch = false;
@@ -99,7 +99,7 @@ const wishlistSlice = createSlice({
             .addCase(moveWishlistToCart.fulfilled, (state, action) => {
                 state.loading.move = false;
                 state.items = action.payload?.wishlist?.items || [];
-                console.log("thunk wishlist Item", state.items);
+                // console.log("thunk wishlist Item", state.items);
             })
             .addCase(moveWishlistToCart.rejected, (state, action) => {
                 state.loading.move = false;

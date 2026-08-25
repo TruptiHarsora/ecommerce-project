@@ -55,7 +55,6 @@ const updateRoleSchema = joi.object({
   role: joi.string().valid("user", "seller", "admin").required(),
 });
 
-// const updateProfileSchema = joi.object({
 //     name: joi.string().trim().min(3).max(50),
 //     phone: joi.string().pattern(/^[6-9]\d{9}$/).message("Invalid phone number"),
 //     avatar: joi.string().uri().allow("", null)

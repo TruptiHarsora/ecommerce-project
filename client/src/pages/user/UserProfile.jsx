@@ -12,7 +12,7 @@ const UserProfile = () => {
   useEffect(() => {
     getProfile();
   }, []);
-  console.log("user", user);
+  // console.log("user", user);
 
   const userProfileInitialValues = {
     name: "",
@@ -28,7 +28,7 @@ const UserProfile = () => {
       }
     : userProfileInitialValues;
 
-  console.log("initialvalues", initialValues);
+  // console.log("initialvalues", initialValues);
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const formData = new FormData();
@@ -38,9 +38,9 @@ const UserProfile = () => {
       if (values.avatar) {
         formData.append("avatar", values.avatar);
       }
-      console.log(values.avatar);
+      // console.log(values.avatar);
       const res = await updateProfile(formData);
-      console.log("res", res);
+      // console.log("res", res);
       successToast(res.message || "Profile update successfully");
       getProfile();
     } catch (error) {

@@ -53,7 +53,7 @@ const UserChangePasswordForm = ({
                   accept="images/*"
                   onChange={(e) => {
                     const file = e.target.files[0];
-                    console.log(file);
+                    // console.log(file);
                     if (!file) return;
                     setFieldValue("avtar", file);
                     setPriview(URL.createObjectURL(file));

@@ -21,30 +21,6 @@ const UserChangePassword = () => {
     currentPassword: "",
   };
 
-  // const handleSubmit = async (values, { setSubmitting }) => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("name", values.name);
-  //     formData.append("phone", values.phone);
-
-  //     if (values.avtar) {
-  //       formData.append("avtar", values.avtar);
-  //     }
-
-  //     const res = await updateProfile(formData);
-  //     successToast(res.message || "Profile update successfully");
-  //     getProfile();
-  //   } catch (error) {
-  //     errorToast(
-  //       error?.response?.data?.message ||
-  //         error?.message ||
-  //         "somthing went wrong",
-  //     );
-  //   } finally {
-  //     setSubmitting(false);
-  //   }
-  // };
-
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const formData = new FormData();

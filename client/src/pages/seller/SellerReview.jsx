@@ -19,7 +19,7 @@ const SellerReview = () => {
       setLoading(false);
     }
   };
-  console.log("reviews", reviews);
+  // console.log("reviews", reviews);
   return (
     <ReviewTable
       reviews={reviews}

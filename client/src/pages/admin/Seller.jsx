@@ -43,7 +43,7 @@ const Seller = () => {
     }, [page]);
 
 
-    console.log("Seller", sellers);
+    //console.log("Seller", sellers);
     const handleStatusUpdate = async (id) => {
         const status = selectedStatus[id];
         if (!status) return;

@@ -21,17 +21,6 @@ const getDashboard = async (req, res) => {
         }),
       ]);
 
-    // const revenueData = await Order.aggregate([
-    //     // { $match: { "paymentInfo.status": "paid" } },
-    //     { $match: { orderStatus: "Delivered" } },
-    //     {
-    //         $group: {
-    //             _id: null,
-    //             totalRevenue: { $sum: "$pricing.grandTotal" }
-    //         }
-    //     }
-    // ]);
-
     const revenueData = await Order.aggregate([
       {
         $match: {
@@ -48,18 +37,6 @@ const getDashboard = async (req, res) => {
       },
     ]);
 
-    // const monthlyRevenue = await Order.aggregate([
-    //     { $match: { "paymentInfo.status": "paid" } },
-    //     {
-    //         $group: {
-    //             _id: {
-    //                 month: { $month: "$createdAt" }
-    //             },
-    //             revenue: { $sum: "$pricing.grandTotal" }
-    //         }
-    //     },
-    //     { $sort: { "_id.month": 1 } }
-    // ]);
     const monthlyRevenue = await Order.aggregate([
       {
         $match: {

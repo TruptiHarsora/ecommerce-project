@@ -1,13 +1,3 @@
-// import React from 'react'
-
-// const ProductsUpdate = () => {
-//   return (
-//     <div>ProductsUpdate</div>
-//   )
-// }
-
-// export default ProductsUpdate
-
 import CategoryItem from "@/components/layout/CategoryItem";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,10 +28,6 @@ const ProductUpdate = () => {
 
   const { product, loading, fetchProductById, updateProduct } = useProducts();
 
-  // =========================================
-  // STATES
-  // =========================================
-
   const [categories, setCategories] = useState([]);
 
   const [showCategory, setShowCategory] = useState(false);
@@ -62,10 +48,6 @@ const ProductUpdate = () => {
     ],
     variantImages: [],
   });
-
-  // =========================================
-  // FORMIK
-  // =========================================
 
   const formik = useFormik({
     initialValues: {
@@ -93,10 +75,6 @@ const ProductUpdate = () => {
         // console.log("VARIANTS", values.variants);
 
         const formData = new FormData();
-
-        // =========================================
-        // BASIC FIELDS
-        // =========================================
 
         formData.append("title", values.title);
         formData.append("description", values.description);
@@ -130,51 +108,6 @@ const ProductUpdate = () => {
         // VARIANTS
 
         const variantImageIndexes = [];
-
-        // const variantPayload =
-        //    values.variants.map((variant, index) => {
-
-        //       // upload new variant images
-        //       variant.variantImages?.forEach((image) => {
-
-        //          // only upload File objects
-        //          if (image instanceof File) {
-
-        //             formData.append(
-        //                "variantImages",
-        //                image
-        //             );
-
-        //             variantImageIndexes.push(index);
-        //          }
-        //       });
-
-        //       return {
-        //          sku: variant.sku,
-
-        //          attributes:
-        //             variant.attributes.reduce(
-        //                (acc, attr) => {
-
-        //                   if (attr.key && attr.value) {
-
-        //                      acc[attr.key] =
-        //                         attr.value;
-        //                   }
-
-        //                   return acc;
-
-        //                },
-        //                {}
-        //             ),
-
-        //          // keep old cloudinary urls
-        //          existingImages:
-        //             variant.variantImages?.filter(
-        //                (img) => typeof img === "string"
-        //             ) || [],
-        //       };
-        //    });
 
         const variantPayload = values.variants.map((variant, index) => {
           variant.variantImages?.forEach((image) => {
@@ -217,9 +150,9 @@ const ProductUpdate = () => {
           JSON.stringify(variantImageIndexes),
         );
 
-        for (let pair of formData.entries()) {
-          console.log(pair[0], pair[1]);
-        }
+        // for (let pair of formData.entries()) {
+        //   console.log(pair[0], pair[1]);
+        // }
 
         await updateProduct(id, formData);
         successToast(action.payload.message || "Product update Sucessfully");
@@ -418,41 +351,6 @@ const ProductUpdate = () => {
       variantImages: [...e.target.files],
     }));
   };
-
-  // const addVariant = () => {
-
-  //    formik.setFieldValue(
-  //       "variants",
-  //       [
-  //          ...formik.values.variants,
-
-  //          {
-  //             ...variantInput,
-
-  //             attributes: [
-  //                ...variantInput.attributes,
-  //             ],
-
-  //             variantImages: [
-  //                ...variantInput.variantImages,
-  //             ],
-  //          },
-  //       ]
-  //    );
-
-  //    setVariantInput({
-  //       sku: "",
-
-  //       attributes: [
-  //          {
-  //             key: "",
-  //             value: "",
-  //          },
-  //       ],
-
-  //       variantImages: [],
-  //    });
-  // };
 
   const addVariant = () => {
     if (!variantInput.attributes.some((a) => a.key && a.value)) {

@@ -56,36 +56,7 @@ const SellerNavbar = ({ setOpen }) => {
               )}
             </Menu.Item>
 
-            {/* <Menu.Item>
-              {() => (
-                // <button
-                //   // onClick={() => navigate("/")}
-                //   onClick={() => (window.location.href = "/")}
-                //   className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                // >
-                //   Visit Store
-                // </button>
-                <Link
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                  to="/"
-                >
-                  Visit Store
-                </Link>
-              )}
-            </Menu.Item> */}
-
             <Menu.Item>
-              {/* {({ active }) => (
-                <button
-                  type="button"
-                  onClick={() => navigate("/")}
-                  className={`w-full text-left px-4 py-2 ${active ? "bg-gray-100" : ""}`}
-                >
-                  {" "}
-                  Visit Store{" "}
-                </button>
-              )} */}
-
               {({ active }) => (
                 <Link
                   to="/"

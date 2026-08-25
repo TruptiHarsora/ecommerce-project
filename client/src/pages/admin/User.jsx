@@ -1,8 +1,8 @@
-import UserAvatar from '@/components/common/UserAvatar';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import adminService from '@/services/adminService';
-import React, { useEffect, useState } from 'react'
+import UserAvatar from "@/components/common/UserAvatar";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import adminService from "@/services/adminService";
+import React, { useEffect, useState } from "react";
 
 const User = () => {
   const [users, setUsers] = useState([]);
@@ -21,12 +21,11 @@ const User = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchUsers();
   }, [page]);
-
 
   const handleRoleUpdate = async (id) => {
     const role = selectedRoles[id];
@@ -34,22 +33,22 @@ const User = () => {
 
     await adminService.updateUserRoleAdmin(id, role);
 
-    setUsers(prev => prev.map(user =>
-      user._id === id ? { ...user, role } : user
-    ))
+    setUsers((prev) =>
+      prev.map((user) => (user._id === id ? { ...user, role } : user)),
+    );
 
-    setSelectedRoles(prev => ({ ...prev, [id]: undefined }));
-  }
+    setSelectedRoles((prev) => ({ ...prev, [id]: undefined }));
+  };
 
   const handleBlock = async (id, isBlocked) => {
     await adminService.blockUserAdmin(id, !isBlocked);
 
-    setUsers(prev => prev.map(user =>
-      user._id === id
-        ? { ...user, isBlocked: !isBlocked }
-        : user
-    ))
-  }
+    setUsers((prev) =>
+      prev.map((user) =>
+        user._id === id ? { ...user, isBlocked: !isBlocked } : user,
+      ),
+    );
+  };
 
   const roleBadge = (role) => {
     switch (role) {
@@ -60,29 +59,22 @@ const User = () => {
       default:
         return "bg-blue-100 text-blue-700";
     }
-  }
+  };
 
-  if (loading)
-    return (
-      <div className='trxt-center py-10'>
-        Loading ...
-      </div>)
-
+  if (loading) return <div className="trxt-center py-10">Loading ...</div>;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          User Managment
-        </CardTitle>
+        <CardTitle>User Managment</CardTitle>
       </CardHeader>
 
       <CardContent>
-        <div className='overflow-x-auto'>
-          <table className='w-full min-w-[900px] text-sm'>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] text-sm">
             <thead>
-              <tr className='border-b text-center'>
-                <th className='py-2'>Name</th>
+              <tr className="border-b text-center">
+                <th className="py-2">Name</th>
                 <th>Email</th>
                 <th>Role</th>
                 <th>Status</th>
@@ -91,11 +83,11 @@ const User = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map(user => {
+              {users.map((user) => {
                 const selectedRole = selectedRoles[user._id] ?? user.role;
 
                 return (
-                  <tr key={user._id} className='border-b'>
+                  <tr key={user._id} className="border-b">
                     {/* <td className='py-4'>{user.name}</td> */}
                     <div className=" py-4 flex items-center gap-3">
                       <UserAvatar
@@ -108,25 +100,33 @@ const User = () => {
                     </div>
                     <td>{user.email}</td>
                     <td>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${roleBadge(user.role)}`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${roleBadge(user.role)}`}
+                      >
                         {user.role}
                       </span>
                     </td>
                     <td>
-                      <span className={`px-2 py-1 rounded-full text-xs  ${user.isBlocked
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700"
-                        }`}>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs  ${
+                          user.isBlocked
+                            ? "bg-red-100 text-red-700"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
                         {user.isBlocked ? "Blocked" : "Active"}
                       </span>
                     </td>
                     <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td>
-                      <div className='flex gap-2 justify-center'>
-                        <select value={selectedRole}
-                          onChange={(e) => setSelectedRoles(prev => ({
-                            ...prev, [user._id]: e.target.value
-                          }))
+                      <div className="flex gap-2 justify-center">
+                        <select
+                          value={selectedRole}
+                          onChange={(e) =>
+                            setSelectedRoles((prev) => ({
+                              ...prev,
+                              [user._id]: e.target.value,
+                            }))
                           }
                         >
                           <option value="user">User</option>
@@ -134,7 +134,7 @@ const User = () => {
                           <option value="admin">Admin</option>
                         </select>
                         <Button
-                          className='bg-yellow-500 text-black font-semibold'
+                          className="bg-yellow-500 text-black font-semibold"
                           size="sm"
                           disabled={selectedRole === user.role}
                           onClick={() => handleRoleUpdate(user._id)}
@@ -145,33 +145,24 @@ const User = () => {
                         <Button
                           size="sm"
                           variant={user.isBlocked ? "default" : "destructive"}
-                          onClick={() =>
-                            handleBlock(user._id, user.isBlocked)
-                          }
+                          onClick={() => handleBlock(user._id, user.isBlocked)}
                         >
-                          {user.isBlocked
-                            ? "Unblock"
-                            : "Block"}
-
+                          {user.isBlocked ? "Unblock" : "Block"}
                         </Button>
                       </div>
                     </td>
                   </tr>
-                )
+                );
               })}
             </tbody>
           </table>
-
         </div>
 
         <div className="flex justify-center items-center gap-4 mt-6">
-
           <Button
             variant="outline"
             disabled={page === 1}
-            onClick={() =>
-              setPage(prev => prev - 1)
-            }
+            onClick={() => setPage((prev) => prev - 1)}
           >
             Previous
           </Button>
@@ -183,15 +174,14 @@ const User = () => {
           <Button
             variant="outline"
             disabled={page === totalPages}
-            onClick={() => setPage(prev => prev + 1)}
+            onClick={() => setPage((prev) => prev + 1)}
           >
             Next
           </Button>
-
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default User
+export default User;

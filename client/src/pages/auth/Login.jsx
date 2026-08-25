@@ -29,9 +29,9 @@ const Login = () => {
     },
     validationSchema: loginSchema,
     onSubmit: async (values, { setSubmitting, setStatus }) => {
-      console.log("Login clicked");
+      // console.log("Login clicked");
 
-      console.log("values", values);
+      // console.log("values", values);
       try {
         setStatus(null);
         const data = await login(values);
@@ -55,29 +55,6 @@ const Login = () => {
       }
     },
   });
-
-  // const handleChange = ((e) => {
-  //   setUser({ ...user, [e.target.name]: e.target.value });
-  // })
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setError("");
-
-  //   // const formData = new FormData();
-
-  //   // formData.append("email", user.email);
-  //   // formData.append("password", user.password);
-  //   // console.log("formdata", formData);
-  //   try {
-  //     await login(user);
-  //     nav("/");
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-
-  // }
-  // console.log("loging user data", user);
 
   if (user) {
     nav("/");

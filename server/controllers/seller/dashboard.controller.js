@@ -63,15 +63,6 @@ const getSellerDashboard = async (req, res) => {
         pendingOrders++;
       }
 
-      //   for (const item of order.items) {
-      //     if (item.seller.toString() === sellerId.toString()) {
-      //       // totalSales += item.price * item.quantity;
-      //       // totalSales += item.priceAtTime * item.quantity;
-      //       if (order.orderStatus === "delivered") {
-      //         totalSales += item.price * item.quantity || 0;
-      //       }
-      //     }
-      //   }
       for (const item of order.items) {
         if (
           item.seller.toString() === sellerId.toString() &&
@@ -81,33 +72,6 @@ const getSellerDashboard = async (req, res) => {
         }
       }
     }
-
-    // const earningsAgg = await Order.aggregate([
-    //   {
-    //     $match: {
-    //       orderStatus: "delivered",
-    //       "items.seller": sellerId,
-    //     },
-    //   },
-    //   {
-    //     $unwind: "$items",
-    //   },
-    //   {
-    //     $match: {
-    //       "items.seller": sellerId,
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: null,
-    //       earnings: {
-    //         $sum: {
-    //           $multiply: ["$items.price", "$items.quantity"],
-    //         },
-    //       },
-    //     },
-    //   },
-    // ]);
 
     const earningsAgg = await Order.aggregate([
       { $unwind: "$items" },
@@ -123,35 +87,8 @@ const getSellerDashboard = async (req, res) => {
         },
       },
     ]);
-    console.log("earning Agg", earningsAgg);
+    // console.log("earning Agg", earningsAgg);
 
-    // const deliveredSales = await Order.aggregate([
-    //     {
-    //         $match: {
-    //             orderStatus: "delivered",
-    //             "items.seller": sellerId,
-    //         },
-    //     },
-    //     { $unwind: "$items" },
-    //     {
-    //         $match: {
-    //             "items.seller": sellerId,
-    //         },
-    //     },
-    //     {
-    //         $group: {
-    //             _id: null,
-    //             totalSales: {
-    //                 $sum: {
-    //                     $multiply: [
-    //                         "$items.price",
-    //                         "$items.quantity",
-    //                     ],
-    //                 },
-    //             },
-    //         },
-    //     },
-    // ]);
     res.status(200).json({
       success: true,
 
@@ -177,50 +114,3 @@ const getSellerDashboard = async (req, res) => {
 module.exports = {
   getSellerDashboard,
 };
-
-// const Order = require("../../models/Order");
-
-// const getSellerDashboard = async (req, res) => {
-//     try {
-//         const sellerId = req.seller._id;
-
-//         const orders = await Order.find({
-//             "items.seller": sellerId
-//         });
-
-//         let totalSales = 0;
-//         let pendingOrders = 0;
-
-//         for (const order of orders) {
-//             if (order.orderStatus !== "delivered") {
-//                 pendingOrders++;
-//             }
-
-//             for (const item of order.items) {
-//                 if (item.seller.toString() === sellerId.toString()) {
-//                     totalSales += item.price * item.quantity;
-//                 }
-//             }
-//         }
-
-//         res.json({
-//             success: true,
-//             data: {
-//                 totalSales,
-//                 totalOrders: orders.length,
-//                 pendingOrders,
-//                 earnings: req.seller.earnings
-//             }
-//         });
-
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: error.message
-//         });
-//     }
-// };
-
-// module.exports = {
-//     getSellerDashboard
-// };

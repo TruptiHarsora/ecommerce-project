@@ -1,11 +1,3 @@
-// import React from "react";
-
-// const UserReviews = () => {
-//   return <div>UserReviews</div>;
-// };
-
-// export default UserReviews;
-
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useReview from "@/hooks/useReview";

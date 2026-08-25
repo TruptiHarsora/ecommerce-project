@@ -22,7 +22,7 @@ const OrdersTable = ({
       maximumFractionDigits: 2,
     });
   };
-  console.log(orders);
+  // console.log(orders);
   if (!orders.length) {
     return (
       <Card>

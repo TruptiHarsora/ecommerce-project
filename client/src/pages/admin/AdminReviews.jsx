@@ -20,13 +20,13 @@ const AdminReviews = () => {
       setLoading(false);
     }
   };
-  console.log(reviews);
+  //console.log(reviews);
   // console.log(reviews._id);
 
   const handleDelete = async (id) => {
     try {
       const data = await adminService.deleteReviewAdmin(id);
-      console.log("delete Review data", data);
+     // console.log("delete Review data", data);
       successToast(data.message || "Review deleted Sucessfully");
       // setReviews((prev) => prev.filter((review) => review._id !== id));
       fetchReviews();

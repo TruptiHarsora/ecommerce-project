@@ -22,7 +22,7 @@ const Checkout = () => {
 
   const items = buyNowItems || cartItems;
 
-  console.log("Chekout itms", items);
+  // console.log("Chekout itms", items);
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -54,10 +54,10 @@ const Checkout = () => {
           paymentInfo: { method: "cod" },
         };
 
-        console.log("Order Paylod:", payload);
+        //  console.log("Order Paylod:", payload);
 
         const res = await createOrder(payload);
-        console.log("res order", res);
+        //  console.log("res order", res);
         successToast("Order placed successfully");
 
         await fetchCart();

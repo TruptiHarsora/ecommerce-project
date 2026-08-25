@@ -35,7 +35,7 @@ const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
   try {
-    console.log("🔥 AUTH MIDDLEWARE HIT");
+    // console.log("🔥 AUTH MIDDLEWARE HIT");
     const AuthHeader = req.headers.authorization;
     // console.log("AuthHeader: ", AuthHeader);
 
@@ -66,7 +66,7 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    console.log("Encoded: ", decoded);
+    // console.log("Encoded: ", decoded);
 
     const user = await User.findById(decoded.id).select("-password");
 
@@ -91,7 +91,7 @@ const authMiddleware = async (req, res, next) => {
       role: user.role,
       isVerified: user.isVerified,
     };
-    console.log(req.user);
+    // console.log(req.user);
     next();
   } catch (error) {
     //  console.log("JWT ERROR:", error.message);

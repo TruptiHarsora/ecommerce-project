@@ -53,7 +53,7 @@ const isSeller = async (req, res, next) => {
                 message: "Seller not active"
             });
         }
-        console.log("seller", seller);
+        // console.log("seller", seller);
         req.seller = seller;
         next();
 

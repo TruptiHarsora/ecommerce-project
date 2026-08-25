@@ -14,7 +14,7 @@ const getSellerReviews = async (req, res) => {
 
     const productIds = products.map((product) => product._id);
 
-    console.log("Seller Products", products);
+    // console.log("Seller Products", products);
     const [reviews, totalReviews] = await Promise.all([
       Review.find({
         product: { $in: productIds },

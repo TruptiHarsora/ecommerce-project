@@ -71,31 +71,6 @@ reviewSchema.statics.updateRatingStats = async function (productId) {
   });
 };
 
-// reviewSchema.statics.updateRatingStats = async function (productId) {
-//   const stats = await this.aggregate([
-//     {
-//       $match: {
-//         product: productId,
-//         isDeleted: false,
-//       },
-//     },
-//     {
-//       $group: {
-//         _id: "$product",
-//         avgRating: { $avg: "$rating" },
-//         count: { $sum: 1 },
-//       },
-//     },
-//   ]);
-
-//   const Product = mongoose.model("Product");
-
-//   await Product.findByIdAndUpdate(productId, {
-//     ratingAverage: stats[0]?.avgRating || 0,
-//     ratingCount: stats[0]?.count || 0,
-//   });
-// };
-
 // reviewSchema.post("save", async function () {
 //     await this.constructor.updateRatingStats(this.product);
 // });

@@ -11,16 +11,16 @@ const createProduct = createAsyncThunk("products/create", async (data) => {
 });
 
 const fetchProducts = createAsyncThunk("products/getAll", async (params) => {
-  console.log("API CALLED");
+  // console.log("API CALLED");
   const res = await productServices.getAllProducts(params);
-  console.log("fetchProducta", res);
+  // console.log("fetchProducta", res);
   return res;
 });
 
 const fetchProductById = createAsyncThunk("products/getById", async (id) => {
-  console.log("product by id", id);
+  // console.log("product by id", id);
   const res = await productServices.getProductsById(id);
-  console.log("product by id", res);
+  // console.log("product by id", res);
   return res;
   // return res.product;
 });
@@ -182,7 +182,7 @@ const productSlice = createSlice({
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.loading.single = false;
-        console.log("fetchProductById action.payload:", action.payload.product);
+        // console.log("fetchProductById action.payload:", action.payload.product);
         state.product = action.payload?.product || [];
 
         // successToast(action.payload.message || "product loaded sucessfully");
@@ -212,32 +212,6 @@ const productSlice = createSlice({
         state.error = action.error?.message;
         // errorToast(state.error);
       })
-
-      //toggle Product Status
-      // .addCase(toggleProductStatus.pending, (state) => {
-      //     state.loading.toggle = true;
-      //     state.error = null;
-      // })
-      // .addCase(toggleProductStatus.fulfilled, (state, action) => {
-      //     state.loading.update = false;
-
-      //     const updated = action.payload.product;
-
-      //     state.products = state.products.map((p) =>
-      //         p._id === updated._id ? updated : p
-      //     );
-
-      //     if (state.product?._id === updated._id) {
-      //         state.product = updated;
-      //     }
-
-      //     successToast(action.payload.message);
-      // })
-      // .addCase(toggleProductStatus.rejected, (state, action) => {
-      //     state.loading.update = false;
-      //     state.error = action.error?.message;
-      //     errorToast(state.error);
-      // })
 
       .addCase(toggleProductStatusAdmin.pending, (state) => {
         state.loading.toggle = true;
@@ -271,7 +245,7 @@ const productSlice = createSlice({
         state.loading.update = false;
         const update = action.payload?.product;
 
-        console.log("upadate reducer payload", update);
+        // console.log("upadate reducer payload", update);
         if (!update) return;
 
         const index = state.products.findIndex((p) => p._id === update._id);

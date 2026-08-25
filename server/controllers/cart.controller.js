@@ -65,7 +65,7 @@ const buildPricing = (items) => {
 
 const addToCart = async (req, res) => {
   try {
-    console.log("CART REQ BODY =>", req.body);
+    // console.log("CART REQ BODY =>", req.body);
     const userId = req.user.id;
     // product and seller is = productId & sellerId from body
     const { product, variantSku, seller, variantImg, quantity } = req.body;
@@ -99,39 +99,6 @@ const addToCart = async (req, res) => {
         message: "Invalid Variant",
       });
     }
-
-    // if (variant.stock < quantity) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: "Out of Stock"
-    //     })
-    // }
-
-    // const price = variant.discountPrice || variant.price;
-
-    // let cart = await Cart.findOne({ user: userId });
-
-    // if (!cart) {
-    //     cart = await Cart.create({
-    //         user: userId, items: []
-    //     })
-    // }
-
-    // const existingItem = cart.items.find(
-    //     i => i.product.toString() === product &&
-    //         i.variantSku === variantSku);
-
-    // if (existingItem) {
-    //     existingItem.quantity = Math.min(existingItem.quantity + quantity, MAX_QTY);
-    // }
-    // else {
-    //     cart.items.push({
-    //         product,
-    //         variantSku,
-    //         quantity,
-    //         priceAtTime: price
-    //     })
-    // }
 
     const sellerData = productData.sellers?.find(
       (s) => s.seller?.toString() === seller,
@@ -184,22 +151,6 @@ const addToCart = async (req, res) => {
         message: `Only ${stock} items available. You already have ${currentQty} in cart.`,
       });
     }
-
-    // const price = variant.discountPrice || variant.price;
-    // console.log(variant.images?.[0]);
-
-    // if (existingItem) {
-    //     existingItem.quantity = Math.min(newQty, MAX_QTY);
-    // } else {
-    //     cart.items.push({
-    //         product,
-    //         variantSku,
-    //         seller,
-    //         variantImg,
-    //         quantity: Math.min(qty, MAX_QTY),
-    //         priceAtTime: price
-    //     });
-    // }
 
     if (existingItem) {
       existingItem.quantity = Math.min(newQty, MAX_QTY);
@@ -366,17 +317,6 @@ const updateCart = async (req, res) => {
 
     const product = await Product.findById(item.product);
 
-    // const variant = product.variants.find(v => v.sku === item.variantSku);
-
-    // if (!variant || variant.stock < quantity) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: "Stock not available"
-    //     })
-    // }
-
-    // item.quantity = Math.min(quantity, MAX_QTY);
-
     const variant = getVariant(product, item.variantSku);
 
     if (!variant) {
@@ -407,22 +347,11 @@ const updateCart = async (req, res) => {
         message: "Insufficient Stock",
       });
     }
-    // if (variant.stock < qty) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: `Only ${variant.stock} items available`
-    //     });
-    // }
 
     item.quantity = Math.min(qty, MAX_QTY);
     calculateCartTotal(cart);
     await cart.save();
     const populatedCart = await getPopulatedCart(userId);
-    // const cartPrice = buildPricing(cart);
-    // res.json({
-    //     success: true,
-    //     cart
-    // })
 
     const itemTotal = cart.items.reduce((sum, item) => {
       return sum + item.priceAtTime * item.quantity;

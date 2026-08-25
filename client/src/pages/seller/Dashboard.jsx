@@ -16,7 +16,7 @@ const Dashboard = () => {
     try {
 
       const data = await sellerServices.getSellerDashboard();
-      console.log("seller Dashbord", data)
+      // console.log("seller Dashbord", data)
       setDashboard(data);
 
     } catch (error) {

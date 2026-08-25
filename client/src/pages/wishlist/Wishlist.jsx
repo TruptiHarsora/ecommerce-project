@@ -16,7 +16,7 @@ const Wishlist = () => {
   useEffect(() => {
     getWishlist();
   }, []);
-  console.log("wishlist Items", wishlistItems);
+  // console.log("wishlist Items", wishlistItems);
 
   const handleMoveToCart = async (productId, variantSku) => {
     try {
@@ -70,7 +70,7 @@ const Wishlist = () => {
                       successToast(res.message || "item move to Cart");
                       await fetchCart();
                     } catch (error) {
-                      console.log(error);
+                      // console.log(error);
                       errorToast(
                         error?.response?.data?.message ||
                           error?.message ||

@@ -4,7 +4,7 @@ const Category = require("../models/Category.js");
 const checkParentsExist = async (req, res, next) => {
     try {
         const { parent } = req.body;
-        console.log("parent id", parent);
+        // console.log("parent id", parent);
 
         if (!parent) return next();
 

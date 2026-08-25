@@ -24,7 +24,7 @@ const UserProfileForm = ({
   }, [avatarUrl, user?.avatar]);
 
   // const navigate = useNavigate();
-  console.log("Preview:=>", preview);
+  // console.log("Preview:=>", preview);
   return (
     <Formik
       enableReinitialize
@@ -62,12 +62,12 @@ const UserProfileForm = ({
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files[0];
-                    console.log(file);
+                    // console.log(file);
                     if (!file) return;
                     setFieldValue("avatar", file);
                     setPreview(URL.createObjectURL(file));
                     // navigate("/profile");
-                    console.log("setpriview", preview);
+                    // console.log("setpriview", preview);
                   }}
                 />
               </Card>
