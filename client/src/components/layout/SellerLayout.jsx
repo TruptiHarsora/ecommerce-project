@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 
 import SellerNavbar from "./SellerNavbar";
-import SellerSidebar from "./SellerSidebar";
+import SellerSidebar from "./SellerSideBar";
 
 const SellerLayout = () => {
   const [open, setOpen] = useState(false);
