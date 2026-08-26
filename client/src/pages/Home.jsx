@@ -10,23 +10,23 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 const categories = [
   {
     name: "Electronics",
-    image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&q=80",
+    image: "/images/categories/home_electronics.jpg",
+    //   "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&q=80",
   },
   {
     name: "Fashion",
-    image:
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=80",
+    image: "/images/categories/home_fashion.jpg",
+    // "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=80",
   },
   {
     name: "Home",
-    image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&q=80",
+    image: "/images/categories/home_home.jpg",
+    // "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500&q=80",
   },
   {
     name: "Beauty",
-    image:
-      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=500&q=80",
+    image: "/images/categories/home_beauty.jpg",
+    // "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=500&q=80",
   },
 ];
 
@@ -39,8 +39,8 @@ const heroSlides = [
       "Discover the latest smartphones, laptops, headphones and gadgets from trusted sellers.",
     buttonText: "Shop Electronics",
     buttonLink: "/products?category=Electronics",
-    image:
-      "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1600&q=85",
+    image: "/images/hero/hero_electronics.jpg",
+    // "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=1600&q=85",
   },
   {
     id: 2,
@@ -50,8 +50,8 @@ const heroSlides = [
       "Explore trending fashion, premium clothing, shoes and accessories at amazing prices.",
     buttonText: "Shop Fashion",
     buttonLink: "/products?category=Fashion",
-    image:
-      "https://images.unsplash.com/photo-1445205170230-053b83016050?w=1600&q=85",
+    image: "/images/hero/hero_fasion.jpg",
+    // "https://images.unsplash.com/photo-1445205170230-053b83016050?w=1600&q=85",
   },
   {
     id: 3,
@@ -61,8 +61,8 @@ const heroSlides = [
       "Find stylish furniture, home decor and everyday essentials for your perfect home.",
     buttonText: "Shop Home",
     buttonLink: "/products?category=Home",
-    image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&q=85",
+    image: "/images/hero/hero_home.jpg",
+    // "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&q=85",
   },
   {
     id: 4,
@@ -72,8 +72,8 @@ const heroSlides = [
       "Shop skincare, makeup and beauty essentials from your favorite brands.",
     buttonText: "Shop Beauty",
     buttonLink: "/products?category=Beauty",
-    image:
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&q=85",
+    image: "/images/hero/hero_beauty.jpg",
+    // "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600&q=85",
   },
 ];
 
