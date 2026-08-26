@@ -1,11 +1,11 @@
-import axios from 'axios';
-import { getToken, removeToken, setToken } from '../utils/token';
-
+import axios from "axios";
+import { getToken, removeToken, setToken } from "../utils/token";
 
 const authApi = axios.create({
-    baseURL: "http://localhost:3000/api",
-    withCredentials: true
-})
+  // baseURL: "http://localhost:3000/api",
+  baseURL: "https://ecommerce-project-9old.onrender.com/api",
+  withCredentials: true,
+});
 
 // api.interceptors.request.use((config) => {
 //     const token = getToken();
