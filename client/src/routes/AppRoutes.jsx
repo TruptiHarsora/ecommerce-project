@@ -14,7 +14,7 @@ import RoleRoutes from "../guards/RoleRoute";
 import UserProfile from "../pages/user/UserProfile";
 import Cart from "../pages/cart/Cart";
 import Wishlist from "@/pages/wishlist/Wishlist";
-import Checkout from "@/pages/order/CheckOut";
+import Checkout from "@/pages/order/Checkout";
 import OrderSuccess from "@/pages/order/OrderSuccess";
 import Orders from "@/pages/order/Orders";
 import UserChangePassword from "@/pages/user/UserChangePassword";
