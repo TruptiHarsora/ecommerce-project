@@ -2,7 +2,8 @@ import axios from "axios";
 import { getToken, removeToken, setToken } from "../utils/token";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  // baseURL: "http://localhost:3000/api",
+  baseURL: "https://ecommerce-project-9old.onrender.com/api",
   withCredentials: true,
 });
 
