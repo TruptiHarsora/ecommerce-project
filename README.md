@@ -436,48 +436,35 @@ The application includes audit logging functionality for tracking important admi
 
 ## 📸 Screenshots
 
-# * Home page
+### * Home page
   
 <img width="1654" height="2618" alt="HomePage" src="https://github.com/user-attachments/assets/1eb20b25-36c6-4f84-b964-aeb1ead78b30" />
 
-
-
-# * Product listing
+### * Product listing
   
 <img width="1654" height="2097" alt="Products" src="https://github.com/user-attachments/assets/e318d5d7-f511-4510-bc80-5ec3f4a44909" />
 
-
-
-# * Product details
+### * Product details
   
 <img width="1654" height="2079" alt="ProductDetails" src="https://github.com/user-attachments/assets/a9d8c7b8-5a09-4195-9b82-bfb398f1c2a3" />
 
-
-  
-# * Shopping cart
+### * Shopping cart
 <img width="1654" height="1176" alt="Cart" src="https://github.com/user-attachments/assets/5c3e47e7-ca31-4bad-9dc8-646648bb18d6" />
-
   
-* Checkout
+### * Checkout
 <img width="1654" height="1251" alt="CheckoutPage" src="https://github.com/user-attachments/assets/8617e1fd-d80e-4e6b-8277-dffbdbacdc8f" />
 
-
-  
-# * Customer profile
+### * Customer profile
   
 <img width="1654" height="1251" alt="UserProfile" src="https://github.com/user-attachments/assets/c3040510-68a5-4122-a3c3-b38dfcb2fb79" />
-
-
   
-# * Seller dashboard
+### * Seller dashboard
   
 <img width="1669" height="953" alt="SellerPanel" src="https://github.com/user-attachments/assets/dd912e4b-a469-41bc-a26c-04f8c323f8b5" />
 
-  
-# * Admin dashboard
+### * Admin dashboard
   
 <img width="1669" height="953" alt="AdminPanel" src="https://github.com/user-attachments/assets/cb3186df-836d-4b82-844b-97ac4ac8be67" />
-
 
 
 ---
