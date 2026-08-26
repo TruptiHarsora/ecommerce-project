@@ -10,7 +10,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 const categories = [
   {
     name: "Electronics",
-    image: "/images/categories/home_electronics.jpg",
+    image: "/images/categories/home_electonics.jpg",
     //   "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&q=80",
   },
   {
