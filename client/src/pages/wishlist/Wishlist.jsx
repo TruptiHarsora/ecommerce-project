@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
-import { successToast } from "@/lib/toast";
+import { successToast, errorToast } from "@/lib/toast";
 import React, { useEffect } from "react";
 
 const Wishlist = () => {
@@ -12,82 +12,122 @@ const Wishlist = () => {
     moveWishlistToCart,
     getWishlist,
   } = useWishlist();
+
   const { fetchCart } = useCart();
+
   useEffect(() => {
     getWishlist();
   }, []);
-  // console.log("wishlist Items", wishlistItems);
 
   const handleMoveToCart = async (productId, variantSku) => {
     try {
-      await moveWishlistToCart({
+      const res = await moveWishlistToCart({
         productId,
         variantSku,
       });
 
+      successToast(res?.message || "Item moved to cart");
+
       await fetchCart();
     } catch (error) {
-      console.log(error);
+      errorToast(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong",
+      );
     }
   };
 
   if (loading.fetch) {
-    return <div className="text-gray-500"> Loading...</div>;
+    return (
+      <div className="container mx-auto px-4 py-6 text-gray-500">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-6">Wishlist</h1>
+    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <h1 className="mb-6 text-xl font-bold sm:text-2xl">Wishlist</h1>
 
       {wishlistItems.length === 0 ? (
-        <p>Your Wishlist is empty</p>
+        <div className="rounded-lg border bg-white p-6 text-center text-gray-500">
+          Your Wishlist is empty
+        </div>
       ) : (
         <div className="space-y-4">
           {wishlistItems.map((item) => (
             <div
               key={`${item.product._id}-${item.variantSku}`}
-              className="border rounded-lg p-4 flex gap-4 bg-white"
+              className="
+                rounded-lg border bg-white p-3
+                sm:p-4
+              "
             >
-              <img
-                src={item.product.images?.[0]}
-                alt={item.product.titile}
-                className="w-24 h-24 object-cover"
-              />
-              <div className="flex-1">
-                <h2 className="font-semibold">{item.product.title}</h2>
-                <p>SKU:{item.variantSku}</p>
+              {/* Product section */}
+              <div className="flex gap-3 sm:gap-4">
+                {/* Image */}
+                <img
+                  src={item.product.images?.[0]}
+                  alt={item.product.title}
+                  className="
+                    h-20 w-20
+                    shrink-0
+                    rounded-md
+                    object-cover
+                    sm:h-24 sm:w-24
+                  "
+                />
+
+                {/* Product details */}
+                <div className="min-w-0 flex-1">
+                  <h2
+                    className="
+                      line-clamp-2
+                      text-sm font-semibold
+                      sm:text-base
+                    "
+                  >
+                    {item.product.title}
+                  </h2>
+
+                  <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                    SKU: {item.variantSku}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex gap-2">
+              {/* Actions */}
+              <div
+                className="
+                  mt-3
+                  flex
+                  w-full
+                  gap-2
+                  sm:mt-0
+                  sm:justify-end
+                "
+              >
                 <Button
-                  className="bg-yellow-500 text-black-700"
-                  onClick={async () => {
-                    try {
-                      const res = await moveWishlistToCart({
-                        productId: item.product._id,
-                        variantSku: item.variantSku,
-                      });
-                      successToast(res.message || "item move to Cart");
-                      await fetchCart();
-                    } catch (error) {
-                      // console.log(error);
-                      errorToast(
-                        error?.response?.data?.message ||
-                          error?.message ||
-                          "somthing went wrong",
-                      );
-                    }
-                  }}
+                  className="
+                    flex-1
+                    bg-yellow-500 text-black
+                    hover:bg-yellow-600
+                    sm:flex-none
+                  "
+                  onClick={() =>
+                    handleMoveToCart(item.product._id, item.variantSku)
+                  }
                 >
                   Move to Cart
                 </Button>
 
                 <Button
                   variant="destructive"
-                  onClick={() => {
-                    removeFromWishlist(item.product._id, item.variantSku);
-                    // successToast("item remove from Wishlist");
-                  }}
+                  className="flex-1 sm:flex-none"
+                  onClick={() =>
+                    removeFromWishlist(item.product._id, item.variantSku)
+                  }
                 >
                   Remove
                 </Button>
