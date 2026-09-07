@@ -347,12 +347,12 @@ const AuthProvider = ({ children }) => {
         // Wait until server returns the current user
         const data = await getMe();
 
-        console.log("========== GET ME ==========");
-        console.log("GET ME RESPONSE:", data);
-        console.log("USER:", data?.user);
-        console.log("ROLE:", data?.user?.role);
-        console.log("IS VERIFIED:", data?.user?.isVerified);
-        console.log("============================");
+        // console.log("========== GET ME ==========");
+        // console.log("GET ME RESPONSE:", data);
+        // console.log("USER:", data?.user);
+        // console.log("ROLE:", data?.user?.role);
+        // console.log("IS VERIFIED:", data?.user?.isVerified);
+        // console.log("============================");
 
         if (!mounted) return;
 
