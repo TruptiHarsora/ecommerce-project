@@ -385,7 +385,7 @@ const OrderDetails = () => {
                 </div>
 
                 {/* Cancel Order */}
-                {currentOrder.items?.some(
+                {/* {currentOrder.items?.some(
                   (item) => item.orderStatus === "placed",
                 ) && (
                   <Button
@@ -394,7 +394,20 @@ const OrderDetails = () => {
                   >
                     Cancel Order
                   </Button>
-                )}
+                )} */}
+
+                {currentOrder.items?.some(
+                  (item) => item.orderStatus === "placed",
+                ) &&
+                  user?.role === "seller" &&
+                  user?.isVerified === true && (
+                    <Button
+                      className="w-full mt-5 text-sm sm:text-lg text-red-700 bg-red-100 hover:bg-red-200"
+                      onClick={handleCancelOrder}
+                    >
+                      Cancel Order
+                    </Button>
+                  )}
               </div>
 
               {/* ================= ADDRESS ================= */}
