@@ -539,12 +539,11 @@ const ProductDetails = () => {
           </CardContent>
         </Card> */}
 
-        <Card>
+       <Card>
           <CardContent className="p-3 sm:p-5 md:p-6 space-y-4 sm:space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold text-left">
               Product Information
             </h2>
-
             <Accordion
               type="single"
               collapsible
@@ -555,12 +554,11 @@ const ProductDetails = () => {
                   <AccordionItem
                     key={index}
                     value={`item-${index}`}
-                    className="border rounded-xl px-3 sm:px-4 overflow-hidden"
+                    className=" border rounded-xl px-3 sm:px-4 overflow-hidden "
                   >
-                    <AccordionTrigger className="text-base sm:text-lg font-semibold hover:no-underline text-left">
-                      {groupName}
-                    </AccordionTrigger>
-
+                    <AccordionTrigger className=" text-base sm:text-lg font-semibold hover:no-underline text-left ">
+                      {groupName}{" "}
+                    </AccordionTrigger>{" "}
                     <AccordionContent className="pb-3 sm:pb-4">
                       <div className="overflow-hidden rounded-lg border">
                         <table className="w-full border-collapse">
@@ -568,33 +566,12 @@ const ProductDetails = () => {
                             {specs.map((spec, idx) => (
                               <tr
                                 key={idx}
-                                className="border-b last:border-b-0 flex flex-col sm:table-row"
+                                className=" border-b last:border-b-0 flex flex-col sm:table-row "
                               >
-                                <td
-                                  className="
-                            w-full
-                            bg-muted
-                            px-3 py-2
-                            text-sm font-semibold
-                            sm:w-[250px]
-                            sm:p-4
-                            sm:text-base
-                            sm:font-medium
-                          "
-                                >
+                                <td className=" w-full bg-muted px-3 py-2 text-sm font-semibold sm:w-[250px] sm:p-4 sm:text-base sm:font-medium text-left ">
                                   {spec.key}
                                 </td>
-
-                                <td
-                                  className="
-                            w-full
-                            px-3 py-2
-                            text-sm
-                            break-words
-                            sm:p-4
-                            sm:text-base
-                          "
-                                >
+                                <td className=" w-full px-3 py-2 text-sm break-words sm:p-4 sm:text-base text-left ">
                                   {spec.value}
                                 </td>
                               </tr>
