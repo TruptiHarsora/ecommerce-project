@@ -4,6 +4,11 @@ const multer = require("multer");
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
+    console.log("File:", {
+    originalname: file.originalname,
+    mimetype: file.mimetype,
+  });
+    
     if (!file.mimetype.startsWith("image/")) {
         return cb(new Error("Only image file allowed"), false);
     }
